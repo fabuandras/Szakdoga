@@ -6,15 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('items', function (Blueprint $table) {
-            $table->id();
 
-            $table->tinyInteger('cikk_szam');
+            $table->tinyInteger('cikk_szam')->primary();
             $table->string('elnevezes', 50);
             $table->tinyInteger('akt_keszlet');
             $table->decimal('egyseg_ar', 10, 2);
@@ -23,9 +19,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('items');

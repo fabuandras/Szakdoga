@@ -6,25 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('package_pickups', function (Blueprint $table) {
-            $table->id();
 
-            $table->tinyInteger('csomagatvetelID');
+            $table->tinyInteger('csomagatvetelID')->primary();
+
             $table->string('atveteli_pont', 60);
             $table->string('szallitasi_ceg', 60);
+
+            $table->tinyInteger('cimID');
+            $table->foreign('cimID')->references('cimID')->on('home_deliveries');
 
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('package_pickups');

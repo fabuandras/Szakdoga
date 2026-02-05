@@ -6,26 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
-            $table->id();
 
-            $table->tinyInteger('rendeles_szam');
+            $table->tinyInteger('rendeles_szam')->primary();
             $table->date('kelt');
+
             $table->string('vKod', 4);
+            $table->foreign('vKod')->references('vKod')->on('users');
+
             $table->string('csKod', 4);
+            $table->foreign('csKod')->references('csKod')->on('packages');
 
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('orders');

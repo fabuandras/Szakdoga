@@ -6,24 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('packages', function (Blueprint $table) {
-            $table->id();
 
-            $table->string('csKod', 4);
+            $table->string('csKod', 4)->primary();
             $table->date('datum');
 
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('packages');
