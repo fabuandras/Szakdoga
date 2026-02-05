@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Home_delivery extends Model
 {
-    /** @use HasFactory<\Database\Factories\HomeDeliveryFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'orszag',
+        'helyseg',
+        'hazszam',
+        'iranyito_szam',
+        'varos',
+        'cimID',
+    ];
 }

@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
 {
-    /** @use HasFactory<\Database\Factories\ItemFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'cikk_szam',
+        'elnevezes',
+        'akt_keszlet',
+        'egyseg_ar',
+    ];
 }

@@ -17,7 +17,10 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'rendeles_szam' => $this->faker->numberBetween(1, 255),
+            'kelt'          => $this->faker->date(),
+            'vKod'          => strtoupper($this->faker->lexify('????')),
+            'csKod'         => strtoupper($this->faker->lexify('????')),
         ];
     }
 }

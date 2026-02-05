@@ -13,6 +13,14 @@ return new class extends Migration
     {
         Schema::create('home_deliveries', function (Blueprint $table) {
             $table->id();
+
+            $table->string('orszag', 30);
+            $table->string('helyseg', 50);
+            $table->tinyInteger('hazszam');
+            $table->tinyInteger('iranyito_szam');
+            $table->string('varos', 30);
+            $table->tinyInteger('cimID');
+
             $table->timestamps();
         });
     }

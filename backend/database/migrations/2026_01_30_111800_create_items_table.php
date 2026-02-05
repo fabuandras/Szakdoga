@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->id();
+
+            $table->tinyInteger('cikk_szam');
+            $table->string('elnevezes', 50);
+            $table->tinyInteger('akt_keszlet');
+            $table->decimal('egyseg_ar', 10, 2);
+
             $table->timestamps();
         });
     }

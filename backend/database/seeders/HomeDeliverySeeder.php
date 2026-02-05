@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Home_delivery;
 
 class HomeDeliverySeeder extends Seeder
 {
@@ -12,6 +12,6 @@ class HomeDeliverySeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        Home_delivery::factory()->count(10)->create();
     }
 }

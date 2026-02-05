@@ -17,7 +17,11 @@ class CardDetailFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'kartya_szam'     => $this->faker->numberBetween(1, 255),
+            'lejarati_datum'  => $this->faker->numberBetween(1, 12),
+            'biz_kod'         => $this->faker->numberBetween(100, 999),
+            'kartya_nev'      => $this->faker->name(),
+            'kartyaID'        => $this->faker->numberBetween(1, 255),
         ];
     }
 }

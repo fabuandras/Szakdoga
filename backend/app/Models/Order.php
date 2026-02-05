@@ -7,6 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    /** @use HasFactory<\Database\Factories\OrderFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'rendeles_szam',
+        'kelt',
+        'vKod',
+        'csKod',
+    ];
+
+    protected $casts = [
+        'kelt' => 'date',
+    ];
 }
