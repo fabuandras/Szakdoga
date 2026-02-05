@@ -17,7 +17,9 @@ class PaymentFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'fiz_mod' => $this->faker->randomElement(['Kártya', 'Készpénz', 'Utalás']),
+            'kuponkod' => strtoupper($this->faker->bothify('??####??')), // 8 karakter, biztos belefér a 10-be
+            'fizID' => $this->faker->numberBetween(1, 9),
         ];
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Package;
 use Illuminate\Database\Seeder;
 
 class PackageSeeder extends Seeder
@@ -12,6 +12,13 @@ class PackageSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        // 10 random csomag
+        Package::factory(10)->create();
+
+        // 1 fix csomag
+        Package::create([
+            'csKod' => 'CS01',
+            'datum' => '2024-01-01',
+        ]);
     }
 }

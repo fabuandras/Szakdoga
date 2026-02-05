@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
+
+            $table->tinyInteger('rendeles_szam');
+            $table->tinyInteger('cikk_szam');
+            $table->tinyInteger('mennyiseg');
+
             $table->timestamps();
         });
     }

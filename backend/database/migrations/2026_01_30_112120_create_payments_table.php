@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
+
+            $table->string('fiz_mod', 50);
+            $table->string('kuponkod', 10);
+            $table->tinyInteger('fizID');
+
             $table->timestamps();
         });
     }

@@ -2,16 +2,19 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Order_item;
 use Illuminate\Database\Seeder;
 
 class OrderItemSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        //
+        Order_item::factory(10)->create();
+
+        Order_item::create([
+            'rendeles_szam' => 1,
+            'cikk_szam' => 1,
+            'mennyiseg' => 2,
+        ]);
     }
 }

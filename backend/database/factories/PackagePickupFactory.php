@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Package_pickup;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class PackagePickupFactory extends Factory
 {
+    protected $model = Package_pickup::class;
+
     /**
      * Define the model's default state.
      *
@@ -17,7 +20,9 @@ class PackagePickupFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'csomagatvetelID' => $this->faker->numberBetween(1, 9),
+            'atveteli_pont' => $this->faker->streetAddress(),
+            'szallitasi_ceg' => $this->faker->company(),
         ];
     }
 }

@@ -17,7 +17,8 @@ class PackageFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'csKod' => $this->faker->bothify('CS##'), // pl: CS12
+            'datum' => $this->faker->date(),
         ];
     }
 }

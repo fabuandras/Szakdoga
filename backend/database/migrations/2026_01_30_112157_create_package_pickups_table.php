@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('package_pickups', function (Blueprint $table) {
             $table->id();
+
+            $table->tinyInteger('csomagatvetelID');
+            $table->string('atveteli_pont', 60);
+            $table->string('szallitasi_ceg', 60);
+
             $table->timestamps();
         });
     }

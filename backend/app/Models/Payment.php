@@ -7,6 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Payment extends Model
 {
-    /** @use HasFactory<\Database\Factories\PaymentFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'fiz_mod',
+        'kuponkod',
+        'fizID',
+    ];
+
+    protected $casts = [
+        'fizID' => 'integer',
+    ];
 }

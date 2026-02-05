@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Package extends Model
 {
-    /** @use HasFactory<\Database\Factories\PackageFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'csKod',
+        'datum',
+    ];
+
+    protected $casts = [
+        'datum' => 'date',
+    ];
 }
