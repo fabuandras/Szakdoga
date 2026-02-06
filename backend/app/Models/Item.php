@@ -15,4 +15,10 @@ class Item extends Model
         'akt_keszlet',
         'egyseg_ar',
     ];
+
+    // 🔗 KAPCSOLAT
+    public function orderItems()
+    {
+        return $this->hasMany(Order_item::class, 'cikk_szam', 'cikk_szam');
+    }
 }

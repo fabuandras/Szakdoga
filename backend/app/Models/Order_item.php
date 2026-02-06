@@ -24,11 +24,19 @@ class Order_item extends Model
         'mennyiseg' => 'integer',
     ];
 
-    /**
-     * Megmondjuk Laravelnek, melyik factory tartozik ehhez a modelhez
-     */
     protected static function newFactory()
     {
         return OrderItemFactory::new();
+    }
+
+    // 🔗 KAPCSOLATOK
+    public function order()
+    {
+        return $this->belongsTo(Order::class, 'rendeles_szam', 'rendeles_szam');
+    }
+
+    public function item()
+    {
+        return $this->belongsTo(Item::class, 'cikk_szam', 'cikk_szam');
     }
 }

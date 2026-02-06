@@ -22,11 +22,14 @@ class Package_pickup extends Model
         'csomagatvetelID' => 'integer',
     ];
 
-    /**
-     * Megmondjuk Laravelnek, melyik factory tartozik ehhez a modelhez
-     */
     protected static function newFactory()
     {
         return PackagePickupFactory::new();
+    }
+
+    // 🔗 KAPCSOLAT
+    public function package()
+    {
+        return $this->belongsTo(Package::class, 'csomagatvetelID', 'csKod');
     }
 }

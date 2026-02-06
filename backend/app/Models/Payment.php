@@ -18,4 +18,10 @@ class Payment extends Model
     protected $casts = [
         'fizID' => 'integer',
     ];
+
+    // 🔗 KAPCSOLAT
+    public function cardDetail()
+    {
+        return $this->hasOne(Card_detail::class, 'kartyaID', 'fizID');
+    }
 }

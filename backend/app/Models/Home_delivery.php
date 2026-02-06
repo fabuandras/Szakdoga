@@ -17,4 +17,10 @@ class Home_delivery extends Model
         'varos',
         'cimID',
     ];
+
+    // 🔗 KAPCSOLAT
+    public function package()
+    {
+        return $this->belongsTo(Package::class, 'cimID', 'csKod');
+    }
 }
