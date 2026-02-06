@@ -10,9 +10,6 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * Tömegesen feltölthető mezők
-     */
     protected $fillable = [
         'vKod',
         'vez_nev',
@@ -24,16 +21,10 @@ class User extends Authenticatable
         'szul_datum',
     ];
 
-    /**
-     * Rejtett mezők (JSON / API)
-     */
     protected $hidden = [
         'jelszo',
     ];
 
-    /**
-     * Típuskonverziók
-     */
     protected function casts(): array
     {
         return [
@@ -41,12 +32,14 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Laravel Auth számára megmondjuk,
-     * hogy a jelszó mező neve: jelszo
-     */
     public function getAuthPassword()
     {
         return $this->jelszo;
+    }
+
+    // 🔗 KAPCSOLAT
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'vKod', 'vKod');
     }
 }

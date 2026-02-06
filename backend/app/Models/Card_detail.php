@@ -16,4 +16,10 @@ class Card_detail extends Model
         'kartya_nev',
         'kartyaID',
     ];
+
+    // 🔗 KAPCSOLAT
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class, 'kartyaID', 'fizID');
+    }
 }

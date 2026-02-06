@@ -19,4 +19,20 @@ class Order extends Model
     protected $casts = [
         'kelt' => 'date',
     ];
+
+    // 🔗 KAPCSOLATOK
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'vKod', 'vKod');
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(Order_item::class, 'rendeles_szam', 'rendeles_szam');
+    }
+
+    public function package()
+    {
+        return $this->belongsTo(Package::class, 'csKod', 'csKod');
+    }
 }
