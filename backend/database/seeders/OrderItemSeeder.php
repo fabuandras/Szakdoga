@@ -9,7 +9,9 @@ class OrderItemSeeder extends Seeder
 {
     public function run(): void
     {
-        Order_item::factory(10)->create();
+        \Illuminate\Support\Facades\DB::table('order_items')->insertOrIgnore(
+            Order_item::factory(10)->make()->toArray()
+        );
 
         Order_item::create([
             'rendeles_szam' => 1,

@@ -11,6 +11,7 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
+            'rendeles_szam' => $this->faker->unique()->numberBetween(1, 127),
             'kelt'  => $this->faker->date(),
             'vKod'  => User::inRandomOrder()->first()->vKod,
             'csKod' => Package::inRandomOrder()->first()->csKod,
