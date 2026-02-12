@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('home_deliveries', function (Blueprint $table) {
 
-            $table->tinyInteger('cimID')->primary();
+            $table->id('cimID');
 
             $table->string('orszag', 30);
             $table->string('helyseg', 50);

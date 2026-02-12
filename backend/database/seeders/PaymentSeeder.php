@@ -19,7 +19,7 @@ class PaymentSeeder extends Seeder
         Payment::create([
             'fiz_mod' => 'Kártya',
             'kuponkod' => 'KUPON2024',
-            'fizID' => 1,
+           // 'fizID' => 1,
         ]);
     }
 }

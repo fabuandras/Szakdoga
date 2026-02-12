@@ -12,6 +12,6 @@ class CardDetailSeeder extends Seeder
      */
     public function run(): void
     {
-        Card_detail::factory()->count(10)->create();
+        \App\Models\Card_detail::factory(10)->create();
     }
 }

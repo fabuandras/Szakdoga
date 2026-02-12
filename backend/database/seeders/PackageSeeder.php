@@ -17,7 +17,7 @@ class PackageSeeder extends Seeder
 
         // 1 fix csomag
         Package::create([
-            'csKod' => 'CS01',
+            //'csKod' => 'CS01',
             'datum' => '2024-01-01',
         ]);
     }

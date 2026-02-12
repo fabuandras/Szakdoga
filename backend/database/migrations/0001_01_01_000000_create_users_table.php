@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
 
-            $table->string('vKod', 4)->primary();
+            $table->id('vKod');
 
             $table->string('vez_nev', 20);
             $table->string('ker_nev', 20);

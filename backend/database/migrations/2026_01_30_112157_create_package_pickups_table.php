@@ -10,13 +10,12 @@ return new class extends Migration
     {
         Schema::create('package_pickups', function (Blueprint $table) {
 
-            $table->tinyInteger('csomagatvetelID')->primary();
+            $table->id('csomagatvetelID');
 
             $table->string('atveteli_pont', 60);
             $table->string('szallitasi_ceg', 60);
 
-            $table->tinyInteger('cimID');
-            $table->foreign('cimID')->references('cimID')->on('home_deliveries');
+            $table->foreignId('cimID')->references('cimID')->on('home_deliveries');
 
             $table->timestamps();
         });

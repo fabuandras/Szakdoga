@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         User::factory(10)->create();
 
         User::create([
-            'vKod' => 'AB12',
+            //'vKod' => 'AB12',
             'vez_nev' => 'Teszt',
             'ker_nev' => 'Elek',
             'jelszo' => Hash::make('password'),
@@ -30,6 +30,9 @@ class DatabaseSeeder extends Seeder
         // Seederek
         $this->call([
             PackageSeeder::class,
+            ItemSeeder::class,
+            CardDetailSeeder::class,
+            OrderSeeder::class,
             OrderItemSeeder::class,
             PaymentSeeder::class,
             PackagePickupSeeder::class,

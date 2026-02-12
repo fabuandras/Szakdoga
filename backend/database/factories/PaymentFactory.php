@@ -9,10 +9,12 @@ class PaymentFactory extends Factory
 {
     public function definition(): array
     {
+        $card = Card_detail::inRandomOrder()->first();
+
         return [
             'fiz_mod' => $this->faker->randomElement(['Kártya', 'Készpénz', 'Utalás']),
             'kuponkod' => strtoupper($this->faker->bothify('??####??')),
-            'kartyaID' => Card_detail::inRandomOrder()->first()->kartyaID,
+            'kartyaID' => $card?->kartyaID,   // ha nincs kártya, ne dobjon hibát
         ];
     }
 }

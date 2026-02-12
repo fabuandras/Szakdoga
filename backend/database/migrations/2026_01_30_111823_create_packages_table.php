@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('packages', function (Blueprint $table) {
 
-            $table->string('csKod', 4)->primary();
+            $table->id('csKod');
             $table->date('datum');
 
             $table->timestamps();

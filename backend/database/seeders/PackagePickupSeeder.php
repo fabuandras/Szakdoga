@@ -17,7 +17,7 @@ class PackagePickupSeeder extends Seeder
 
         // 1 fix csomagátvétel
         Package_pickup::create([
-            'csomagatvetelID' => 1,
+           // 'csomagatvetelID' => 1,
             'atveteli_pont' => 'Budapest, Fő utca 1.',
             'szallitasi_ceg' => 'GLS',
         ]);

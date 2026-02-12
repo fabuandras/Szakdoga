@@ -10,13 +10,12 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
 
-            $table->tinyInteger('fizID')->primary();
+            $table->id('fizID');
 
             $table->string('fiz_mod', 50);
             $table->string('kuponkod', 10);
 
-            $table->tinyInteger('kartyaID');
-            $table->foreign('kartyaID')->references('kartyaID')->on('card_details');
+            $table->foreignId('kartyaID')->references('kartyaID')->on('card_details');
 
             $table->timestamps();
         });

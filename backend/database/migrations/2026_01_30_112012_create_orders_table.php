@@ -9,15 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
-
-            $table->tinyInteger('rendeles_szam')->primary();
+            $table->id('rendeles_szam');
             $table->date('kelt');
 
-            $table->string('vKod', 4);
-            $table->foreign('vKod')->references('vKod')->on('users');
+            
+            $table->foreignId('vKod')->references('vKod')->on('users');
 
-            $table->string('csKod', 4);
-            $table->foreign('csKod')->references('csKod')->on('packages');
+            
+            $table->foreignId('csKod')->references('csKod')->on('packages');
 
             $table->timestamps();
         });

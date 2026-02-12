@@ -10,11 +10,11 @@ return new class extends Migration
     {
         Schema::create('card_details', function (Blueprint $table) {
 
-            $table->tinyInteger('kartyaID')->primary();
+            $table->id('kartyaID');
 
-            $table->tinyInteger('kartya_szam');
+            $table->unsignedBigInteger('kartya_szam');
             $table->tinyInteger('lejarati_datum');
-            $table->tinyInteger('biz_kod');
+            $table->unsignedSmallInteger('biz_kod');
             $table->string('kartya_nev', 50);
 
             $table->timestamps();

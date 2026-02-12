@@ -10,7 +10,6 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'vKod' => $this->faker->bothify('??##'),
             'vez_nev' => $this->faker->lastName(),
             'ker_nev' => $this->faker->firstName(),
             'jelszo' => Hash::make('password'),
