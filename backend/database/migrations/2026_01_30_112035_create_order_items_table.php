@@ -9,14 +9,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('order_items', function (Blueprint $table) {
-
-
             $table->primary(['rendeles_szam', 'cikk_szam']);
-
-
             $table->foreignId('rendeles_szam')->references('rendeles_szam')->on('orders');
             $table->foreignId('cikk_szam')->references('cikk_szam')->on('items');
-
+            $table->integer('mennyiseg');
             $table->timestamps();
         });
     }

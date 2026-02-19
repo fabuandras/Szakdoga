@@ -23,4 +23,9 @@ class Home_delivery extends Model
     {
         return $this->belongsTo(Package::class, 'cimID', 'csKod');
     }
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\Home_deliveryFactory::new();
+    }
 }

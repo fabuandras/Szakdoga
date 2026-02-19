@@ -15,7 +15,7 @@ class UserFactory extends Factory
             'jelszo' => Hash::make('password'),
             'email' => $this->faker->unique()->safeEmail(),
             'megszolitas' => $this->faker->randomElement(['Mr', 'Mrs', 'Ms', 'Dr']),
-            'tel_szam' => $this->faker->numberBetween(1, 9),
+            'tel_szam' => $this->faker->phoneNumber(),
             'szul_datum' => $this->faker->date(),
         ];
     }

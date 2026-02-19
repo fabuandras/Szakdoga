@@ -15,7 +15,7 @@ class PackagePickupFactory extends Factory
         return [
             'atveteli_pont' => $this->faker->streetAddress(),
             'szallitasi_ceg' => $this->faker->company(),
-            'cimID' => Home_delivery::inRandomOrder()->first()->cimID,
+            'cimID' => \App\Models\Home_delivery::factory(),
         ];
     }
 }

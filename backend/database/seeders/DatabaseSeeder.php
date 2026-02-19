@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             'jelszo' => Hash::make('password'),
             'email' => 'test@example.com',
             'megszolitas' => 'Mr',
-            'tel_szam' => 7,
+            'tel_szam' => '06301234567',
             'szul_datum' => '2000-01-01',
         ]);
 

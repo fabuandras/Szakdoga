@@ -14,8 +14,8 @@ return new class extends Migration
 
             $table->string('fiz_mod', 50);
             $table->string('kuponkod', 10);
-
-            $table->foreignId('kartyaID')->references('kartyaID')->on('card_details');
+            $table->unsignedBigInteger('kartyaID')->nullable();
+            $table->foreign('kartyaID')->references('kartyaID')->on('card_details');
 
             $table->timestamps();
         });

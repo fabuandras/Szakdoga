@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class HomeDeliveryFactory extends Factory
+class Home_deliveryFactory extends Factory
 {
     public function definition(): array
     {
