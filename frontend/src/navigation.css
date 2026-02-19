@@ -1,0 +1,76 @@
+.topnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 14px 18px;
+  background: #ffffff;
+  border-bottom: 2px solid #2a2a2a;
+
+  text-transform: uppercase;
+}
+
+.topnav__left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.topnav__brand {
+  padding: 8px 14px;
+  border: 2px solid #2a2a2a;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.topnav__links {
+  display: flex;
+  gap: 12px;
+}
+
+.topnav__link {
+  padding: 8px 14px;
+  text-decoration: none;
+  color: #2a2a2a;
+  border: 2px solid transparent;
+  letter-spacing: 1px;
+  transition: 0.2s;
+}
+
+.topnav__link:hover {
+  border-color: #2a2a2a;
+}
+
+.topnav__link.is-active {
+  border-color: #2a2a2a;
+  background: #f3f3f3;
+}
+
+.topnav__right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.topnav__badge {
+  padding: 8px 14px;
+  border: 2px solid #2a2a2a;
+  font-weight: bold;
+}
+
+.topnav__welcome {
+  font-size: 14px;
+}
+
+.topnav__logout {
+  padding: 8px 14px;
+  border: 2px solid #2a2a2a;
+  background: white;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.topnav__logout:hover {
+  background: #f3f3f3;
+}
