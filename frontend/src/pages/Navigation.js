@@ -1,5 +1,4 @@
 import { NavLink } from "react-router-dom";
-import "../css/navigation.css";
 
 export default function Navigation() {
   return (
@@ -10,27 +9,21 @@ export default function Navigation() {
         <div className="topnav__links">
           <NavLink
             to="/dashboard"
-            className={({ isActive }) =>
-              `topnav__link ${isActive ? "is-active" : ""}`
-            }
+            className={({ isActive }) => `topnav__link ${isActive ? "is-active" : ""}`}
           >
             DASHBOARD
           </NavLink>
 
           <NavLink
             to="/courses"
-            className={({ isActive }) =>
-              `topnav__link ${isActive ? "is-active" : ""}`
-            }
+            className={({ isActive }) => `topnav__link ${isActive ? "is-active" : ""}`}
           >
             COURSES
           </NavLink>
 
           <NavLink
             to="/mentors"
-            className={({ isActive }) =>
-              `topnav__link ${isActive ? "is-active" : ""}`
-            }
+            className={({ isActive }) => `topnav__link ${isActive ? "is-active" : ""}`}
           >
             MENTORS
           </NavLink>
@@ -40,7 +33,6 @@ export default function Navigation() {
       <div className="topnav__right">
         <div className="topnav__badge">25 CREDITS</div>
         <div className="topnav__welcome">Welcome, John Doe</div>
-
         <button className="topnav__logout" type="button">
           LOGOUT
         </button>

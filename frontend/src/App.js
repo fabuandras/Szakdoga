@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
-import "../layout.css";
-import "../navigation.css";
+import './layout.css';
+import './navigation.css';
 
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 
@@ -46,7 +46,7 @@ function App() {
 
     { path: "*", element: <NoPage /> },
   ]);
-  
+
   return (
     <div className="App">
       <header className="App-header">
