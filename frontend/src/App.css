@@ -1,3 +1,5 @@
+/* ===== EREDETI ===== */
+
 .App {
   text-align: center;
 }
@@ -15,4 +17,21 @@
 
 .App-link {
   color: #61dafb;
+}
+
+
+
+/* ===== GLOBAL ===== */
+
+body {
+  margin: 0;
+  background: #f5f5f5;
+  color: #2a2a2a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+h1, h2, h3 {
+  margin-top: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
