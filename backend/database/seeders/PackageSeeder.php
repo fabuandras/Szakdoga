@@ -13,11 +13,11 @@ class PackageSeeder extends Seeder
     public function run(): void
     {
         // 10 random csomag
-        Package::factory(10)->create();
+       // Package::factory(10)->create();
 
         // 1 fix csomag
         Package::create([
-            //'csKod' => 'CS01',
+            'csKod' => 2,
             'datum' => '2024-01-01',
         ]);
     }

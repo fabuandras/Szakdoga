@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('jelszo', 60);
             $table->string('email', 40)->unique();
             $table->string('megszolitas', 10);
-            $table->tinyInteger('tel_szam');
+            $table->string('tel_szam', 20);
             $table->date('szul_datum');
 
             $table->timestamps();

@@ -12,6 +12,6 @@ class HomeDeliverySeeder extends Seeder
      */
     public function run(): void
     {
-        Home_delivery::factory()->count(10)->create();
+        //Home_delivery::factory()->count(10)->create();
     }
 }

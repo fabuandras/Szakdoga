@@ -12,10 +12,7 @@ return new class extends Migration
             $table->id('rendeles_szam');
             $table->date('kelt');
 
-            
             $table->foreignId('vKod')->references('vKod')->on('users');
-
-            
             $table->foreignId('csKod')->references('csKod')->on('packages');
 
             $table->timestamps();

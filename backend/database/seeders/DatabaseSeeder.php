@@ -14,10 +14,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Users
-        User::factory(10)->create();
+        //User::factory()->create();
 
         User::create([
-            //'vKod' => 'AB12',
+            'vKod' => 2,
             'vez_nev' => 'Teszt',
             'ker_nev' => 'Elek',
             'jelszo' => Hash::make('password'),

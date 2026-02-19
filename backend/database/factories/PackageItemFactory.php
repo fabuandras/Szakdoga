@@ -15,10 +15,7 @@ class PackageItemFactory extends Factory
     public function definition(): array
     {
         return [
-            'csKod'         => Package::inRandomOrder()->first()->csKod,
-            'rendeles_szam' => Order::inRandomOrder()->first()->rendeles_szam,
-            'cikk_szam'     => Item::inRandomOrder()->first()->cikk_szam,
-            'menny'         => $this->faker->numberBetween(1, 10),
+           
         ];
     }
 }

@@ -13,9 +13,7 @@ class PackagePickupFactory extends Factory
     public function definition(): array
     {
         return [
-            'atveteli_pont' => $this->faker->streetAddress(),
-            'szallitasi_ceg' => $this->faker->company(),
-            'cimID' => Home_delivery::inRandomOrder()->first()->cimID,
+            
         ];
     }
 }
