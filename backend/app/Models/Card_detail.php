@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Card_detail extends Model
 {
     use HasFactory;
-
+    
     protected $table = 'card_details';
     protected $primaryKey = 'kartyaID';
     public $timestamps = false;

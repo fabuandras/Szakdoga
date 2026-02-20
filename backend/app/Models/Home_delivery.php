@@ -9,6 +9,8 @@ class Home_delivery extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'cimID';
+
     protected $fillable = [
         'orszag',
         'helyseg',

@@ -10,6 +10,8 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    protected $primaryKey = 'vKod';
+
     protected $fillable = [
         'vKod',
         'vez_nev',

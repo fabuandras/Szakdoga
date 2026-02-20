@@ -12,6 +12,15 @@ class Order_item extends Model
 
     protected $table = 'order_items';
 
+    // Ha composite kulccsal dolgozol, akkor általában nincs auto increment id:
+    public $incrementing = false;
+    public $timestamps = false;
+
+    /**
+     * Composite kulcs (Laravel natívan nem kezeli, de tároljuk, és felülírjuk a mentést)
+     */
+    protected $primaryKey = ['rendeles_szam', 'cikk_szam'];
+
     protected $fillable = [
         'rendeles_szam',
         'cikk_szam',
@@ -23,6 +32,19 @@ class Order_item extends Model
         'cikk_szam' => 'integer',
         'mennyiseg' => 'integer',
     ];
+
+    /**
+     * Példa stílus megmarad, csak a mezőkhöz igazítva.
+     * Composite key mentés támogatása (update esetén).
+     */
+    protected function setKeysForSaveQuery($query)
+    {
+        $query
+            ->where('rendeles_szam', '=', $this->getAttribute('rendeles_szam'))
+            ->where('cikk_szam', '=', $this->getAttribute('cikk_szam'));
+
+        return $query;
+    }
 
     protected static function newFactory()
     {

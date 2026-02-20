@@ -25,6 +25,7 @@ class Package_item extends Model
     ];
 
     protected $casts = [
+        'csKod' => 'string',
         'rendeles_szam' => 'integer',
         'cikk_szam' => 'integer',
         'menny' => 'integer',
@@ -32,14 +33,14 @@ class Package_item extends Model
 
     /**
      * Composite key mentés támogatása (update esetén).
-     * FONTOS: a metódus szignatúrája paraméter nélküli kell legyen,
-     * hogy kompatibilis legyen a Model ősosztállyal.
+     * Itt a példában használt stílus marad (where mező, '=', attribute).
      */
     protected function setKeysForSaveQuery($query)
     {
-        $query->where('csKod', $this->getAttribute('csKod'))
-              ->where('rendeles_szam', $this->getAttribute('rendeles_szam'))
-              ->where('cikk_szam', $this->getAttribute('cikk_szam'));
+        $query
+            ->where('csKod', '=', $this->getAttribute('csKod'))
+            ->where('rendeles_szam', '=', $this->getAttribute('rendeles_szam'))
+            ->where('cikk_szam', '=', $this->getAttribute('cikk_szam'));
 
         return $query;
     }

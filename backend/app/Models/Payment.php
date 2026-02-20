@@ -9,6 +9,8 @@ class Payment extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'fizID';
+
     protected $fillable = [
         'fiz_mod',
         'kuponkod',

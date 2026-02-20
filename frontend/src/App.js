@@ -1,50 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
-import './layout.css';
-import './navigation.css';
+import logo from "./logo.svg";
+import "./App.css";
+import "./layout.css";
+import "./navigation.css";
 
-import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
-import Layout from "./pages/Layout";
-import NoPage from "./pages/NoPage";
+// PAGES
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Registration from "./pages/Registration";
 
-import DashboardPage from "./pages/DashboardPage";
-import CoursesPage from "./pages/CoursesPage";
-import CourseDetailsPage from "./pages/CourseDetailsPage";
-import MentorsPage from "./pages/MentorsPage";
-import BookedSessionPage from "./pages/BookedSessionPage";
+// LAYOUT
+import GuestLayout from "./layouts/GuestLayout";
 
-import LoginPage from "./pages/LoginPage";
-import RegistrationPage from "./pages/RegistrationPage";
+// AUTH CONTEXT
+import { AuthProvider } from "./contexts/AuthContext";
 
 function App() {
   const router = createBrowserRouter([
-    // PUBLIC ROUTES (nem Layout alatt)
-    { path: "/login", element: <LoginPage /> },
-    { path: "/register", element: <RegistrationPage /> },
-
-    // PRIVATE ROUTES (Layout alatt, később tokennel védjük)
     {
       path: "/",
-      element: <Layout />,
+      element: <GuestLayout />,
       children: [
-        { index: true, element: <Navigate to="/dashboard" replace /> },
-        { path: "dashboard", element: <DashboardPage /> },
-
-        {
-          path: "courses",
-          children: [
-            { index: true, element: <CoursesPage /> },
-            { path: ":id", element: <CourseDetailsPage /> },
-          ],
-        },
-
-        { path: "mentors", element: <MentorsPage /> },
-        { path: "booked-session", element: <BookedSessionPage /> },
+        { index: true, element: <Home /> },
+        { path: "login", element: <Login /> },
+        { path: "registration", element: <Registration /> },
       ],
     },
-
-    { path: "*", element: <NoPage /> },
   ]);
 
   return (
@@ -53,8 +35,9 @@ function App() {
         <h1>Frontend</h1>
       </header>
 
-      {/* A router itt fogja kirenderelni a Layout-ot / page-eket */}
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </div>
   );
 }

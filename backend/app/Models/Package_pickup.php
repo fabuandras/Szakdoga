@@ -10,6 +10,8 @@ class Package_pickup extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'csomagatvetelID';
+
     protected $table = 'package_pickups';
 
     protected $fillable = [
