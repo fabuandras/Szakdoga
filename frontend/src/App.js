@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import './layout.css';
 import './navigation.css';
@@ -13,6 +12,7 @@ import CoursesPage from "./pages/CoursesPage";
 import CourseDetailsPage from "./pages/CourseDetailsPage";
 import MentorsPage from "./pages/MentorsPage";
 import BookedSessionPage from "./pages/BookedSessionPage";
+import AdminHomePage from "./pages/AdminHomePage";
 
 import LoginPage from "./pages/LoginPage";
 import RegistrationPage from "./pages/RegistrationPage";
@@ -30,6 +30,7 @@ function App() {
       children: [
         { index: true, element: <Navigate to="/dashboard" replace /> },
         { path: "dashboard", element: <DashboardPage /> },
+        { path: "admin", element: <AdminHomePage /> },
 
         {
           path: "courses",
