@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('orszag', 30);
             $table->string('helyseg', 50);
             $table->tinyInteger('hazszam');
-            $table->tinyInteger('iranyito_szam');
+            $table->string('iranyito_szam', 4);
             $table->string('varos', 30);
 
             $table->timestamps();
