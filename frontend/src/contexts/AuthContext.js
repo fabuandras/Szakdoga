@@ -52,20 +52,19 @@ export function AuthProvider({ children }) {
       if (status === 422) {
         setErrors(normalizeLaravelErrors(e.response.data.errors));
       } else if (status === 401) {
-        setGeneralError("Invalid email or password.");
+        setGeneralError("Hibás email vagy jelszó.");
       } else if (status === 419) {
         setGeneralError(
-          "CSRF token mismatch (419). Check backend CORS/SESSION config."
+          "CSRF token mismatch (419). Ellenőrizze a backend CORS/SESSION konfigurációt."
         );
       } else {
-        setGeneralError("Unexpected error during login.");
+        setGeneralError("Váratlan hiba a bejelentkezéskor.");
       }
 
       throw e;
     }
   };
 
-  // ✅ MÓDOSÍTOTT: nem bontjuk szét a mezőket, mindent továbbküldünk
   const register = async (adat) => {
     setErrors({});
     setGeneralError(null);
@@ -74,8 +73,14 @@ export function AuthProvider({ children }) {
       // CSRF token lekérés
       await csrf();
 
-      // ⬇️ mindent küldünk, amit a Registration.js összerakott
+      // regisztráció
       await myAxios.post("/register", adat);
+
+      // regisztráció után be is jelentkezik az ugyanazzal az email/jelszóval
+      await login({
+        email: adat.email,
+        password: adat.jelszo,
+      });
 
       return true;
     } catch (e) {
@@ -90,7 +95,7 @@ export function AuthProvider({ children }) {
         const msg =
           e?.response?.data?.message ||
           e?.response?.data?.error ||
-          "Unexpected error during registration.";
+          "Váratlan hiba a regiztrációkor.";
         setGeneralError(msg);
       }
 
@@ -108,7 +113,7 @@ export function AuthProvider({ children }) {
       setUser(null);
       return true;
     } catch (e) {
-      setGeneralError("Logout failed.");
+      setGeneralError("Kijelentkezés sikertelen.");
       throw e;
     }
   };

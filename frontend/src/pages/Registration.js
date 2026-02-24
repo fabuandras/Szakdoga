@@ -71,9 +71,6 @@ export default function Registration() {
 
     try {
       await register({
-        // ✅ Breeze / Laravel validáció miatt
-        name: fullName,
-
         // ✅ Saját adatbázis mezők (migráció alapján)
         vez_nev: formData.lastName.trim(),
         ker_nev: formData.firstName.trim(),
@@ -82,10 +79,7 @@ export default function Registration() {
         tel_szam: formData.phone.trim(),
         szul_datum: formData.birthDate, // yyyy-mm-dd
         jelszo: formData.password,
-
-        // ✅ ha a backend Laravel "password_confirmation"-t vár
-        password: formData.password,
-        password_confirmation: formData.passwordConfirm,
+        jelszo_confirmation: formData.passwordConfirm,
       });
 
       navigate("/login");

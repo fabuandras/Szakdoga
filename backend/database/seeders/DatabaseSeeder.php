@@ -84,6 +84,7 @@ class DatabaseSeeder extends Seeder
 
         // Seederek
         $this->call([
+            HomeDeliverySeeder::class,
             PackageSeeder::class,
             ItemSeeder::class,
             CardDetailSeeder::class,
