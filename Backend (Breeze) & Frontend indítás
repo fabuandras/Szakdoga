@@ -1,0 +1,35 @@
+Breeze (backend)
+
+wsl (kell clonolas utan)
+docker exec -it 8d49076f7d83 /bin/bash (kell clonolas utan)
+cd szakdoga (kell clonolas utan)
+composer global require laravel/installer (kell clonolas utan)
+composer create-project laravel/laravel backend
+cd backend (kell clonolas utan)
+composer require laravel/breeze --dev (kell clonolas utan)
+php artisan breeze:install api (kell clonolas utan)
+yes (kell clonolas utan)
+ezután migrációs fájlok
+
+
+Backend elindítása:
+cd backend
+php artisan key:generate
+php artisan serve --host=0.0.0.0 --port=8000
+
+
+
+
+
+Frontend elindítása (cloneozás után)
+
+wsl
+docker exec -it 8d49076f7d83 /bin/bash
+cd Szakdoga
+cd frontend
+npm install
+npm start
+
+npm install axios
+npm install react-router-dom
+npm install bootstrap
