@@ -1,4 +1,4 @@
-import { createContext, useMemo, useState } from "react";
+import { createContext, useMemo, useState, useEffect } from "react";
 import { myAxios } from "../api/axios";
 
 export const AuthContext = createContext();
@@ -26,9 +26,18 @@ export function AuthProvider({ children }) {
   const csrf = () => myAxios.get("/sanctum/csrf-cookie");
 
   const getUser = async () => {
-    const { data } = await myAxios.get("/api/user");
-    setUser(data);
-    return data;
+    try {
+      const { data } = await myAxios.get("/api/user");
+      setUser(data);
+      return data;
+    } catch (error) {
+      console.error("getUser() failed:", {
+        status: error?.response?.status,
+        message: error?.message,
+        url: error?.response?.url,
+      });
+      throw error;
+    }
   };
 
   const login = async ({ email, password }) => {
@@ -117,6 +126,24 @@ export function AuthProvider({ children }) {
       throw e;
     }
   };
+
+  // Oldal betöltéskor ellenőriz, hogy van-e bejelentkezett felhasználó
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        // Először CSRF tokent kérünk
+        await csrf();
+        // Majd lekérdezzük a felhasználó adatait
+        await getUser();
+      } catch (error) {
+        // Ha hiba jön (pl. 401 = nincs bejelentkezve), user marad null
+        console.log("User check failed:", error?.response?.status);
+        setUser(null);
+      }
+    };
+    
+    checkUser();
+  }, []);
 
   const value = useMemo(
     () => ({

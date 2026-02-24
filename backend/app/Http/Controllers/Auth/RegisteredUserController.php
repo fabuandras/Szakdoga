@@ -21,23 +21,20 @@ class RegisteredUserController extends Controller
     public function store(Request $request): Response
     {
         $request->validate([
-            'vez_nev' => ['required', 'string', 'max:20'],
-            'ker_nev' => ['required', 'string', 'max:20'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class.',email'],
+            'vez_nev' => ['required', 'string', 'max:255'],
+            'ker_nev' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'jelszo' => ['required', 'confirmed', Rules\Password::defaults()],
-            'szul_datum' => ['required', 'date'],
-            'tel_szam' => ['required', 'string', 'max:20'],
-            'megszolitas' => ['required', 'string', 'max:10'],
         ]);
 
         $user = User::create([
-            'vez_nev' => $request->vez_nev,
-            'ker_nev' => $request->ker_nev,
-            'email' => $request->email,
-            'jelszo' => Hash::make($request->string('jelszo')),
-            'szul_datum' => $request->szul_datum,
-            'tel_szam' => $request->tel_szam,
-            'megszolitas' => $request->megszolitas,
+            'vez_nev' => $request->input('vez_nev'),
+            'ker_nev' => $request->input('ker_nev'),
+            'megszolitas' => $request->input('megszolitas'),
+            'email' => $request->input('email'),
+            'tel_szam' => $request->input('tel_szam'),
+            'szul_datum' => $request->input('szul_datum'),
+            'jelszo' => Hash::make($request->input('jelszo')),
         ]);
 
         event(new Registered($user));
