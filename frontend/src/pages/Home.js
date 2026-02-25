@@ -6,11 +6,16 @@ export default function Home() {
 
   return (
     <div>
-      <h1>Kezdőlap</h1>
       {user ? (
-        <p>Üdvözölünk, <strong>{user.email}</strong>!</p>
+        <>
+          <h1>Profilom</h1>
+          <p>Üdvözöllek, <strong>{user.felhasznalonev}</strong>!</p>
+        </>
       ) : (
-        <p>Kérjük, jelentkezzen be vagy regisztráljon!</p>
+        <>
+          <h1>Kezdőlap</h1>
+          <p>Kérjük, jelentkezzen be vagy regisztráljon!</p>
+        </>
       )}
     </div>
   );

@@ -8,7 +8,7 @@ export default function Login() {
   const { login, errors, generalError, setErrors, setGeneralError } = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
-    email: "",
+    emailOrUsername: "",
     password: "",
   });
 
@@ -26,7 +26,7 @@ export default function Login() {
 
     try {
       await login(formData);
-      navigate("/");
+      navigate("/profile");
     } catch {
       // hibát a context kezeli
     }
@@ -43,14 +43,13 @@ export default function Login() {
           <div className="mb-2">
             <input
               className="form-control"
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
+              name="emailOrUsername"
+              placeholder="Felhasználónév vagy Email"
+              value={formData.emailOrUsername}
               onChange={handleChange}
-              autoComplete="email"
+              autoComplete="username"
             />
-            {errors.email && <div className="auth-error">{errors.email}</div>}
+            {errors.email_or_username && <div className="auth-error">{errors.email_or_username}</div>}
           </div>
 
           <div className="mb-2">

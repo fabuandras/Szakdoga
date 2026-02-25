@@ -9,6 +9,7 @@ export default function Registration() {
     useContext(AuthContext);
 
   const [formData, setFormData] = useState({
+    felhasznalonev: "",
     lastName: "",
     firstName: "",
     salutation: "",
@@ -28,6 +29,11 @@ export default function Registration() {
 
   function validate() {
     const newErrors = {};
+
+    if (!formData.felhasznalonev.trim())
+      newErrors.felhasznalonev = "A felhasználónév megadása kötelező.";
+    else if (formData.felhasznalonev.length < 3)
+      newErrors.felhasznalonev = "A felhasználónév legalább 3 karakter legyen.";
 
     if (!formData.lastName.trim())
       newErrors.lastName = "A vezetéknév megadása kötelező.";
@@ -71,6 +77,8 @@ export default function Registration() {
 
     try {
       await register({
+        // ✅ Felhasználónév
+        felhasznalonev: formData.felhasznalonev.trim(),
         // ✅ Saját adatbázis mezők (migráció alapján)
         vez_nev: formData.lastName.trim(),
         ker_nev: formData.firstName.trim(),
@@ -96,6 +104,18 @@ export default function Registration() {
         {generalError && <div className="auth-error">{generalError}</div>}
 
         <form onSubmit={handleSubmit} noValidate>
+          <div className="mb-2">
+            <input
+              className="form-control"
+              name="felhasznalonev"
+              placeholder="Felhasználónév"
+              value={formData.felhasznalonev}
+              onChange={handleChange}
+              autoComplete="username"
+            />
+            {errors.felhasznalonev && <div className="auth-error">{errors.felhasznalonev}</div>}
+          </div>
+
           <div className="mb-2">
             <input
               className="form-control"

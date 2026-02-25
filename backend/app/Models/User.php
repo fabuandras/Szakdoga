@@ -14,6 +14,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'vKod',
+        'felhasznalonev',
         'vez_nev',
         'ker_nev',
         'jelszo',

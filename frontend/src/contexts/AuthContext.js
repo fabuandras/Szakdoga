@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const login = async ({ email, password }) => {
+  const login = async ({ emailOrUsername, password }) => {
     setErrors({});
     setGeneralError(null);
 
@@ -48,8 +48,8 @@ export function AuthProvider({ children }) {
       // CSRF token lekérés
       await csrf();
 
-      // login
-      await myAxios.post("/login", { email, password });
+      // login (felhasználónév vagy email + jelszó)
+      await myAxios.post("/login", { email_or_username: emailOrUsername, password });
 
       // bejelentkezett user lekérése
       await getUser();
@@ -61,7 +61,7 @@ export function AuthProvider({ children }) {
       if (status === 422) {
         setErrors(normalizeLaravelErrors(e.response.data.errors));
       } else if (status === 401) {
-        setGeneralError("Hibás email vagy jelszó.");
+        setGeneralError("Hibás felhasználónév/email vagy jelszó.");
       } else if (status === 419) {
         setGeneralError(
           "CSRF token mismatch (419). Ellenőrizze a backend CORS/SESSION konfigurációt."
@@ -84,12 +84,6 @@ export function AuthProvider({ children }) {
 
       // regisztráció
       await myAxios.post("/register", adat);
-
-      // regisztráció után be is jelentkezik az ugyanazzal az email/jelszóval
-      await login({
-        email: adat.email,
-        password: adat.jelszo,
-      });
 
       return true;
     } catch (e) {
