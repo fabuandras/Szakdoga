@@ -1,14 +1,20 @@
 import React from "react";
-import Navigation from "../pages/Navigation";
+import Navigation from "../Navigation";
 import { Outlet } from "react-router-dom";
+import "../theme.css";
 
 export default function GuestLayout() {
   return (
-    <>
+    <div>
+      <header className="App-header">
+        <h1>Frontend</h1>
+      </header>
+
       <Navigation />
-      <div className="container mt-4">
+
+      <main className="container">
         <Outlet />
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
