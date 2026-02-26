@@ -77,17 +77,21 @@ export default function Registration() {
 
     try {
       await register({
-        // ✅ Felhasználónév
+        // küldjük a felhasználónév mezőt a backendnek is
         felhasznalonev: formData.felhasznalonev.trim(),
-        // ✅ Saját adatbázis mezők (migráció alapján)
+
+        // Laravel alap mezők
+        name: fullName,
+        email: formData.email.trim(),
+        password: formData.password,
+        password_confirmation: formData.passwordConfirm,
+
+        // opcionális, ha backend kezelni tudja
         vez_nev: formData.lastName.trim(),
         ker_nev: formData.firstName.trim(),
         megszolitas: formData.salutation,
-        email: formData.email.trim(),
         tel_szam: formData.phone.trim(),
-        szul_datum: formData.birthDate, // yyyy-mm-dd
-        jelszo: formData.password,
-        jelszo_confirmation: formData.passwordConfirm,
+        szul_datum: formData.birthDate,
       });
 
       navigate("/login");

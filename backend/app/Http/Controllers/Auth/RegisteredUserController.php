@@ -21,11 +21,14 @@ class RegisteredUserController extends Controller
     public function store(Request $request): Response
     {
         $request->validate([
-            'felhasznalonev' => ['required', 'string', 'max:30', 'unique:users,felhasznalonev'],
+            'felhasznalonev' => ['required', 'string', 'max:255', 'unique:users,felhasznalonev'],
             'vez_nev' => ['required', 'string', 'max:255'],
             'ker_nev' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'jelszo' => ['required', 'confirmed', Rules\Password::defaults()],
+            'megszolitas' => ['nullable', 'string', 'max:50'],
+            'tel_szam' => ['nullable', 'string', 'max:50'],
+            'szul_datum' => ['nullable', 'date'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
@@ -33,13 +36,15 @@ class RegisteredUserController extends Controller
             'vez_nev' => $request->input('vez_nev'),
             'ker_nev' => $request->input('ker_nev'),
             'megszolitas' => $request->input('megszolitas'),
-            'email' => $request->input('email'),
             'tel_szam' => $request->input('tel_szam'),
             'szul_datum' => $request->input('szul_datum'),
-            'jelszo' => Hash::make($request->input('jelszo')),
+            'email' => $request->input('email'),
+            'jelszo' => Hash::make($request->input('password')),
         ]);
 
         event(new Registered($user));
+
+        Auth::login($user);
 
         return response()->noContent();
     }

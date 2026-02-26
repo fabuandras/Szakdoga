@@ -27,7 +27,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email_or_username' => ['required', 'string'],
+            'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ];
     }
@@ -41,21 +41,11 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $input = $this->input('email_or_username');
-        $password = $this->input('password');
-        
-        // Próbáljon email-lel bejelentkezni, ha nem működik, próbáljon felhasználónévvel
-        $attempt = Auth::attempt(['email' => $input, 'password' => $password], $this->boolean('remember'));
-        
-        if (!$attempt) {
-            $attempt = Auth::attempt(['felhasznalonev' => $input, 'password' => $password], $this->boolean('remember'));
-        }
-
-        if (!$attempt) {
+        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email_or_username' => __('auth.failed'),
+                'email' => __('auth.failed'),
             ]);
         }
 
@@ -90,6 +80,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->input('email_or_username')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->input('email')).'|'.$this->ip());
     }
 }
