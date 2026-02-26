@@ -1,0 +1,108 @@
+/* AdminHomePage.css - responsive tweaks and mobile top-drawer sidebar */
+
+/* Wrapper: don't force horizontal scrolling globally; allow content to flow naturally */
+.admin-container {
+  width: 100%;
+  overflow-x: visible; /* let off-canvas and tables handle scroll */
+}
+
+/* Desktop-specific layout: fix aside width and main min-width only on medium+ screens */
+@media (min-width: 768px) {
+  .admin-aside {
+    padding-right: 0;
+    flex: 0 0 220px; /* desktop width */
+    max-width: 220px;
+    min-width: 220px;
+  }
+
+  main.col-md-9 {
+    flex: 1 1 auto;
+    min-width: 480px;
+  }
+}
+
+/* Tables: allow horizontal scroll on very small screens while preserving layout */
+.table-responsive {
+  overflow-x: auto;
+}
+
+/* Avoid table cells becoming too narrow; prefer horizontal scroll instead */
+.table th,
+.table td {
+  white-space: nowrap;
+  min-width: 80px;
+}
+
+/* Prevent cards from collapsing below a usable width */
+.card {
+  min-width: 200px;
+}
+
+/* Truncate long text in messages and keep consistent spacing */
+.list-group .text-truncate {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Make card footers visually consistent */
+.card-footer {
+  background: #fff;
+}
+
+/* Small adjustments to avoid extremely compressed buttons */
+.btn-sm {
+  padding: .25rem .5rem;
+  font-size: .875rem;
+}
+
+/* --- Mobile / small screens: top drawer aside and backdrop --- */
+.mobile-backdrop {
+  display: none; /* shown only when aside is open */
+}
+
+@media (max-width: 767.98px) {
+  /* Hide the aside by default on small screens; when opened it becomes a top drawer */
+  .admin-aside {
+    display: none !important; /* force hide so it cannot drop under content */
+    position: fixed;
+    left: 0;
+    top: -100vh; /* hidden above viewport by default */
+    right: 0;
+    height: auto;
+    max-height: 90vh;
+    z-index: 1060;
+    transition: top .22s ease;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    background: #fff;
+    overflow-y: auto;
+  }
+
+  /* When toggled open */
+  .admin-aside.mobile-open-top {
+    display: block !important; /* show drawer */
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  /* Ensure main content stays beneath the drawer */
+  main.col-md-9 {
+    min-width: 0;
+  }
+
+  /* Backdrop for the open drawer */
+  .mobile-backdrop {
+    display: block; /* visible when rendered */
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 1050;
+  }
+
+  /* Allow list items to wrap in the drawer */
+  .admin-aside .list-group .list-group-item {
+    white-space: normal;
+  }
+}

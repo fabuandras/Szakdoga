@@ -1,4 +1,4 @@
-import { createContext, useMemo, useState, useEffect } from "react";
+import { createContext, useMemo, useState, useEffect, useCallback } from "react";
 import { myAxios } from "../api/axios";
 
 export const AuthContext = createContext();
@@ -54,9 +54,10 @@ export function AuthProvider({ children }) {
   // általános (nem mező specifikus) hiba
   const [generalError, setGeneralError] = useState(null);
 
-  const csrf = () => myAxios.get("/sanctum/csrf-cookie");
+  // CSRF token lekérése
+  const csrf = useCallback(() => myAxios.get("/sanctum/csrf-cookie"), []);
 
-  const getUser = async () => {
+  const getUser = useCallback(async () => {
     try {
       const { data } = await myAxios.get("/api/user");
       setUser(data);
@@ -69,84 +70,90 @@ export function AuthProvider({ children }) {
       });
       throw error;
     }
-  };
+  }, []);
 
-  const login = async ({ emailOrUsername, password }) => {
-    setErrors({});
-    setGeneralError(null);
+  const login = useCallback(
+    async ({ emailOrUsername, password }) => {
+      setErrors({});
+      setGeneralError(null);
 
-    try {
-      // CSRF token lekérés
-      await csrf();
+      try {
+        // CSRF token lekérés
+        await csrf();
 
-      // login (felhasználónév vagy email + jelszó)
-      await myAxios.post("/login", { email_or_username: emailOrUsername, password });
+        // login (felhasználónév vagy email + jelszó)
+        await myAxios.post("/login", { email_or_username: emailOrUsername, password });
 
-      // bejelentkezett user lekérése
-      await getUser();
+        // bejelentkezett user lekérése
+        await getUser();
 
-      return true;
-    } catch (e) {
-      const status = e?.response?.status;
+        return true;
+      } catch (e) {
+        const status = e?.response?.status;
 
-      if (status === 422) {
-        const normalized = normalizeLaravelErrors(e.response.data.errors);
-        // backend might return 'email_or_username' or 'email' as the key
-        if (normalized['email_or_username']) {
-          setErrors({ ...normalized });
-        } else if (normalized['email']) {
-          // map to frontend key
-          setErrors({ email_or_username: normalized['email'] });
+        if (status === 422) {
+          const normalized = normalizeLaravelErrors(e.response.data.errors);
+          // backend might return 'email_or_username' or 'email' as the key
+          if (normalized['email_or_username']) {
+            setErrors({ ...normalized });
+          } else if (normalized['email']) {
+            // map to frontend key
+            setErrors({ email_or_username: normalized['email'] });
+          } else {
+            setErrors(normalized);
+          }
+        } else if (status === 401) {
+          setGeneralError("Hibás felhasználónév/email vagy jelszó.");
+        } else if (status === 419) {
+          setGeneralError(
+            "CSRF token mismatch (419). Ellenőrizze a backend CORS/SESSION konfigurációt."
+          );
         } else {
-          setErrors(normalized);
+          setGeneralError("Váratlan hiba a bejelentkezéskor.");
         }
-      } else if (status === 401) {
-        setGeneralError("Hibás felhasználónév/email vagy jelszó.");
-      } else if (status === 419) {
-        setGeneralError(
-          "CSRF token mismatch (419). Ellenőrizze a backend CORS/SESSION konfigurációt."
-        );
-      } else {
-        setGeneralError("Váratlan hiba a bejelentkezéskor.");
+
+        throw e;
       }
+    },
+    [csrf, getUser]
+  );
 
-      throw e;
-    }
-  };
+  const register = useCallback(
+    async (adat) => {
+      setErrors({});
+      setGeneralError(null);
 
-  const register = async (adat) => {
-    setErrors({});
-    setGeneralError(null);
+      try {
+        // CSRF token lekérés
+        await csrf();
 
-    try {
-      // CSRF token lekérés
-      await csrf();
+        // regisztráció
+        await myAxios.post("/register", adat);
 
-      // regisztráció
-      await myAxios.post("/register", adat);
+        return true;
+      } catch (e) {
+        const status = e?.response?.status;
 
-      return true;
-    } catch (e) {
-      const status = e?.response?.status;
+        console.log("REGISTER ERROR status:", status);
+        console.log("REGISTER ERROR data:", e?.response?.data);
 
-      console.log("REGISTER ERROR status:", status);
-      console.log("REGISTER ERROR data:", e?.response?.data);
+        if (status === 422) {
+          setErrors(normalizeLaravelErrors(e.response.data.errors));
+        } else {
+          const msg =
+            e?.response?.data?.message ||
+            e?.response?.data?.error ||
+            "Váratlan hiba a regiztrációkor.";
+          setGeneralError(msg);
+        }
 
-      if (status === 422) {
-        setErrors(normalizeLaravelErrors(e.response.data.errors));
-      } else {
-        const msg =
-          e?.response?.data?.message ||
-          e?.response?.data?.error ||
-          "Váratlan hiba a regiztrációkor.";
-        setGeneralError(msg);
+        throw e;
       }
+    },
+    [csrf]
+  );
 
-      throw e;
-    }
-  };
-
-  const logout = async () => {
+  const logout = useCallback(async () => {
     setErrors({});
     setGeneralError(null);
 
@@ -159,7 +166,7 @@ export function AuthProvider({ children }) {
       setGeneralError("Kijelentkezés sikertelen.");
       throw e;
     }
-  };
+  }, [csrf]);
 
   // Oldal betöltéskor ellenőriz, hogy van-e bejelentkezett felhasználó
   useEffect(() => {
@@ -175,9 +182,9 @@ export function AuthProvider({ children }) {
         setUser(null);
       }
     };
-    
+
     checkUser();
-  }, []);
+  }, [csrf, getUser]);
 
   const value = useMemo(
     () => ({
@@ -191,7 +198,7 @@ export function AuthProvider({ children }) {
       logout,
       getUser,
     }),
-    [user, errors, generalError]
+    [user, errors, generalError, login, register, logout, getUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
