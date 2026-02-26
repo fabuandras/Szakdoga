@@ -54,5 +54,17 @@ class ItemSeeder extends Seeder
             'akt_keszlet' => 150,
             'egyseg_ar' => 2.49, // kb. 950 Ft
         ]);
+
+        $items = [
+            ['cikk_szam' => 45554, 'elnevezes' => 'Fonal - kék', 'akt_keszlet' => 120, 'egyseg_ar' => 4500],
+            ['cikk_szam' => 32728, 'elnevezes' => 'Tulip horgolótű', 'akt_keszlet' => 56, 'egyseg_ar' => 1500],
+            ['cikk_szam' => 98212, 'elnevezes' => 'Nyuszi plüssfigura', 'akt_keszlet' => 10, 'egyseg_ar' => 6500],
+            ['cikk_szam' => 67242, 'elnevezes' => 'Fonal - piros', 'akt_keszlet' => 4, 'egyseg_ar' => 4500],
+            ['cikk_szam' => 11223, 'elnevezes' => 'Fonal - zöld', 'akt_keszlet' => 2, 'egyseg_ar' => 4500],
+        ];
+
+        foreach ($items as $it) {
+            Item::create($it);
+        }
     }
 }

@@ -17,6 +17,8 @@ export default function Home() {
           <p>Kérjük, jelentkezzen be vagy regisztráljon!</p>
         </>
       )}
+      <h2>Üdv a raktáros felületen</h2>
+      <p>Használd a navigációt a funkciókhoz.</p>
     </div>
   );
 }
