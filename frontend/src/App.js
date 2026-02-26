@@ -1,7 +1,8 @@
-import logo from "./logo.svg";
+
 import "./App.css";
 import "./layout.css";
 import "./navigation.css";
+
 
 import { Routes, Route } from "react-router-dom";
 import GuestLayout from "./layouts/GuestLayout";
@@ -9,6 +10,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Registration from "./pages/Registration";
 import Profile from "./pages/Profile";
+import AdminHomePage from "./pages/AdminHomePage";
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="registration" element={<Registration />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="/admin" element={<AdminHomePage />} />
         </Route>
       </Routes>
     </div>
