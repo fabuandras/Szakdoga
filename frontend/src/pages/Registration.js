@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../Registration.css";
 import { AuthContext } from "../contexts/AuthContext";
@@ -20,14 +20,17 @@ export default function Registration() {
     passwordConfirm: "",
   });
 
-  function handleChange(e) {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  }
+  const handleChange = useCallback(
+    (e) => {
+      setFormData((prev) => ({
+        ...prev,
+        [e.target.name]: e.target.value,
+      }));
+    },
+    []
+  );
 
-  function validate() {
+  const validate = useCallback(() => {
     const newErrors = {};
 
     if (!formData.felhasznalonev.trim())
@@ -63,38 +66,41 @@ export default function Registration() {
       newErrors.passwordConfirm = "A két jelszó nem egyezik.";
 
     return newErrors;
-  }
+  }, [formData]);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setGeneralError(null);
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      setGeneralError(null);
 
-    const validationErrors = validate();
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) return;
+      const validationErrors = validate();
+      setErrors(validationErrors);
+      if (Object.keys(validationErrors).length > 0) return;
 
-    const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
+      //const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
 
-    try {
-      await register({
-        // ✅ Felhasználónév
-        felhasznalonev: formData.felhasznalonev.trim(),
-        // ✅ Saját adatbázis mezők (migráció alapján)
-        vez_nev: formData.lastName.trim(),
-        ker_nev: formData.firstName.trim(),
-        megszolitas: formData.salutation,
-        email: formData.email.trim(),
-        tel_szam: formData.phone.trim(),
-        szul_datum: formData.birthDate, // yyyy-mm-dd
-        jelszo: formData.password,
-        jelszo_confirmation: formData.passwordConfirm,
-      });
+      try {
+        await register({
+          // ✅ Felhasználónév
+          felhasznalonev: formData.felhasznalonev.trim(),
+          // ✅ Saját adatbázis mezők (migráció alapján)
+          vez_nev: formData.lastName.trim(),
+          ker_nev: formData.firstName.trim(),
+          megszolitas: formData.salutation,
+          email: formData.email.trim(),
+          tel_szam: formData.phone.trim(),
+          szul_datum: formData.birthDate, // yyyy-mm-dd
+          jelszo: formData.password,
+          jelszo_confirmation: formData.passwordConfirm,
+        });
 
-      navigate("/login");
-    } catch {
-      // hibát a context kezeli
-    }
-  }
+        navigate("/login");
+      } catch {
+        // hibát a context kezeli
+      }
+    },
+    [validate, register, setErrors, setGeneralError, navigate, formData]
+  );
 
   return (
     <div className="auth-page">

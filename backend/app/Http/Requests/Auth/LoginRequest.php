@@ -41,17 +41,18 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $input = $this->input('email_or_username');
-        $password = $this->input('password');
-        
-        // Próbáljon email-lel bejelentkezni, ha nem működik, próbáljon felhasználónévvel
-        $attempt = Auth::attempt(['email' => $input, 'password' => $password], $this->boolean('remember'));
-        
-        if (!$attempt) {
-            $attempt = Auth::attempt(['felhasznalonev' => $input, 'password' => $password], $this->boolean('remember'));
+        $login = $this->input('email_or_username');
+        $credentials = ['password' => $this->input('password')];
+
+        // Ha az input e-mail-nek tűnik, email alapján próbálunk bejelentkezni,
+        // különben a projekt által használt felhasználónév mezőt (felhasznalonev) használjuk.
+        if (filter_var($login, FILTER_VALIDATE_EMAIL)) {
+            $credentials['email'] = $login;
+        } else {
+            $credentials['felhasznalonev'] = $login;
         }
 
-        if (!$attempt) {
+        if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -78,7 +79,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
+            'email_or_username' => trans('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),

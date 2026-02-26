@@ -1,8 +1,9 @@
-import logo from "./logo.svg";
+
 import "./App.css";
 import "./layout.css";
 import "./navigation.css";
 import "./theme.css";
+
 
 import { Routes, Route } from "react-router-dom";
 import GuestLayout from "./layouts/GuestLayout";
@@ -31,6 +32,7 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="registration" element={<Registration />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="/admin" element={<AdminHomePage />} />
         </Route>
 
         <Route path="/warehouse" element={<Warehouse />}>
