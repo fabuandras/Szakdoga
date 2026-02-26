@@ -13,7 +13,6 @@ class User extends Authenticatable
     protected $primaryKey = 'vKod';
 
     protected $fillable = [
-        'vKod',
         'felhasznalonev',
         'vez_nev',
         'ker_nev',
@@ -26,14 +25,12 @@ class User extends Authenticatable
 
     protected $hidden = [
         'jelszo',
+        'remember_token',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'szul_datum' => 'date',
-        ];
-    }
+    protected $casts = [
+        'szul_datum' => 'date',
+    ];
 
     public function getAuthPassword()
     {

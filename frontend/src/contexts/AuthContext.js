@@ -9,7 +9,38 @@ function normalizeLaravelErrors(errorsObj) {
   const out = {};
   for (const key of Object.keys(errorsObj)) {
     const v = errorsObj[key];
-    out[key] = Array.isArray(v) ? v[0] : String(v);
+    let message = Array.isArray(v) ? v[0] : String(v);
+
+    // Magyar fordítások egyszerű helyettesítése
+    if (message.includes('The password field is required')) message = 'A jelszó megadása kötelező.';
+    if (message.includes('The email field is required')) message = 'Az email megadása kötelező.';
+    if (message.includes('The email has already been taken') || message.includes('has already been taken')) message = 'Az email cím már foglalt.';
+
+    // Authentication failed default message
+    if (message.includes('These credentials do not match our records') || message.toLowerCase().includes('auth.failed')) {
+      message = 'Hibás felhasználónév/email vagy jelszó.';
+      // assign to unified key
+      out['email_or_username'] = message;
+      continue;
+    }
+
+    if (message.includes('The felhasznalonev field is required') || key === 'felhasznalonev') {
+      // ha a backend magyar mezőnevet használ, vagy a kulcs felhasznalonev, fordítjuk
+      if (message.toLowerCase().includes('required')) message = 'A felhasználónév megadása kötelező.';
+      if (message.toLowerCase().includes('unique')) message = 'A felhasználónév már foglalt.';
+    }
+
+    // Általános csere az angol kulcsokra
+    if (key === 'email') {
+      if (message.toLowerCase().includes('required')) message = 'Az email megadása kötelező.';
+      if (message.toLowerCase().includes('email')) message = 'Érvénytelen email formátum.';
+    }
+    if (key === 'password') {
+      if (message.toLowerCase().includes('required')) message = 'A jelszó megadása kötelező.';
+      if (message.toLowerCase().includes('confirmed')) message = 'A jelszó megerősítése nem egyezik.';
+    }
+
+    out[key] = message;
   }
   return out;
 }
@@ -59,7 +90,16 @@ export function AuthProvider({ children }) {
       const status = e?.response?.status;
 
       if (status === 422) {
-        setErrors(normalizeLaravelErrors(e.response.data.errors));
+        const normalized = normalizeLaravelErrors(e.response.data.errors);
+        // backend might return 'email_or_username' or 'email' as the key
+        if (normalized['email_or_username']) {
+          setErrors({ ...normalized });
+        } else if (normalized['email']) {
+          // map to frontend key
+          setErrors({ email_or_username: normalized['email'] });
+        } else {
+          setErrors(normalized);
+        }
       } else if (status === 401) {
         setGeneralError("Hibás felhasználónév/email vagy jelszó.");
       } else if (status === 419) {

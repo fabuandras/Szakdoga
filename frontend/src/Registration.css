@@ -30,3 +30,10 @@
   font-size: 0.9rem;
   margin-top: 6px;
 }
+
+.form-label {
+	display: block;
+	text-align: left;
+	margin-bottom: 6px;
+	font-weight: 600;
+}

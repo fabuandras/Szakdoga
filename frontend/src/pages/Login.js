@@ -24,6 +24,17 @@ export default function Login() {
     setGeneralError(null);
     setErrors({});
 
+    // Client-side validation (magyar hibák)
+    const validation = {};
+    if (!formData.emailOrUsername || !formData.emailOrUsername.trim()) {
+      validation.email_or_username = 'A felhasználónév vagy email megadása kötelező.';
+    }
+    if (!formData.password) {
+      validation.password = 'A jelszó megadása kötelező.';
+    }
+    setErrors(validation);
+    if (Object.keys(validation).length > 0) return;
+
     try {
       await login(formData);
       navigate("/profile");
@@ -41,6 +52,7 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="mb-2">
+            <label className="form-label">Felhasználónév vagy Email</label>
             <input
               className="form-control"
               name="emailOrUsername"
@@ -53,6 +65,7 @@ export default function Login() {
           </div>
 
           <div className="mb-2">
+            <label className="form-label">Jelszó</label>
             <input
               className="form-control"
               type="password"
