@@ -4,7 +4,7 @@ import api from '../api/axios';
 export default function Inventory(){
   const [items, setItems] = useState([]);
   useEffect(()=>{
-    api.get('/items').then(res=> setItems(res.data || [])).catch(err=>console.log(err));
+    api.get('/api/items').then(res=> setItems(res.data || [])).catch(err=>console.log(err));
   },[]);
 
   return (

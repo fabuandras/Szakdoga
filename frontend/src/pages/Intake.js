@@ -10,7 +10,7 @@ export default function Intake(){
   function handleSubmit(e){
     e.preventDefault();
     // demo: call API to create order_item or package_item - here we'll call /items (protected) as example
-    api.post('/items', { elnevezes: cikk, akt_keszlet: menny })
+    api.post('/api/items', { elnevezes: cikk, akt_keszlet: menny })
       .then(()=> setUzenet('Bevételezés sikeres'))
       .catch(err => setUzenet('Hiba: ' + (err.response?.data?.message || err.message)));
   }

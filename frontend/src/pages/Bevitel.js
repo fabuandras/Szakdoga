@@ -30,7 +30,7 @@ const ProductForm = () => {
           akt_keszlet: Number(menny),
           egyseg_ar: 0,
         };
-        await api.post('/items', payload);
+        await api.post('/api/items', payload);
         setUzenet('Új termék és bevitel rögzítve');
       }
 

@@ -1,10 +1,11 @@
 import "./App.css";
 import "./layout.css";
 import "./navigation.css";
-import "./theme.css";
 
 
 import { Routes, Route } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { useContext } from "react";
 import GuestLayout from "./layouts/GuestLayout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -17,6 +18,18 @@ import Release from "./pages/Release";
 import Movement from "./pages/Movement";
 import Inventory from "./pages/Inventory";
 import Notifications from "./pages/Notifications";
+import AdminHomePage from "./pages/AdminHomePage";
+import { AuthContext } from "./contexts/AuthContext";
+
+function RequireAuth({ children }) {
+  const { user } = useContext(AuthContext);
+
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
 
 function App() {
   return (
@@ -29,12 +42,27 @@ function App() {
         <Route path="/" element={<GuestLayout />}>
           <Route index element={<Home />} />
           <Route path="login" element={<Login />} />
+          <Route path="register" element={<Registration />} />
           <Route path="registration" element={<Registration />} />
-          <Route path="profile" element={<Profile />} />
+          <Route
+            path="profile"
+            element={
+              <RequireAuth>
+                <Profile />
+              </RequireAuth>
+            }
+          />
           <Route path="/admin" element={<AdminHomePage />} />
         </Route>
 
-        <Route path="/warehouse" element={<Warehouse />}>
+        <Route
+          path="/warehouse"
+          element={
+            <RequireAuth>
+              <Warehouse />
+            </RequireAuth>
+          }
+        >
           <Route index element={<ProductsList />} />
           <Route path="products" element={<ProductsList />} />
           <Route path="intake" element={<Intake />} />

@@ -6,8 +6,11 @@ const backend =
     : "http://localhost:8000";
 
 const api = axios.create({
-  baseURL: `${backend}/api`,
+  baseURL: backend,
   withCredentials: true,
+  withXSRFToken: true,
+  xsrfCookieName: "XSRF-TOKEN",
+  xsrfHeaderName: "X-XSRF-TOKEN",
   headers: { Accept: "application/json" },
 });
 

@@ -6,7 +6,7 @@ export default function ProductsList() {
   const [q, setQ] = useState('');
 
   useEffect(() => {
-    api.get('/items')
+    api.get('/api/items')
       .then(res => setItems(res.data || []))
       .catch(err => console.error(err));
   }, []);

@@ -4,7 +4,7 @@ import api from '../api/axios';
 export default function Notifications(){
   const [low, setLow] = useState([]);
   useEffect(()=>{
-    api.get('/items').then(res=>{
+    api.get('/api/items').then(res=>{
       const list = (res.data||[]).filter(i => (i.akt_keszlet||0) <= 5);
       setLow(list);
     }).catch(err=>console.log(err));
