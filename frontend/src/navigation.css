@@ -1,9 +1,22 @@
 .main-nav {
 	display: flex;
-	gap: 12px;
+	align-items: center;
+	justify-content: center;
+	position: relative;
 	padding: 10px 16px;
 	background: #fff;
-	border-bottom: 1px solid var(--border);
+}
+
+.main-nav-left,
+.main-nav-right {
+	display: flex;
+	align-items: center;
+	gap: 30px;
+}
+
+.main-nav-right {
+	position: absolute;
+	right: 16px;
 }
 
 .main-nav a {
@@ -14,8 +27,13 @@
 }
 
 .main-nav a.active {
-	background: var(--accent);
-	color: white;
+	background: #000;
+	color: #fff;
+}
+
+.main-nav a:hover {
+	background: #000;
+	color: #fff;
 }
 
 .main-nav .nav-link-btn {
@@ -28,6 +46,48 @@
 }
 
 .main-nav .nav-link-btn:hover {
-	background: var(--accent);
-	color: white;
+	background: #000;
+	color: #fff;
+}
+
+.main-nav .profile-icon-link {
+	font-size: 1.4rem;
+	line-height: 1;
+}
+
+.main-nav .profile-icon-btn {
+	background: transparent;
+	border: none;
+	padding: 6px 8px;
+	color: var(--text);
+	border-radius: 4px;
+}
+
+.main-nav .profile-icon-btn:hover {
+	background: #000;
+	color: #fff;
+}
+
+.main-nav .profile-menu {
+	position: relative;
+}
+
+.main-nav .profile-dropdown {
+	display: none;
+	position: absolute;
+	right: 0;
+	top: 100%;
+	min-width: 160px;
+	background: #fff;
+	border: 1px solid var(--border);
+	border-radius: 6px;
+	padding: 6px;
+	z-index: 10;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.main-nav .profile-menu:hover .profile-dropdown,
+.main-nav .profile-menu.open .profile-dropdown {
+	display: flex;
 }

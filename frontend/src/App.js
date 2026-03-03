@@ -8,6 +8,9 @@ import { Navigate } from "react-router-dom";
 import { useContext } from "react";
 import GuestLayout from "./layouts/GuestLayout";
 import Home from "./pages/Home";
+import Rolunk from "./pages/Rolunk";
+import Termekek from "./pages/Termekek";
+import Kapcsolat from "./pages/Kapcsolat";
 import Login from "./pages/Login";
 import Registration from "./pages/Registration";
 import Profile from "./pages/Profile";
@@ -35,12 +38,15 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Frontend</h1>
+        <h1>Loop & Stitch</h1>
       </header>
 
       <Routes>
         <Route path="/" element={<GuestLayout />}>
           <Route index element={<Home />} />
+          <Route path="rolunk" element={<Rolunk />} />
+          <Route path="termekek" element={<Termekek />} />
+          <Route path="kapcsolat" element={<Kapcsolat />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Registration />} />
           <Route path="registration" element={<Registration />} />

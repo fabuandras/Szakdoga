@@ -37,3 +37,20 @@
 	margin-bottom: 6px;
 	font-weight: 600;
 }
+
+.auth-card .btn {
+  background: #000;
+  border-width: 1px;
+  border-color: #000;
+  color: #fff;
+}
+
+.auth-card .btn:hover,
+
+.auth-card .btn:focus,
+.auth-card .btn:active {
+  background: #fff;
+  border-width: 3px;
+  border-color: #000;
+  color: #000;
+}
