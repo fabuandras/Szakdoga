@@ -1,4 +1,4 @@
-import { createContext, useMemo, useState, useEffect, useCallback } from "react";
+import React, { createContext, useState, useEffect, useCallback, useMemo } from "react";
 import { myAxios } from "../api/axios";
 
 export const AuthContext = createContext();
@@ -73,7 +73,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = useCallback(
-    async ({ emailOrUsername, password }) => {
+    async ({ email, password }) => {
       setErrors({});
       setGeneralError(null);
 
@@ -81,13 +81,24 @@ export function AuthProvider({ children }) {
         // CSRF token lekérés
         await csrf();
 
+        // read XSRF-TOKEN cookie and set header explicitly
+        const xsrf = readCookie('XSRF-TOKEN');
+        if (xsrf) {
+          myAxios.defaults.headers.common['X-XSRF-TOKEN'] = xsrf;
+        }
+
         // login (felhasználónév vagy email + jelszó)
-        await myAxios.post("/login", { email_or_username: emailOrUsername, password });
+        const { data } = await myAxios.post("/login", { email, password });
 
-        // bejelentkezett user lekérése
-        await getUser();
-
-        return true;
+        // response should include token
+        if (data && data.token) {
+          localStorage.setItem('token', data.token);
+          myAxios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+          // bejelentkezett user lekérése
+          await getUser();
+          return true;
+        }
+        return false;
       } catch (e) {
         const status = e?.response?.status;
 
@@ -160,6 +171,8 @@ export function AuthProvider({ children }) {
     try {
       await csrf();
       await myAxios.post("/logout");
+      localStorage.removeItem('token');
+      delete myAxios.defaults.headers.common['Authorization'];
       setUser(null);
       return true;
     } catch (e) {
@@ -203,3 +216,10 @@ export function AuthProvider({ children }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
+// helper to read cookie by name
+const readCookie = (name) => {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  if (match) return decodeURIComponent(match[2]);
+  return null;
+};

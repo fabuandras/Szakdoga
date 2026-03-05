@@ -7,12 +7,24 @@ const backend =
 
 const api = axios.create({
   baseURL: backend,
-  withCredentials: true,
-  withXSRFToken: true,
-  xsrfCookieName: "XSRF-TOKEN",
-  xsrfHeaderName: "X-XSRF-TOKEN",
-  headers: { Accept: "application/json" },
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
 });
+
+// ensure cookies are sent for sanctum CSRF/session authentication
+api.defaults.withCredentials = true;
+
+// explicitly set xsrf cookie/header names (axios defaults, but make explicit)
+api.defaults.xsrfCookieName = "XSRF-TOKEN";
+api.defaults.xsrfHeaderName = "X-XSRF-TOKEN";
+
+// attach token from localStorage if present
+const token = localStorage.getItem("token");
+if (token) {
+  api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+}
 
 export const myAxios = api;
 export default api;
