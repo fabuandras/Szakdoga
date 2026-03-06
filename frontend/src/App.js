@@ -2,7 +2,6 @@ import "./App.css";
 import "./layout.css";
 import "./navigation.css";
 
-
 import { Routes, Route } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { useContext } from "react";
@@ -23,6 +22,7 @@ import Inventory from "./pages/Inventory";
 import Notifications from "./pages/Notifications";
 import AdminHomePage from "./pages/AdminHomePage";
 import { AuthContext } from "./contexts/AuthContext";
+import AdminNav from "./pages/AdminNav";
 
 function RequireAuth({ children }) {
   const { user } = useContext(AuthContext);
@@ -58,9 +58,13 @@ function App() {
               </RequireAuth>
             }
           />
-          <Route path="/admin" element={<AdminHomePage />} />
         </Route>
-
+        
+        <Route path="/admin" element={<AdminNav />}>
+          <Route index element={<AdminHomePage />} />
+          {/* additional admin routes can be added here, e.g. <Route path="users" element={<AdminUsers/>} /> */}
+        </Route>
+        
         <Route
           path="/warehouse"
           element={

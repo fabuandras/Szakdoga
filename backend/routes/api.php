@@ -27,7 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/items',        [ItemController::class, 'store']);
     Route::put('/items/{id}',    [ItemController::class, 'update']);
     Route::delete('/items/{id}', [ItemController::class, 'destroy']);
-//próba push, mert valamiért Réka nevében pusholtam, és ezt nem értem, miért
+
     // Orders
     Route::get('/orders',        [OrderController::class, 'index']);
     Route::get('/orders/{id}',   [OrderController::class, 'show']);
