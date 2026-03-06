@@ -23,6 +23,7 @@ import Notifications from "./pages/Notifications";
 import AdminHomePage from "./pages/AdminHomePage";
 import { AuthContext } from "./contexts/AuthContext";
 import AdminNav from "./pages/AdminNav";
+import AdminUsers from "./pages/AdminUsers";
 
 function RequireAuth({ children }) {
   const { user } = useContext(AuthContext);
@@ -59,14 +60,15 @@ function App() {
             }
           />
         </Route>
-        
-        <Route path="/admin" element={<AdminNav />}>
+
+       
+        <Route path="admin" element={<AdminNav />}>
           <Route index element={<AdminHomePage />} />
-          {/* additional admin routes can be added here, e.g. <Route path="users" element={<AdminUsers/>} /> */}
+          <Route path="users" element={<AdminUsers />} />
         </Route>
-        
+
         <Route
-          path="/warehouse"
+          path="warehouse"
           element={
             <RequireAuth>
               <Warehouse />
