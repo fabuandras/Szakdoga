@@ -24,6 +24,7 @@ import AdminHomePage from "./pages/AdminHomePage";
 import { AuthContext } from "./contexts/AuthContext";
 import AdminNav from "./pages/AdminNav";
 import AdminUsers from "./pages/AdminUsers";
+import AdminProducts from "./pages/AdminProducts";
 
 function RequireAuth({ children }) {
   const { user } = useContext(AuthContext);
@@ -65,6 +66,7 @@ function App() {
         <Route path="admin" element={<AdminNav />}>
           <Route index element={<AdminHomePage />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="products" element={<AdminProducts />} />
         </Route>
 
         <Route

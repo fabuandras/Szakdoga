@@ -1,5 +1,6 @@
 import './AdminHomePage.css';
 import { useState } from 'react';
+import { Link, Outlet } from "react-router-dom";
 
 export default function AdminHomePage() {
     const [showAside, setShowAside] = useState(false);
@@ -28,7 +29,6 @@ export default function AdminHomePage() {
     return (
         <div className="admin-container container-fluid py-3">
             <div className="row">
-                {/* Desktop aside: visible only on md+ so it never stacks under main on small screens */}
                 <aside className="col-md-3 mb-3 d-none d-md-block admin-aside">
                     <div className="card">
                         <div className="card-body">
@@ -85,7 +85,7 @@ export default function AdminHomePage() {
                             <div className="card h-100 text-center">
                                 <div className="card-body d-flex flex-column justify-content-center">
                                     <h5 className="card-title">Felhasználók Kezelése</h5>
-                                    <button className="btn btn-outline-primary mt-2">Kezelés</button>
+                                    <button className="btn btn-outline-primary mt-2"><Link to="/admin/users">Kezelés</Link></button>
                                 </div>
                             </div>
                         </div>
@@ -100,7 +100,6 @@ export default function AdminHomePage() {
                         </div>
                     </div>
 
-                    {/* New dashboard panels: lists and stats */}
                     <div className="row g-3">
                         <div className="col-lg-6 mb-3">
                             <div className="card">
@@ -163,7 +162,7 @@ export default function AdminHomePage() {
                                     </div>
                                 </div>
                                 <div className="card-footer text-end">
-                                    <button className="btn btn-sm btn-secondary">Termékek Szerkesztése</button>
+                                    <button className="btn btn-sm btn-secondary"><Link to="/admin/products">Termékek szerkesztése</Link></button>
                                 </div>
                             </div>
                         </div>
@@ -220,7 +219,7 @@ export default function AdminHomePage() {
                     <footer className="mt-4 border-top pt-3 text-muted">&lt;footer&gt; Itt lesz a footer! </footer>
                 </main>
             </div>
-            {/* Mobile drawer and backdrop moved outside the grid row to avoid layout shifts */}
+            
             {showAside && (
                 <aside className={`admin-aside mobile-open-top d-md-none`}>
                     <div className="card">
