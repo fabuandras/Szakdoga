@@ -24,7 +24,7 @@ class UserController extends Controller
             'password.confirmed' => 'A jelszó megerősítése nem egyezik.',
             'password.min' => 'A jelszónak legalább :min karakter hosszúnak kell lennie.',
         ];
-//test
+//test 2
         $data = $request->validate([
             'felhasznalonev' => 'required|string|max:255|unique:users,felhasznalonev',
             'vez_nev' => 'required|string|max:255',
