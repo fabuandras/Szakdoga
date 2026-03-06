@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -78,6 +79,41 @@ class UserController extends Controller
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json(['user' => $user, 'token' => $token]);
+    }
+
+    // Modified index method to avoid selecting non-existent 'id' column
+    public function index(Request $request)
+    {
+        // Select columns that exist in the users table (avoid 'id' if it's missing)
+        $rows = DB::table('users')->select(
+            'felhasznalonev',
+            'vez_nev',
+            'ker_nev',
+            'megszolitas',
+            'tel_szam',
+            'szul_datum',
+            'email',
+            'created_at',
+            'updated_at'
+        )->get();
+
+        // Map to include an 'id' field for frontend keys (use felhasznalonev as unique id)
+        $users = $rows->map(function ($r) {
+            return [
+                'id' => $r->felhasznalonev,
+                'felhasznalonev' => $r->felhasznalonev,
+                'vez_nev' => $r->vez_nev,
+                'ker_nev' => $r->ker_nev,
+                'megszolitas' => $r->megszolitas,
+                'tel_szam' => $r->tel_szam,
+                'szul_datum' => $r->szul_datum,
+                'email' => $r->email,
+                'created_at' => $r->created_at,
+                'updated_at' => $r->updated_at,
+            ];
+        });
+
+        return response()->json(['users' => $users]);
     }
 
     public function logout(Request $request)

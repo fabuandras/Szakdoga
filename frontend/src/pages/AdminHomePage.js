@@ -1,16 +1,28 @@
 import './AdminHomePage.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, Outlet } from "react-router-dom";
+import axios from 'axios';
 
 export default function AdminHomePage() {
     const [showAside, setShowAside] = useState(false);
 
-    // Sample/mock data for the lists and stats
-    const users = [
-        { id: 1, name: 'Kovács János', email: 'janos@example.com', role: 'Admin' },
-        { id: 2, name: 'Nagy Anna', email: 'anna@example.com', role: 'User' },
-        { id: 3, name: 'Szabó Péter', email: 'peter@example.com', role: 'Moderator' },
-    ];
+
+    const [users, setUsers] = useState([]);
+
+    useEffect(() => {
+        let isMounted = true;
+        async function loadUsers() {
+            try {
+                const res = await axios.get('/api/users', { withCredentials: true });
+                
+                if (isMounted) setUsers(res.data.users || []);
+            } catch (e) {
+                console.error('Error loading users', e);
+            }
+        }
+        loadUsers();
+        return () => { isMounted = false; };
+    }, []);
 
     const products = [
         { id: 1, name: 'Hímzett póló', category: 'Ruházat', price: 5490, status: 'Aktív' },
@@ -116,11 +128,11 @@ export default function AdminHomePage() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {users.map(u => (
+                                                {users.slice(0,3).map(u => (
                                                     <tr key={u.id}>
-                                                        <td>{u.name}</td>
+                                                        <td>{u.vez_nev ? `${u.vez_nev} ${u.ker_nev}` : u.felhasznalonev}</td>
                                                         <td>{u.email}</td>
-                                                        <td>{u.role}</td>
+                                                        <td>{u.role || '-'}</td>
                                                         <td className="text-end"><button className="btn btn-sm btn-outline-secondary">Kezelés</button></td>
                                                     </tr>
                                                 ))}
@@ -129,7 +141,7 @@ export default function AdminHomePage() {
                                     </div>
                                 </div>
                                 <div className="card-footer text-end">
-                                    <button className="btn btn-sm btn-primary">Összes Kezelése</button>
+                                    <button className="btn btn-sm btn-primary"><Link to="/admin/users">Összes kezelése</Link></button>
                                 </div>
                             </div>
                         </div>
