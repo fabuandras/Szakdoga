@@ -26,11 +26,6 @@
 	border-radius: 4px;
 }
 
-.main-nav a.active {
-	background: #000;
-	color: #fff;
-}
-
 .main-nav a:hover {
 	background: #000;
 	color: #fff;
