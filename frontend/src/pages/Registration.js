@@ -7,6 +7,8 @@ export default function Registration() {
   const navigate = useNavigate();
   const { register, errors, generalError, setErrors, setGeneralError } =
     useContext(AuthContext);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
   const [formData, setFormData] = useState({
     felhasznalonev: "",
@@ -277,31 +279,43 @@ export default function Registration() {
             {errors.birthDate && <div className="auth-error">{errors.birthDate}</div>}
           </div>
 
-          <div className="mb-2">
+          <div className="mb-2 password-field">
             <label className="form-label">Jelszó</label>
-            <input
-              className="form-control"
-              type="password"
-              name="password"
-              placeholder="Jelszó"
-              value={formData.password}
-              onChange={handleChange}
-              autoComplete="new-password"
-            />
+            <div className="password-input-wrapper">
+              <input
+                className="form-control"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Jelszó"
+                value={formData.password}
+                onChange={handleChange}
+                autoComplete="new-password"
+              />
+              <i
+                className={"password-toggle bi " + (showPassword ? "bi-eye-slash" : "bi-eye")}
+                onClick={() => setShowPassword((v) => !v)}
+              />
+            </div>
             {errors.password && <div className="auth-error">{errors.password}</div>}
           </div>
 
-          <div className="mb-2">
+          <div className="mb-2 password-field">
             <label className="form-label">Jelszó megerősítése</label>
-            <input
-              className="form-control"
-              type="password"
-              name="passwordConfirm"
-              placeholder="Jelszó megerősítése"
-              value={formData.passwordConfirm}
-              onChange={handleChange}
-              autoComplete="new-password"
-            />
+            <div className="password-input-wrapper">
+              <input
+                className="form-control"
+                type={showPasswordConfirm ? "text" : "password"}
+                name="passwordConfirm"
+                placeholder="Jelszó megerősítése"
+                value={formData.passwordConfirm}
+                onChange={handleChange}
+                autoComplete="new-password"
+              />
+              <i
+                className={"password-toggle bi " + (showPasswordConfirm ? "bi-eye-slash" : "bi-eye")}
+                onClick={() => setShowPasswordConfirm((v) => !v)}
+              />
+            </div>
             {errors.passwordConfirm && (
               <div className="auth-error">{errors.passwordConfirm}</div>
             )}

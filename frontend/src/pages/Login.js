@@ -9,6 +9,7 @@ export default function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // toggle visibility
 
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -40,16 +41,22 @@ export default function Login() {
             )}
           </div>
 
-          <div className="mb-2">
+          <div className="mb-2 password-field">
             <label className="form-label">Jelszó</label>
-            <input
-              className="form-control"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Jelszó"
-              autoComplete="current-password"
-            />
+            <div className="password-input-wrapper">
+              <input
+                className="form-control"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Jelszó"
+                autoComplete="current-password"
+              />
+              <i
+                className={"password-toggle bi " + (showPassword ? "bi-eye-slash" : "bi-eye")}
+                onClick={() => setShowPassword((v) => !v)}
+              />
+            </div>
             {errors.password && (
               <div className="auth-error">{errors.password}</div>
             )}
