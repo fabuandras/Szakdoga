@@ -2,7 +2,7 @@ Breeze (backend)
 
 wsl (kell clonolas utan)
 docker exec -it 8d49076f7d83 /bin/bash (kell clonolas utan)
-cd szakdoga (kell clonolas utan)
+cd Szakdoga (kell clonolas utan)
 composer global require laravel/installer (kell clonolas utan)
 composer create-project laravel/laravel backend
 cd backend (kell clonolas utan)
@@ -36,3 +36,5 @@ npm install bootstrap
 npm install bootstrap-icons
 
 npm start
+
+http://localhost:3000/

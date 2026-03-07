@@ -6,6 +6,7 @@ export default function Navigation(){
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
+  const isWarehouseOnlyUser = user?.felhasznalonev === 'Bori';
 
   const handleLogout = async () => {
     try {
@@ -21,13 +22,17 @@ export default function Navigation(){
   return (
     <nav className="main-nav">
       <div className="main-nav-left">
-        <>
-          <NavLink to="/">Kezdőlap</NavLink>
-          <NavLink to="/rolunk">Rólunk</NavLink>
-          <NavLink to="/termekek">Termékek</NavLink>
-          <NavLink to="/kapcsolat">Kapcsolat</NavLink>
+        {isWarehouseOnlyUser ? (
           <NavLink to="/warehouse">Raktáros</NavLink>
-        </>
+        ) : (
+          <>
+            <NavLink to="/">Kezdőlap</NavLink>
+            <NavLink to="/rolunk">Rólunk</NavLink>
+            <NavLink to="/termekek">Termékek</NavLink>
+            <NavLink to="/kapcsolat">Kapcsolat</NavLink>
+            <NavLink to="/warehouse">Raktáros</NavLink>
+          </>
+        )}
       </div>
 
       <div className="main-nav-right">
@@ -47,14 +52,20 @@ export default function Navigation(){
 
           <div className="profile-dropdown">
             {user ? (
-              <>
-                <NavLink to="/profile" onClick={() => setMenuOpen(false)}>
-                  Profilom
-                </NavLink>
+              isWarehouseOnlyUser ? (
                 <button type="button" className="nav-link-btn" onClick={handleLogout}>
                   Kijelentkezés
                 </button>
-              </>
+              ) : (
+                <>
+                  <NavLink to="/profile" onClick={() => setMenuOpen(false)}>
+                    Profilom
+                  </NavLink>
+                  <button type="button" className="nav-link-btn" onClick={handleLogout}>
+                    Kijelentkezés
+                  </button>
+                </>
+              )
             ) : (
               <>
               <NavLink to="/login" onClick={() => setMenuOpen(false)}>

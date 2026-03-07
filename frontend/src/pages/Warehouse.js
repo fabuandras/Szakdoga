@@ -1,10 +1,12 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import '../layout.css';
+import Navigation from '../Navigation';
 
 export default function Warehouse() {
   return (
     <div className="page container">
+      <Navigation />
       <h1>Raktáros felület</h1>
       <nav className="warehouse-nav">
         <NavLink to="products">Terméklista</NavLink>

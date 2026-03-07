@@ -26,6 +26,20 @@ import AdminNav from "./pages/AdminNav";
 import AdminUsers from "./pages/AdminUsers";
 import AdminProducts from "./pages/AdminProducts";
 
+function isWarehouseOnlyUser(user) {
+  return user?.felhasznalonev === "Bori";
+}
+
+function RedirectWarehouseOnly({ children }) {
+  const { user } = useContext(AuthContext);
+
+  if (isWarehouseOnlyUser(user)) {
+    return <Navigate to="/warehouse" replace />;
+  }
+
+  return children;
+}
+
 function RequireAuth({ children }) {
   const { user } = useContext(AuthContext);
 
@@ -45,18 +59,48 @@ function App() {
 
       <Routes>
         <Route path="/" element={<GuestLayout />}>
-          <Route index element={<Home />} />
-          <Route path="rolunk" element={<Rolunk />} />
-          <Route path="termekek" element={<Termekek />} />
-          <Route path="kapcsolat" element={<Kapcsolat />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Registration />} />
           <Route path="registration" element={<Registration />} />
           <Route
+            index
+            element={
+              <RedirectWarehouseOnly>
+                <Home />
+              </RedirectWarehouseOnly>
+            }
+          />
+          <Route
+            path="rolunk"
+            element={
+              <RedirectWarehouseOnly>
+                <Rolunk />
+              </RedirectWarehouseOnly>
+            }
+          />
+          <Route
+            path="termekek"
+            element={
+              <RedirectWarehouseOnly>
+                <Termekek />
+              </RedirectWarehouseOnly>
+            }
+          />
+          <Route
+            path="kapcsolat"
+            element={
+              <RedirectWarehouseOnly>
+                <Kapcsolat />
+              </RedirectWarehouseOnly>
+            }
+          />
+          <Route
             path="profile"
             element={
               <RequireAuth>
-                <Profile />
+                <RedirectWarehouseOnly>
+                  <Profile />
+                </RedirectWarehouseOnly>
               </RequireAuth>
             }
           />
