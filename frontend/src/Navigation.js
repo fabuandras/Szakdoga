@@ -5,7 +5,7 @@ import { AuthContext } from './contexts/AuthContext';
 export default function Navigation(){
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
-  const [guestMenuOpen, setGuestMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -13,6 +13,7 @@ export default function Navigation(){
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
+      setMenuOpen(false);
       navigate('/');
     }
   };
@@ -20,54 +21,52 @@ export default function Navigation(){
   return (
     <nav className="main-nav">
       <div className="main-nav-left">
-        {user ? (
-          <>
-            <NavLink to="/profile">Profilom</NavLink>
-            <NavLink to="/warehouse">Raktáros</NavLink>
-            <button type="button" className="nav-link-btn" onClick={handleLogout}>
-              Kijelentkezés
-            </button>
-          </>
-        ) : (
-          <>
-            <NavLink to="/">Kezdőlap</NavLink>
-            <NavLink to="/rolunk">Rólunk</NavLink>
-            <NavLink to="/termekek">Termékek</NavLink>
-            <NavLink to="/kapcsolat">Kapcsolat</NavLink>
-          </>
-        )}
+        <>
+          <NavLink to="/">Kezdőlap</NavLink>
+          <NavLink to="/rolunk">Rólunk</NavLink>
+          <NavLink to="/termekek">Termékek</NavLink>
+          <NavLink to="/kapcsolat">Kapcsolat</NavLink>
+          <NavLink to="/warehouse">Raktáros</NavLink>
+        </>
       </div>
 
       <div className="main-nav-right">
-        {user ? (
-          <NavLink to="/profile" className="profile-icon-link" aria-label="Profil">
-            <i className="bi bi-person-circle"></i>
-          </NavLink>
-        ) : (
-          <div
-            className={`profile-menu ${guestMenuOpen ? 'open' : ''}`}
-            onMouseEnter={() => setGuestMenuOpen(true)}
-            onMouseLeave={() => setGuestMenuOpen(false)}
+        <div
+          className={`profile-menu ${menuOpen ? 'open' : ''}`}
+          onMouseEnter={() => setMenuOpen(true)}
+          onMouseLeave={() => setMenuOpen(false)}
+        >
+          <button
+            type="button"
+            className="profile-icon-link profile-icon-btn"
+            aria-label="Profil menü"
+            onClick={() => setMenuOpen((previous) => !previous)}
           >
-            <button
-              type="button"
-              className="profile-icon-link profile-icon-btn"
-              aria-label="Profil menü"
-              onClick={() => setGuestMenuOpen((previous) => !previous)}
-            >
-              <i className="bi bi-person-circle"></i>
-            </button>
+            <i className="bi bi-person-circle"></i>
+          </button>
 
-            <div className="profile-dropdown">
-              <NavLink to="/login" onClick={() => setGuestMenuOpen(false)}>
+          <div className="profile-dropdown">
+            {user ? (
+              <>
+                <NavLink to="/profile" onClick={() => setMenuOpen(false)}>
+                  Profilom
+                </NavLink>
+                <button type="button" className="nav-link-btn" onClick={handleLogout}>
+                  Kijelentkezés
+                </button>
+              </>
+            ) : (
+              <>
+              <NavLink to="/login" onClick={() => setMenuOpen(false)}>
                 Bejelentkezés
               </NavLink>
-              <NavLink to="/register" onClick={() => setGuestMenuOpen(false)}>
+              <NavLink to="/register" onClick={() => setMenuOpen(false)}>
                 Regisztráció
               </NavLink>
-            </div>
+              </>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </nav>
   );
