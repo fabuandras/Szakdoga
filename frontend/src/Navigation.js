@@ -27,7 +27,7 @@ export default function Navigation(){
         ) : (
           <>
             <NavLink to="/">
-              <i className="bi bi-house"></i> Kezdőlap
+              <i className="bi bi-house"></i> Főoldal
             </NavLink>
             <NavLink to="/rolunk">Rólunk</NavLink>
             <NavLink to="/termekek">Termékek</NavLink>
