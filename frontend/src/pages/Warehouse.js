@@ -3,10 +3,10 @@ import { NavLink, Outlet } from 'react-router-dom';
 import '../layout.css';
 import Navigation from '../Navigation';
 
-export default function Warehouse() {
+export default function Warehouse({ theme, toggleTheme }) {
   return (
     <div className="page container">
-      <Navigation />
+      <Navigation theme={theme} toggleTheme={toggleTheme} />
       <h1>Raktáros felület</h1>
       <nav className="warehouse-nav">
         <NavLink to="products">Terméklista</NavLink>

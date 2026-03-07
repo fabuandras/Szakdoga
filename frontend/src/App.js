@@ -4,7 +4,7 @@ import "./navigation.css";
 
 import { Routes, Route } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import GuestLayout from "./layouts/GuestLayout";
 import Home from "./pages/Home";
 import Rolunk from "./pages/Rolunk";
@@ -25,6 +25,7 @@ import { AuthContext } from "./contexts/AuthContext";
 import AdminNav from "./pages/AdminNav";
 import AdminUsers from "./pages/AdminUsers";
 import AdminProducts from "./pages/AdminProducts";
+import Footer from "./Footer";
 
 function isWarehouseOnlyUser(user) {
   return user?.felhasznalonev === "Bori";
@@ -51,14 +52,26 @@ function RequireAuth({ children }) {
 }
 
 function App() {
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((previous) => (previous === "dark" ? "light" : "dark"));
+  };
+
   return (
     <div className="App">
       <header className="App-header">
         <h1>Loop & Stitch</h1>
       </header>
 
+      <div className="app-main">
       <Routes>
-        <Route path="/" element={<GuestLayout />}>
+        <Route path="/" element={<GuestLayout theme={theme} toggleTheme={toggleTheme} />}>
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Registration />} />
           <Route path="registration" element={<Registration />} />
@@ -117,7 +130,7 @@ function App() {
           path="warehouse"
           element={
             <RequireAuth>
-              <Warehouse />
+              <Warehouse theme={theme} toggleTheme={toggleTheme} />
             </RequireAuth>
           }
         >
@@ -130,6 +143,8 @@ function App() {
           <Route path="notifications" element={<Notifications />} />
         </Route>
       </Routes>
+      </div>
+      <Footer />
     </div>
   );
 }

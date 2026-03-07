@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from './contexts/AuthContext';
 
-export default function Navigation(){
+export default function Navigation({ theme, toggleTheme }){
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -29,15 +29,30 @@ export default function Navigation(){
             <NavLink to="/">
               <i className="bi bi-house"></i> Főoldal
             </NavLink>
-            <NavLink to="/rolunk">Rólunk</NavLink>
-            <NavLink to="/termekek">Termékek</NavLink>
-            <NavLink to="/kapcsolat">Kapcsolat</NavLink>
-            <NavLink to="/warehouse">Raktáros</NavLink>
+            <NavLink to="/rolunk">
+              <i className="bi bi-info-circle"></i> Rólunk
+            </NavLink>
+            <NavLink to="/termekek">
+              <i className="bi bi-box-seam"></i> Termékek
+            </NavLink>
+            <NavLink to="/kapcsolat">
+              <i className="bi bi-envelope"></i> Kapcsolat
+            </NavLink>
           </>
         )}
       </div>
 
       <div className="main-nav-right">
+        <button
+          type="button"
+          className="theme-toggle-btn"
+          onClick={toggleTheme}
+          aria-label="Téma váltás"
+          title={theme === 'dark' ? 'Világos mód' : 'Sötét mód'}
+        >
+          <i className={theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars'}></i>
+        </button>
+
         <div
           className={`profile-menu ${menuOpen ? 'open' : ''}`}
           onMouseEnter={() => setMenuOpen(true)}
@@ -50,13 +65,14 @@ export default function Navigation(){
             onClick={() => setMenuOpen((previous) => !previous)}
           >
             <i className="bi bi-person-circle"></i>
+            <span className="profile-icon-text">Fiók</span>
           </button>
 
           <div className="profile-dropdown">
             {user ? (
               isWarehouseOnlyUser ? (
                 <button type="button" className="nav-link-btn" onClick={handleLogout}>
-                  Kijelentkezés
+                  <i className="bi bi-box-arrow-right"></i> Kijelentkezés
                 </button>
               ) : (
                 <>
@@ -64,17 +80,17 @@ export default function Navigation(){
                     Profilom
                   </NavLink>
                   <button type="button" className="nav-link-btn" onClick={handleLogout}>
-                    Kijelentkezés
+                    <i className="bi bi-box-arrow-right"></i> Kijelentkezés
                   </button>
                 </>
               )
             ) : (
               <>
               <NavLink to="/login" onClick={() => setMenuOpen(false)}>
-                Bejelentkezés
+                <i className="bi bi-box-arrow-in-right"></i> Bejelentkezés
               </NavLink>
               <NavLink to="/register" onClick={() => setMenuOpen(false)}>
-                Regisztráció
+                <i className="bi bi-person-plus"></i> Regisztráció
               </NavLink>
               </>
             )}
