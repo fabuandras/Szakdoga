@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Cross-Origin Resource Sharing (CORS) Configuration
@@ -14,14 +15,11 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'logout'],
+    'paths' => ['*'],
 
     'allowed_methods' => ['*'],
 
-    // allow your frontend origin here (no http:// prefix in SANCTUM_STATEFUL_DOMAINS but in cors.php full origin is OK)
-    'allowed_origins' => [
-        env('FRONTEND_URL', 'http://localhost:3000'),
-    ],
+    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
 
     'allowed_origins_patterns' => [],
 
@@ -31,6 +29,6 @@ return [
 
     'max_age' => 0,
 
-    // must be true to send cookies across origins
     'supports_credentials' => true,
+
 ];

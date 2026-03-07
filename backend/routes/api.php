@@ -2,37 +2,31 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\ItemController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\PaymentController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Authentication
-Route::post('/register', [UserController::class, 'register']);
-Route::post('/login',    [UserController::class, 'login']);
+Route::middleware(['auth:sanctum'])->post('/logout', function (Request $request) {
+    $user = $request->user();
 
-// Public item endpoints
-Route::get('/items',       [ItemController::class, 'index']);
-Route::get('/items/{id}',  [ItemController::class, 'show']);
+    if ($user && method_exists($user, 'currentAccessToken')) {
+        $token = $user->currentAccessToken();
+        if ($token) {
+            $token->delete();
+        }
+    }
 
-// Protected endpoints
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [UserController::class, 'logout']);
+    if (Auth::guard('web')->check()) {
+        Auth::guard('web')->logout();
+    }
 
-    // Items CRUD (protected)
-    Route::post('/items',        [ItemController::class, 'store']);
-    Route::put('/items/{id}',    [ItemController::class, 'update']);
-    Route::delete('/items/{id}', [ItemController::class, 'destroy']);
+    if ($request->hasSession()) {
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+    }
 
-    // Orders
-    Route::get('/orders',        [OrderController::class, 'index']);
-    Route::get('/orders/{id}',   [OrderController::class, 'show']);
-    Route::post('/orders',       [OrderController::class, 'store']);
-
-    // Payments
-    Route::post('/payments',     [PaymentController::class, 'process']);
-});
+    return response()->json(['message' => 'Logged out']);
+})->withoutMiddleware([ValidateCsrfToken::class]);

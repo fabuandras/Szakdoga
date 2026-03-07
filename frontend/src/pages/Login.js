@@ -5,19 +5,16 @@ import { AuthContext } from "../contexts/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, errors } = useContext(AuthContext);
+  const { login, errors, generalError, setGeneralError } = useContext(AuthContext);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [serverErrors, setServerErrors] = useState(null);
 
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
-    setServerErrors(null);
+    setGeneralError(null);
     const success = await login({ email, password });
-    if (!success) {
-      setServerErrors(errors);
-    } else {
+    if (success) {
       navigate("/profile");
     }
   };
@@ -38,8 +35,8 @@ export default function Login() {
               placeholder="Felhasználónév vagy Email"
               autoComplete="username"
             />
-            {serverErrors && serverErrors.email && (
-              <div className="auth-error">{serverErrors.email[0]}</div>
+            {(errors.email_or_username || errors.email) && (
+              <div className="auth-error">{errors.email_or_username || errors.email}</div>
             )}
           </div>
 
@@ -53,20 +50,19 @@ export default function Login() {
               placeholder="Jelszó"
               autoComplete="current-password"
             />
-            {serverErrors && serverErrors.password && (
-              <div className="auth-error">{serverErrors.password[0]}</div>
+            {errors.password && (
+              <div className="auth-error">{errors.password}</div>
             )}
           </div>
 
           <button
-            type="button"
-            onClick={handleSubmit}
+            type="submit"
             className="btn btn-primary w-100"
           >
             Bejelentkezés
           </button>
-          {serverErrors && serverErrors.message && (
-            <div className="auth-error">{serverErrors.message}</div>
+          {generalError && (
+            <div className="auth-error">{generalError}</div>
           )}
         </form>
       </div>

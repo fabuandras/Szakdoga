@@ -63,11 +63,14 @@ export function AuthProvider({ children }) {
       setUser(data);
       return data;
     } catch (error) {
-      console.error("getUser() failed:", {
-        status: error?.response?.status,
-        message: error?.message,
-        url: error?.response?.url,
-      });
+      const status = error?.response?.status;
+      if (status && status !== 401) {
+        console.error("getUser() failed:", {
+          status,
+          message: error?.message,
+          url: error?.response?.url,
+        });
+      }
       throw error;
     }
   }, []);
@@ -90,15 +93,15 @@ export function AuthProvider({ children }) {
         // login (felhasználónév vagy email + jelszó)
         const { data } = await myAxios.post("/login", { email, password });
 
-        // response should include token
+        // token alapú válasz támogatása (ha van)
         if (data && data.token) {
           localStorage.setItem('token', data.token);
           myAxios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-          // bejelentkezett user lekérése
-          await getUser();
-          return true;
         }
-        return false;
+
+        // session alapú beléptetésnél is lekérjük a felhasználót
+        await getUser();
+        return true;
       } catch (e) {
         const status = e?.response?.status;
 
@@ -123,7 +126,7 @@ export function AuthProvider({ children }) {
           setGeneralError("Váratlan hiba a bejelentkezéskor.");
         }
 
-        throw e;
+        return false;
       }
     },
     [csrf, getUser]
@@ -137,6 +140,11 @@ export function AuthProvider({ children }) {
       try {
         // CSRF token lekérés
         await csrf();
+
+        const xsrf = readCookie('XSRF-TOKEN');
+        if (xsrf) {
+          myAxios.defaults.headers.common['X-XSRF-TOKEN'] = xsrf;
+        }
 
         // regisztráció
         await myAxios.post("/register", adat);
@@ -170,14 +178,35 @@ export function AuthProvider({ children }) {
 
     try {
       await csrf();
-      await myAxios.post("/logout");
+
+      const xsrf = readCookie('XSRF-TOKEN');
+      if (xsrf) {
+        myAxios.defaults.headers.common['X-XSRF-TOKEN'] = xsrf;
+      }
+
+      const hasBearerToken = Boolean(localStorage.getItem('token'));
+
+      if (hasBearerToken) {
+        try {
+          await myAxios.post("/api/logout");
+        } catch (apiError) {
+          const apiStatus = apiError?.response?.status;
+
+          if (apiStatus !== 401 && apiStatus !== 419) {
+            await myAxios.post("/logout");
+          }
+        }
+      } else {
+        await myAxios.post("/logout");
+      }
+
       localStorage.removeItem('token');
       delete myAxios.defaults.headers.common['Authorization'];
       setUser(null);
       return true;
     } catch (e) {
       setGeneralError("Kijelentkezés sikertelen.");
-      throw e;
+      return false;
     }
   }, [csrf]);
 
@@ -191,7 +220,10 @@ export function AuthProvider({ children }) {
         await getUser();
       } catch (error) {
         // Ha hiba jön (pl. 401 = nincs bejelentkezve), user marad null
-        console.log("User check failed:", error?.response?.status);
+        const status = error?.response?.status;
+        if (status && status !== 401) {
+          console.log("User check failed:", status);
+        }
         setUser(null);
       }
     };
