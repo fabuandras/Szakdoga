@@ -6,10 +6,19 @@ export const AuthContext = createContext();
 function normalizeLaravelErrors(errorsObj) {
   // Laravel 422 esetén tipikusan: { email: ["..."], password: ["..."] }
   if (!errorsObj || typeof errorsObj !== "object") return {};
+  const keyMap = {
+    vez_nev: "lastName",
+    ker_nev: "firstName",
+    megszolitas: "salutation",
+    tel_szam: "phone",
+    szul_datum: "birthDate",
+    password_confirmation: "passwordConfirm",
+  };
   const out = {};
   for (const key of Object.keys(errorsObj)) {
     const v = errorsObj[key];
     let message = Array.isArray(v) ? v[0] : String(v);
+    const mappedKey = keyMap[key] || key;
 
     // Magyar fordítások egyszerű helyettesítése
     if (message.includes('The password field is required')) message = 'A jelszó megadása kötelező.';
@@ -20,7 +29,7 @@ function normalizeLaravelErrors(errorsObj) {
     if (message.includes('These credentials do not match our records') || message.toLowerCase().includes('auth.failed')) {
       message = 'Hibás felhasználónév/email vagy jelszó.';
       // assign to unified key
-      out['email_or_username'] = message;
+      out["email_or_username"] = message;
       continue;
     }
 
@@ -37,10 +46,31 @@ function normalizeLaravelErrors(errorsObj) {
     }
     if (key === 'password') {
       if (message.toLowerCase().includes('required')) message = 'A jelszó megadása kötelező.';
-      if (message.toLowerCase().includes('confirmed')) message = 'A jelszó megerősítése nem egyezik.';
+      if (message.toLowerCase().includes('confirmed')) {
+        message = 'A jelszó megerősítése nem egyezik.';
+        out.passwordConfirm = message;
+        continue;
+      }
     }
 
-    out[key] = message;
+    if (key === 'vez_nev' && message.toLowerCase().includes('required')) {
+      message = 'A vezetéknév megadása kötelező.';
+    }
+    if (key === 'ker_nev' && message.toLowerCase().includes('required')) {
+      message = 'A keresztnév megadása kötelező.';
+    }
+    if (key === 'megszolitas' && message.toLowerCase().includes('required')) {
+      message = 'A megszólítás megadása kötelező.';
+    }
+    if (key === 'tel_szam' && message.toLowerCase().includes('required')) {
+      message = 'A telefonszám megadása kötelező.';
+    }
+    if (key === 'szul_datum') {
+      if (message.toLowerCase().includes('required')) message = 'A születési dátum megadása kötelező.';
+      if (message.toLowerCase().includes('date')) message = 'Érvénytelen dátumformátum.';
+    }
+
+    out[mappedKey] = message;
   }
   return out;
 }

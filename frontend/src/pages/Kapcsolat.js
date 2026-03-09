@@ -64,8 +64,30 @@ export default function Kapcsolat() {
       <h1>Kapcsolat</h1>
       <p>Írj nekünk üzenetet, és hamarosan válaszolunk.</p>
 
-      <div className="contact-card">
-        <form className="contact-form" onSubmit={handleSubmit} noValidate>
+      <div className="contact-layout">
+        <aside className="contact-details">
+          <h2>Elérhetőségeink</h2>
+          <p className="contact-details-intro">
+            Hétfőtől péntekig 8:00-16:00 között vagyunk elérhetők.
+          </p>
+          <div className="contact-details-grid">
+            <div className="contact-details-item">
+              <strong>Telefonszám</strong>
+              <a href="tel:+36301234567">+36 30 123 4567</a>
+            </div>
+            <div className="contact-details-item">
+              <strong>Email</strong>
+              <a href="mailto:kapcsolat@loopandstitch.hu">kapcsolat@loopandstitch.hu</a>
+            </div>
+            <div className="contact-details-item">
+              <strong>Helyszín</strong>
+              <span>4024 Debrecen, Piac utca 18.</span>
+            </div>
+          </div>
+        </aside>
+
+        <div className="contact-card">
+          <form className="contact-form" onSubmit={handleSubmit} noValidate>
           <div className="contact-field">
             <label htmlFor="nev">Név</label>
             <input
@@ -121,12 +143,13 @@ export default function Kapcsolat() {
             {errors.uzenet && <small className="contact-error">{errors.uzenet}</small>}
           </div>
 
-          <button type="submit" className="primary contact-submit">Üzenet küldése</button>
-        </form>
+            <button type="submit" className="primary contact-submit">Üzenet küldése</button>
+          </form>
 
-        {isSent && (
-          <p className="contact-success">Köszönjük! Az üzeneted sikeresen elküldve.</p>
-        )}
+          {isSent && (
+            <p className="contact-success">Köszönjük! Az üzeneted sikeresen elküldve.</p>
+          )}
+        </div>
       </div>
     </section>
   );

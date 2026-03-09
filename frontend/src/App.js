@@ -65,10 +65,6 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>Loop & Stitch</h1>
-      </header>
-
       <div className="app-main">
       <Routes>
         <Route path="/" element={<GuestLayout theme={theme} toggleTheme={toggleTheme} />}>
