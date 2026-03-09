@@ -21,25 +21,15 @@ class RegisteredUserController extends Controller
     public function store(Request $request): Response
     {
         $request->validate([
-            'felhasznalonev' => ['required', 'string', 'max:30', 'unique:users,felhasznalonev'],
-            'vez_nev' => ['required', 'string', 'max:20'],
-            'ker_nev' => ['required', 'string', 'max:20'],
-            'megszolitas' => ['required', 'string', 'max:10'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:40', 'unique:'.User::class],
-            'tel_szam' => ['required', 'string', 'max:20'],
-            'szul_datum' => ['required', 'date', 'before_or_equal:today'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
-            'felhasznalonev' => $request->string('felhasznalonev')->toString(),
-            'vez_nev' => $request->string('vez_nev')->toString(),
-            'ker_nev' => $request->string('ker_nev')->toString(),
-            'megszolitas' => $request->string('megszolitas')->toString(),
+            'name' => $request->name,
             'email' => $request->email,
-            'tel_szam' => $request->string('tel_szam')->toString(),
-            'szul_datum' => $request->input('szul_datum'),
-            'jelszo' => Hash::make((string) $request->input('password')),
+            'password' => Hash::make($request->string('password')),
         ]);
 
         event(new Registered($user));
