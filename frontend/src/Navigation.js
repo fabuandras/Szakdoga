@@ -6,6 +6,7 @@ export default function Navigation({ theme, toggleTheme }){
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isWarehouseOnlyUser = user?.felhasznalonev === 'Bori';
 
   const handleLogout = async () => {
@@ -15,44 +16,36 @@ export default function Navigation({ theme, toggleTheme }){
       console.error('Logout failed:', error);
     } finally {
       setMenuOpen(false);
+      setMobileMenuOpen(false);
       navigate('/');
     }
   };
 
   return (
-    <nav className="main-nav">
-      <div className="main-nav-left">
+    <nav className="main-nav shell-nav">
+      <button
+        type="button"
+        className="nav-mobile-toggle"
+        onClick={() => setMobileMenuOpen((previous) => !previous)}
+        aria-label="Menü nyitása"
+      >
+        <i className={mobileMenuOpen ? 'bi bi-x-lg' : 'bi bi-list'}></i>
+      </button>
+
+      <div className={`main-nav-links ${mobileMenuOpen ? 'open' : ''}`}>
         {isWarehouseOnlyUser ? (
-          <NavLink to="/warehouse">Raktáros</NavLink>
+          <NavLink to="/warehouse" onClick={() => setMobileMenuOpen(false)}>Raktáros</NavLink>
         ) : (
           <>
-            <NavLink to="/">
-              <i className="bi bi-house"></i> Főoldal
-            </NavLink>
-            <NavLink to="/rolunk">
-              <i className="bi bi-info-circle"></i> Rólunk
-            </NavLink>
-            <NavLink to="/termekek">
-              <i className="bi bi-box-seam"></i> Termékek
-            </NavLink>
-            <NavLink to="/kapcsolat">
-              <i className="bi bi-envelope"></i> Kapcsolat
-            </NavLink>
+            <NavLink to="/" onClick={() => setMobileMenuOpen(false)}>Fooldal</NavLink>
+            <NavLink to="/termekek" onClick={() => setMobileMenuOpen(false)}>Termekek</NavLink>
+            <NavLink to="/rolunk" onClick={() => setMobileMenuOpen(false)}>Rolunk</NavLink>
+            <NavLink to="/kapcsolat" onClick={() => setMobileMenuOpen(false)}>Kapcsolat</NavLink>
           </>
         )}
       </div>
 
       <div className="main-nav-right">
-        <button
-          type="button"
-          className="theme-toggle-btn"
-          onClick={toggleTheme}
-          aria-label="Téma váltás"
-          title={theme === 'dark' ? 'Világos mód' : 'Sötét mód'}
-        >
-          <i className={theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars'}></i>
-        </button>
-
         <div
           className={`profile-menu ${menuOpen ? 'open' : ''}`}
           onMouseEnter={() => setMenuOpen(true)}
@@ -64,8 +57,7 @@ export default function Navigation({ theme, toggleTheme }){
             aria-label="Profil menü"
             onClick={() => setMenuOpen((previous) => !previous)}
           >
-            <i className="bi bi-person-circle"></i>
-            <span className="profile-icon-text">Fiók</span>
+            <span className="profile-icon-text">Fiok</span>
           </button>
 
           <div className="profile-dropdown">
@@ -76,7 +68,7 @@ export default function Navigation({ theme, toggleTheme }){
                 </button>
               ) : (
                 <>
-                  <NavLink to="/profile" onClick={() => setMenuOpen(false)}>
+                  <NavLink to="/profile" onClick={() => { setMenuOpen(false); setMobileMenuOpen(false); }}>
                     Profilom
                   </NavLink>
                   <button type="button" className="nav-link-btn" onClick={handleLogout}>
@@ -86,12 +78,12 @@ export default function Navigation({ theme, toggleTheme }){
               )
             ) : (
               <>
-              <NavLink to="/login" onClick={() => setMenuOpen(false)}>
-                <i className="bi bi-box-arrow-in-right"></i> Bejelentkezés
-              </NavLink>
-              <NavLink to="/register" onClick={() => setMenuOpen(false)}>
-                <i className="bi bi-person-plus"></i> Regisztráció
-              </NavLink>
+                <NavLink to="/login" onClick={() => { setMenuOpen(false); setMobileMenuOpen(false); }}>
+                  <i className="bi bi-box-arrow-in-right"></i> Bejelentkezés
+                </NavLink>
+                <NavLink to="/register" onClick={() => { setMenuOpen(false); setMobileMenuOpen(false); }}>
+                  <i className="bi bi-person-plus"></i> Regisztráció
+                </NavLink>
               </>
             )}
           </div>
