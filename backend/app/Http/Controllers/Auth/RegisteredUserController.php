@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
 
 class RegisteredUserController extends Controller
 {
@@ -21,15 +20,25 @@ class RegisteredUserController extends Controller
     public function store(Request $request): Response
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'felhasznalonev' => ['required', 'string', 'max:30', 'unique:'.User::class.',felhasznalonev'],
+            'vez_nev' => ['required', 'string', 'max:20'],
+            'ker_nev' => ['required', 'string', 'max:20'],
+            'megszolitas' => ['required', 'string', 'max:10'],
+            'email' => ['required', 'string', 'email', 'max:40', 'unique:'.User::class.',email'],
+            'tel_szam' => ['required', 'string', 'max:20'],
+            'szul_datum' => ['required', 'date'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
+            'felhasznalonev' => $request->string('felhasznalonev')->toString(),
+            'vez_nev' => $request->string('vez_nev')->toString(),
+            'ker_nev' => $request->string('ker_nev')->toString(),
+            'megszolitas' => $request->string('megszolitas')->toString(),
             'email' => $request->email,
-            'password' => Hash::make($request->string('password')),
+            'tel_szam' => $request->string('tel_szam')->toString(),
+            'szul_datum' => $request->input('szul_datum'),
+            'jelszo' => Hash::make($request->string('password')->toString()),
         ]);
 
         event(new Registered($user));

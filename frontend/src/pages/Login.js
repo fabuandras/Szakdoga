@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import "../login.css";
 import { AuthContext } from "../contexts/AuthContext";
@@ -72,6 +73,10 @@ export default function Login() {
             <div className="auth-error">{generalError}</div>
           )}
         </form>
+
+        <div className="auth-footer">
+          Még nincs fiókod? <Link to="/register">Regisztrálok!</Link>
+        </div>
       </div>
     </div>
   );

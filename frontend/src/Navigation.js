@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from './contexts/AuthContext';
 
-export default function Navigation({ theme, toggleTheme }){
+export default function Navigation({ theme, toggleTheme }) {
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -34,13 +34,23 @@ export default function Navigation({ theme, toggleTheme }){
 
       <div className={`main-nav-links ${mobileMenuOpen ? 'open' : ''}`}>
         {isWarehouseOnlyUser ? (
-          <NavLink to="/warehouse" className="warehouse-top-title" onClick={() => setMobileMenuOpen(false)}>Raktáros felület</NavLink>
+          <NavLink to="/warehouse" className="warehouse-top-title" onClick={() => setMobileMenuOpen(false)}>
+            Raktáros felület
+          </NavLink>
         ) : (
           <>
-            <NavLink to="/" onClick={() => setMobileMenuOpen(false)}>Fooldal</NavLink>
-            <NavLink to="/termekek" onClick={() => setMobileMenuOpen(false)}>Termekek</NavLink>
-            <NavLink to="/rolunk" onClick={() => setMobileMenuOpen(false)}>Rolunk</NavLink>
-            <NavLink to="/kapcsolat" onClick={() => setMobileMenuOpen(false)}>Kapcsolat</NavLink>
+            <NavLink to="/" onClick={() => setMobileMenuOpen(false)}>
+              <i className="bi bi-house-door"></i> Főoldal
+            </NavLink>
+            <NavLink to="/termekek" onClick={() => setMobileMenuOpen(false)}>
+              <i className="bi bi-box-seam"></i> Termékek
+            </NavLink>
+            <NavLink to="/rolunk" onClick={() => setMobileMenuOpen(false)}>
+              <i className="bi bi-people"></i> Rólunk
+            </NavLink>
+            <NavLink to="/kapcsolat" onClick={() => setMobileMenuOpen(false)}>
+              <i className="bi bi-envelope"></i> Kapcsolat
+            </NavLink>
           </>
         )}
       </div>
@@ -57,7 +67,7 @@ export default function Navigation({ theme, toggleTheme }){
             aria-label="Profil menü"
             onClick={() => setMenuOpen((previous) => !previous)}
           >
-            <span className="profile-icon-text">Fiok</span>
+            <span className="profile-icon-text"><i className="bi bi-gear"></i> Fiók</span>
           </button>
 
           <div className="profile-dropdown">

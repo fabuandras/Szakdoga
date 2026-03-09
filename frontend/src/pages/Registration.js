@@ -327,7 +327,7 @@ export default function Registration() {
         </form>
 
         <div className="auth-footer">
-          Van már fiókod? <Link to="/login">Bejelentkezés</Link>
+          Van már fiókod? <Link to="/login">Bejelentkezek!</Link>
         </div>
       </div>
     </div>
