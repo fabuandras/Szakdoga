@@ -17,7 +17,7 @@ cd backend
 php artisan key:generate
 php artisan serve --host=0.0.0.0 --port=8000
 
-http://localhost:8080/index.php?route=/database/structure&db=Szakdoga
+http://localhost:8080/
 
 
 
