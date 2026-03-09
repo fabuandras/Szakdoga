@@ -2,19 +2,31 @@ import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import '../layout.css';
 import Navigation from '../Navigation';
+import './warehouse.css';
 
 export default function Warehouse({ theme, toggleTheme }) {
+  const menuItems = [
+    { to: 'products', label: 'Terméklista' },
+    { to: 'intake', label: 'Bevételezés' },
+    { to: 'release', label: 'Kiadás' },
+    { to: 'movement', label: 'Raktármozgás' },
+    { to: 'inventory', label: 'Leltár' },
+    { to: 'notifications', label: 'Értesítések' },
+  ];
+
   return (
-    <div className="page container">
+    <div className="page container warehouse-page">
       <Navigation theme={theme} toggleTheme={toggleTheme} />
-      <h1>Raktáros felület</h1>
       <nav className="warehouse-nav">
-        <NavLink to="products">Terméklista</NavLink>
-        <NavLink to="intake">Bevitel</NavLink>
-        <NavLink to="release">Kiadás</NavLink>
-        <NavLink to="movement">Raktármozgás</NavLink>
-        <NavLink to="inventory">Leltár</NavLink>
-        <NavLink to="notifications">Értesítések</NavLink>
+        {menuItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) => `warehouse-nav-link${isActive ? ' active' : ''}`}
+          >
+            {item.label}
+          </NavLink>
+        ))}
       </nav>
 
       <div className="warehouse-content">

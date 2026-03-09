@@ -60,6 +60,36 @@
 	will-change: transform;
 }
 
+.main-nav a.warehouse-top-title {
+	font-size: 2rem;
+	font-weight: 800;
+	letter-spacing: 0.3px;
+	padding: 10px 20px;
+	border-radius: 12px;
+	color: #1e293b;
+	background: transparent;
+	box-shadow: none;
+	transform: none;
+}
+
+.main-nav a.warehouse-top-title:hover,
+.main-nav a.warehouse-top-title.active {
+	background: transparent;
+	color: #0d6efd;
+	border-color: transparent;
+	box-shadow: none;
+	transform: none;
+}
+
+[data-theme='dark'] .main-nav a.warehouse-top-title {
+	color: #f3f4f6;
+}
+
+[data-theme='dark'] .main-nav a.warehouse-top-title:hover,
+[data-theme='dark'] .main-nav a.warehouse-top-title.active {
+	color: #7fb3ff;
+}
+
 .main-nav a i {
 	font-weight: 700;
 }

@@ -1,0 +1,103 @@
+.warehouse-page {
+  padding-bottom: 2rem;
+}
+
+.warehouse-nav {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(170px, 1fr));
+  gap: 0;
+  border: 1px solid #d9e2ec;
+  border-radius: 12px;
+  overflow-x: auto;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(16, 24, 40, 0.08);
+  margin-bottom: 1rem;
+}
+
+.warehouse-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: #1f2937;
+  font-weight: 600;
+  white-space: nowrap;
+  border-right: 1px solid #e7edf4;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.warehouse-nav-link:last-child {
+  border-right: none;
+}
+
+.warehouse-nav-link:hover {
+  background: #f1f6ff;
+  color: #0a58ca;
+}
+
+.warehouse-nav-link.active {
+  background: #0d6efd;
+  color: #fff;
+}
+
+.warehouse-content {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e7edf4;
+  padding: 1rem;
+  box-shadow: 0 6px 16px rgba(16, 24, 40, 0.06);
+}
+
+.warehouse-form .form-control,
+.warehouse-form .form-select,
+.warehouse-filter .form-control,
+.warehouse-filter .form-select {
+  min-height: 48px;
+  font-size: 1rem;
+}
+
+/* Egységes és hosszabb bekérő mezők a raktáros űrlapokon */
+@media (min-width: 768px) {
+  .warehouse-form > [class*="col-"] {
+    width: 50% !important;
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+  }
+
+  .warehouse-form > .col-12 {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .warehouse-form > [class*="col-"] {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+.warehouse-filter.form-select {
+  min-height: 48px;
+  font-size: 1rem;
+}
+
+.warehouse-btn {
+  min-height: 48px;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.625rem 1.1rem;
+}
+
+.warehouse-info {
+  font-size: 0.95rem;
+}
+
+@media (max-width: 1200px) {
+  .warehouse-nav {
+    grid-template-columns: repeat(6, minmax(190px, 1fr));
+  }
+}

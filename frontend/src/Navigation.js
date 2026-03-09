@@ -23,7 +23,7 @@ export default function Navigation({ theme, toggleTheme }){
     <nav className="main-nav">
       <div className="main-nav-left">
         {isWarehouseOnlyUser ? (
-          <NavLink to="/warehouse">Raktáros</NavLink>
+          <NavLink to="/warehouse" className="warehouse-top-title">Raktáros felület</NavLink>
         ) : (
           <>
             <NavLink to="/">
