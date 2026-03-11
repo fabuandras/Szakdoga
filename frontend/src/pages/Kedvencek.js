@@ -20,8 +20,8 @@ export default function Kedvencek() {
     return (
       <section className="page">
         <h1>Kedvencek</h1>
-        <p>A kedvencek megtekintesehez jelentkezz be.</p>
-        <Link to="/login">Bejelentkezes</Link>
+        <p>A kedvencek megtekintéséhez jelentkezz be.</p>
+        <Link to="/login">Bejelentkezés</Link>
       </section>
     );
   }
@@ -30,7 +30,7 @@ export default function Kedvencek() {
     <section className="page">
       <h1>Kedvencek</h1>
       {items.length === 0 ? (
-        <p>Nincs meg kedvenc termeked.</p>
+        <p>Még nincs kedvenc terméked.</p>
       ) : (
         <ul>
           {items.map((item) => (

@@ -205,7 +205,6 @@ body {
   border: 1px solid var(--border);
   border-radius: 14px;
   box-shadow: var(--shadow-sm);
-  backdrop-filter: none;
 }
 
 .home-action-card {

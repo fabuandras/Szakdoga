@@ -24,7 +24,6 @@ Route::get('/products-public', function () {
     return Item::query()
         ->select($selectColumns)
         ->orderBy('cikk_szam')
-        ->limit(20)
         ->get()
         ->map(fn ($item) => [
             'id' => (int) $item->cikk_szam,

@@ -4,17 +4,6 @@ import { myAxios, publicAxios } from "../api/axios";
 import { AuthContext } from "../contexts/AuthContext";
 import "./Termekek.css";
 
-const REQUEST_TIMEOUT_MS = 3000;
-
-function withTimeout(promise, timeout = REQUEST_TIMEOUT_MS) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("timeout")), timeout)
-    ),
-  ]);
-}
-
 function mapBackendProduct(row) {
   return {
     id: row.id ?? row.cikk_szam,
@@ -42,26 +31,19 @@ export default function Termekek() {
     setMessage(null);
 
     try {
-      const response = await withTimeout(publicAxios.get("/api/products"));
+      const response = await publicAxios.get("/api/products");
       const mapped = (response?.data || []).map(mapBackendProduct);
       setProducts(mapped);
       return;
     } catch (publicError) {
       try {
-        const fallback = await withTimeout(myAxios.get("/api/products"));
-        const mapped = (fallback?.data || []).map(mapBackendProduct);
+        const webFallback = await publicAxios.get("/products-public");
+        const mapped = (webFallback?.data || []).map(mapBackendProduct);
         setProducts(mapped);
         return;
-      } catch (fallbackError) {
-        try {
-          const webFallback = await withTimeout(publicAxios.get("/products-public"));
-          const mapped = (webFallback?.data || []).map(mapBackendProduct);
-          setProducts(mapped);
-          return;
-        } catch (webFallbackError) {
-          setProducts([]);
-          setMessage("A termekek most nem erhetoek el. Probald ujra par masodperc mulva.");
-        }
+      } catch (webFallbackError) {
+        setProducts([]);
+        setMessage("A termékek most nem érhetőek el. Próbáld újra pár másodperc múlva.");
       }
     } finally {
       setLoading(false);
@@ -75,7 +57,7 @@ export default function Termekek() {
     }
 
     try {
-      const response = await withTimeout(myAxios.get("/api/shop/favorites"));
+      const response = await myAxios.get("/api/shop/favorites");
       const ids = (response?.data || []).map((item) => Number(item.cikk_szam ?? item.id));
       setFavorites(ids);
     } catch (error) {
@@ -102,7 +84,7 @@ export default function Termekek() {
       const ids = (response?.data?.favorites || []).map((id) => Number(id));
       setFavorites(ids);
     } catch (error) {
-      setMessage("A kedvencek frissitese sikertelen.");
+      setMessage("A kedvencek frissítése sikertelen.");
     }
   };
 
@@ -114,20 +96,20 @@ export default function Termekek() {
 
     try {
       await myAxios.post("/api/shop/cart/add", { item_id: itemId, qty: 1 });
-      setMessage("A termek a kosarba kerult.");
+      setMessage("A termék a kosárba került.");
     } catch (error) {
-      setMessage("A kosar frissitese sikertelen.");
+      setMessage("A kosár frissítése sikertelen.");
     }
   };
 
   return (
     <section className="page products-page">
       <div className="products-page-header">
-        <h1>Termekek</h1>
-        <p>Valassz a kezmuves horgolos alapanyagokbol es keszletekbol.</p>
+        <h1>Termékek</h1>
+        <p>Válassz a kézműves horgolós alapanyagokból és készletekből.</p>
       </div>
 
-      {loading && <p>Termekek betoltese...</p>}
+      {loading && <p>Termékek betöltése...</p>}
       {!loading && message && <p className="products-message">{message}</p>}
 
       {!loading && (
@@ -142,7 +124,7 @@ export default function Termekek() {
                 type="button"
                 className={`favorite-btn ${favoriteSet.has(Number(product.id)) ? "active" : ""}`}
                 onClick={() => toggleFavorite(Number(product.id))}
-                aria-label="Kedvenc"
+                aria-label="Kedvenc termék"
               >
                 <i className="bi bi-heart-fill"></i>
               </button>
@@ -151,7 +133,7 @@ export default function Termekek() {
                 {product.image ? (
                   <img src={product.image} alt={product.name} className="product-image" />
                 ) : (
-                  <div className="product-image-fallback">No image</div>
+                  <div className="product-image-fallback">Nincs kép</div>
                 )}
               </div>
 
@@ -163,7 +145,7 @@ export default function Termekek() {
                 className="product-cart-btn"
                 onClick={() => addToCart(Number(product.id))}
               >
-                Kosarba
+                Kosárba
               </button>
             </article>
           ))}

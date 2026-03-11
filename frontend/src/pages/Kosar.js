@@ -33,18 +33,18 @@ export default function Kosar() {
   if (!user) {
     return (
       <section className="page">
-        <h1>Kosar</h1>
-        <p>A kosar megtekintesehez jelentkezz be.</p>
-        <Link to="/login">Bejelentkezes</Link>
+        <h1>Kosár</h1>
+        <p>A kosár megtekintéséhez jelentkezz be.</p>
+        <Link to="/login">Bejelentkezés</Link>
       </section>
     );
   }
 
   return (
     <section className="page">
-      <h1>Kosar</h1>
+      <h1>Kosár</h1>
       {cart.items.length === 0 ? (
-        <p>A kosarad ures.</p>
+        <p>A kosarad üres.</p>
       ) : (
         <div>
           {cart.items.map((item) => (
@@ -53,12 +53,12 @@ export default function Kosar() {
               <div>
                 <button type="button" onClick={() => changeQty(item.item_id, item.qty - 1)}>-</button>
                 <button type="button" onClick={() => changeQty(item.item_id, item.qty + 1)}>+</button>
-                <button type="button" onClick={() => removeItem(item.item_id)}>Torles</button>
+                <button type="button" onClick={() => removeItem(item.item_id)}>Törlés</button>
               </div>
             </div>
           ))}
           <p>
-            <strong>Vegosszeg: {Number(cart.total || 0).toLocaleString("hu-HU")} Ft</strong>
+            <strong>Végösszeg: {Number(cart.total || 0).toLocaleString("hu-HU")} Ft</strong>
           </p>
         </div>
       )}

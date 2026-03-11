@@ -80,7 +80,6 @@ class ItemController extends Controller
         $products = Item::query()
             ->select($selectColumns)
             ->orderBy('cikk_szam')
-            ->limit(20)
             ->get()
             ->map(function ($item) {
                 return [
