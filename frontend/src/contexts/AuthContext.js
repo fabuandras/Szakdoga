@@ -254,9 +254,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        // Először CSRF tokent kérünk
-        await csrf();
-        // Majd lekérdezzük a felhasználó adatait
+        // Guest oldalakhoz eleg a user endpoint; csrf csak login/register/logout előtt kell.
         await getUser();
       } catch (error) {
         // Ha hiba jön (pl. 401 = nincs bejelentkezve), user marad null
@@ -269,7 +267,7 @@ export function AuthProvider({ children }) {
     };
 
     checkUser();
-  }, [csrf, getUser]);
+  }, [getUser]);
 
   const value = useMemo(
     () => ({
