@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { deleteItem, getItems, subscribeStore } from "./warehouseStore";
+import { myAxios } from "../api/axios";
 
 function stockState(item) {
   const qty = Number(item.akt_keszlet || 0);
@@ -12,16 +12,40 @@ function stockState(item) {
 
 export default function ProductsList() {
   const [items, setItems] = useState([]);
+  const [error, setError] = useState("");
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("mind");
   const [status, setStatus] = useState("mind");
   const [sortBy, setSortBy] = useState("nev_asc");
 
   useEffect(() => {
-    const load = () => setItems(getItems());
-    load();
-    return subscribeStore(load);
+    loadItems();
   }, []);
+
+  const loadItems = async () => {
+    try {
+      setError("");
+      const response = await myAxios.get("/api/items");
+      const mapped = (response.data || []).map((it) => ({
+        cikk_szam: String(it.cikk_szam),
+        elnevezes: it.elnevezes,
+        kategoria: it.kategoria || "-",
+        akt_keszlet: Number(it.akt_keszlet || 0),
+        min_keszlet: Number(it.min_keszlet || 0),
+        raktarhely: it.raktarhely || "-",
+        kep_url: it.kep_url || "",
+        egyseg_ar: Number(it.egyseg_ar || 0),
+      }));
+      setItems(mapped);
+    } catch (e) {
+      if (e?.response?.status === 401) {
+        setError("A terméklista megtekintéséhez be kell jelentkezni.");
+      } else {
+        setError("A terméklista betöltése sikertelen.");
+      }
+      setItems([]);
+    }
+  };
 
   const categories = useMemo(() => {
     return ["mind", ...new Set(items.map((it) => it.kategoria || "Egyéb"))];
@@ -53,9 +77,14 @@ export default function ProductsList() {
     return out;
   }, [items, q, category, status, sortBy]);
 
-  const handleDelete = (sku) => {
+  const handleDelete = async (sku) => {
     if (!window.confirm(`Biztosan törölni szeretnéd a ${sku} cikkszámú tételt?`)) return;
-    deleteItem(sku);
+    try {
+      await myAxios.delete(`/api/items/${sku}`);
+      await loadItems();
+    } catch (e) {
+      setError("A törlés sikertelen.");
+    }
   };
 
   return (
@@ -105,6 +134,7 @@ export default function ProductsList() {
       </div>
 
       <div className="table-responsive">
+        {error && <div className="alert alert-danger">{error}</div>}
         <table className="table table-striped align-middle">
           <thead>
             <tr>

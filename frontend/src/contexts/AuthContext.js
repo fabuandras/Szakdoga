@@ -77,6 +77,7 @@ function normalizeLaravelErrors(errorsObj) {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
 
   // mezőhibák (validáció és/vagy backend 422)
   const [errors, setErrors] = useState({});
@@ -111,11 +112,21 @@ export function AuthProvider({ children }) {
       setGeneralError(null);
 
       try {
-        // CSRF token lekérés
-        await csrf();
-
         // login (felhasználónév vagy email + jelszó)
-        const { data } = await myAxios.post("/login", { email, password });
+        let data;
+        try {
+          const response = await myAxios.post("/api/login", { email, password });
+          data = response?.data;
+        } catch (firstLoginError) {
+          if (firstLoginError?.response?.status === 419) {
+            // Legacy fallback: ha valahol megmaradna a CSRF-es login, egyszer újrapróbáljuk.
+            await csrf();
+            const retryResponse = await myAxios.post("/api/login", { email, password });
+            data = retryResponse?.data;
+          } else {
+            throw firstLoginError;
+          }
+        }
 
         // token alapú válasz támogatása (ha van)
         if (data && data.token) {
@@ -123,8 +134,11 @@ export function AuthProvider({ children }) {
           myAxios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
         }
 
-        // session alapú beléptetésnél is lekérjük a felhasználót
-        await getUser();
+        if (data && data.user) {
+          setUser(data.user);
+        } else {
+          await getUser();
+        }
         return true;
       } catch (e) {
         const status = e?.response?.status;
@@ -227,16 +241,42 @@ export function AuthProvider({ children }) {
   // Oldal betöltéskor ellenőriz, hogy van-e bejelentkezett felhasználó
   useEffect(() => {
     const checkUser = async () => {
+      const token = localStorage.getItem('token');
+
       try {
-        // Guest oldalakhoz eleg a user endpoint; csrf csak login/register/logout előtt kell.
+        if (token) {
+          myAxios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        } else {
+          delete myAxios.defaults.headers.common['Authorization'];
+        }
+
         await getUser();
       } catch (error) {
-        // Ha hiba jön (pl. 401 = nincs bejelentkezve), user marad null
         const status = error?.response?.status;
         if (status && status !== 401) {
           console.log("User check failed:", status);
         }
+
+        // Session auth fallback: ha tokennel próbáltunk és 401 jött,
+        // egyszer megpróbáljuk Bearer header nélkül is.
+        if (token && status === 401) {
+          try {
+            delete myAxios.defaults.headers.common['Authorization'];
+            await getUser();
+            return;
+          } catch (sessionFallbackError) {
+            const fallbackStatus = sessionFallbackError?.response?.status;
+            if (fallbackStatus && fallbackStatus !== 401) {
+              console.log("Session fallback failed:", fallbackStatus);
+            }
+          }
+        }
+
+        localStorage.removeItem('token');
+        delete myAxios.defaults.headers.common['Authorization'];
         setUser(null);
+      } finally {
+        setAuthReady(true);
       }
     };
 
@@ -246,6 +286,7 @@ export function AuthProvider({ children }) {
   const value = useMemo(
     () => ({
       user,
+      authReady,
       errors,
       generalError,
       setErrors,
@@ -255,7 +296,7 @@ export function AuthProvider({ children }) {
       logout,
       getUser,
     }),
-    [user, errors, generalError, login, register, logout, getUser]
+    [user, authReady, errors, generalError, login, register, logout, getUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

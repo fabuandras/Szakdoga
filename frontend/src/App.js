@@ -44,7 +44,11 @@ function RedirectWarehouseOnly({ children }) {
 }
 
 function RequireAuth({ children }) {
-  const { user } = useContext(AuthContext);
+  const { user, authReady } = useContext(AuthContext);
+
+  if (!authReady) {
+    return null;
+  }
 
   if (!user) {
     return <Navigate to="/" replace />;

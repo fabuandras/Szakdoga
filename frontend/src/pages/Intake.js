@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { intakeItem } from "./warehouseStore";
+import { myAxios } from "../api/axios";
 
 export default function Intake() {
   const [form, setForm] = useState({
@@ -9,6 +9,8 @@ export default function Intake() {
     mennyiseg: "",
     min_keszlet: "",
     raktarhely: "",
+    kep_url: "",
+    kep_file: null,
     gyarto: "",
     beszerzesi_ar: "",
     eladasi_ar: "",
@@ -19,14 +21,55 @@ export default function Intake() {
 
   const onChange = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     try {
-      intakeItem(form);
-      setUzenet("A bevételezés sikeres. A terméklista és a mozgásnapló frissült.");
-      setForm((prev) => ({ ...prev, mennyiseg: "", min_keszlet: "", megjegyzes: "", szallitolevel: "" }));
+      const payload = new FormData();
+      payload.append("elnevezes", form.elnevezes);
+      payload.append("akt_keszlet", String(Number(form.mennyiseg || 0)));
+      payload.append("egyseg_ar", String(Number(form.eladasi_ar || 0)));
+
+      const trimmedUrl = (form.kep_url || "").trim();
+
+      if (form.kep_file) {
+        payload.append("kep_file", form.kep_file);
+      } else if (trimmedUrl) {
+        if (trimmedUrl.startsWith("data:image/")) {
+          setUzenet("Hiba: Base64 helyett kérlek tölts fel képfájlt a backendre.");
+          return;
+        }
+        payload.append("kep_url", trimmedUrl);
+      }
+
+      await myAxios.post("/api/items", payload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setUzenet("A bevételezés sikeres. A termék bekerült az adatbázisba.");
+      setForm((prev) => ({
+        ...prev,
+        cikk_szam: "",
+        elnevezes: "",
+        mennyiseg: "",
+        min_keszlet: "",
+        raktarhely: "",
+        kep_url: "",
+        kep_file: null,
+        gyarto: "",
+        beszerzesi_ar: "",
+        eladasi_ar: "",
+        szallitolevel: "",
+        megjegyzes: "",
+      }));
     } catch (error) {
-      setUzenet(`Hiba: ${error.message}`);
+      const msg =
+        error?.response?.data?.message ||
+        (error?.response?.data?.errors
+          ? Object.values(error.response.data.errors).flat().join(" ")
+          : "A bevételezés sikertelen.");
+      setUzenet(`Hiba: ${msg}`);
     }
   }
 
@@ -64,6 +107,27 @@ export default function Intake() {
         <div className="col-md-3">
           <label className="form-label">Raktárhely</label>
           <input className="form-control" value={form.raktarhely} onChange={(e) => onChange("raktarhely", e.target.value)} placeholder="Példa: A-02-01" />
+        </div>
+        <div className="col-md-6">
+          <label className="form-label">Kép feltöltése (backend tárhely)</label>
+          <input
+            className="form-control"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(e) => {
+              onChange("kep_file", e.target.files?.[0] || null);
+              onChange("kep_url", "");
+            }}
+          />
+        </div>
+        <div className="col-md-6">
+          <label className="form-label">Vagy külső kép URL</label>
+          <input
+            className="form-control"
+            placeholder="Példa: https://.../kep.jpg"
+            value={form.kep_url}
+            onChange={(e) => onChange("kep_url", e.target.value)}
+          />
         </div>
         <div className="col-md-3">
           <label className="form-label">Szállítólevél száma</label>

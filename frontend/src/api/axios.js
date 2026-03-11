@@ -15,6 +15,8 @@ const api = axios.create({
 
 // ensure cookies are sent for sanctum CSRF/session authentication
 api.defaults.withCredentials = true;
+// axios v1 cross-origin requests need this to always attach X-XSRF-TOKEN header
+api.defaults.withXSRFToken = true;
 
 // explicitly set xsrf cookie/header names (axios defaults, but make explicit)
 api.defaults.xsrfCookieName = "XSRF-TOKEN";
