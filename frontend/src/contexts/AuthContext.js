@@ -114,12 +114,6 @@ export function AuthProvider({ children }) {
         // CSRF token lekérés
         await csrf();
 
-        // read XSRF-TOKEN cookie and set header explicitly
-        const xsrf = readCookie('XSRF-TOKEN');
-        if (xsrf) {
-          myAxios.defaults.headers.common['X-XSRF-TOKEN'] = xsrf;
-        }
-
         // login (felhasználónév vagy email + jelszó)
         const { data } = await myAxios.post("/login", { email, password });
 
@@ -171,11 +165,6 @@ export function AuthProvider({ children }) {
         // CSRF token lekérés
         await csrf();
 
-        const xsrf = readCookie('XSRF-TOKEN');
-        if (xsrf) {
-          myAxios.defaults.headers.common['X-XSRF-TOKEN'] = xsrf;
-        }
-
         // regisztráció
         await myAxios.post("/register", adat);
 
@@ -208,11 +197,6 @@ export function AuthProvider({ children }) {
 
     try {
       await csrf();
-
-      const xsrf = readCookie('XSRF-TOKEN');
-      if (xsrf) {
-        myAxios.defaults.headers.common['X-XSRF-TOKEN'] = xsrf;
-      }
 
       const hasBearerToken = Boolean(localStorage.getItem('token'));
 
@@ -276,10 +260,3 @@ export function AuthProvider({ children }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
-// helper to read cookie by name
-const readCookie = (name) => {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  if (match) return decodeURIComponent(match[2]);
-  return null;
-};
