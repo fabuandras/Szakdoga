@@ -2,6 +2,16 @@ import React, { createContext, useState, useEffect, useCallback, useMemo } from 
 import { myAxios } from "../api/axios";
 
 export const AuthContext = createContext();
+const REQUEST_TIMEOUT_MS = 3000;
+
+function withTimeout(promise, timeout = REQUEST_TIMEOUT_MS) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("timeout")), timeout)
+    ),
+  ]);
+}
 
 function normalizeLaravelErrors(errorsObj) {
   // Laravel 422 esetén tipikusan: { email: ["..."], password: ["..."] }
@@ -85,11 +95,11 @@ export function AuthProvider({ children }) {
   const [generalError, setGeneralError] = useState(null);
 
   // CSRF token lekérése
-  const csrf = useCallback(() => myAxios.get("/sanctum/csrf-cookie"), []);
+  const csrf = useCallback(() => withTimeout(myAxios.get("/sanctum/csrf-cookie")), []);
 
   const getUser = useCallback(async () => {
     try {
-      const { data } = await myAxios.get("/api/user");
+      const { data } = await withTimeout(myAxios.get("/api/user"));
       setUser(data);
       return data;
     } catch (error) {
@@ -121,7 +131,7 @@ export function AuthProvider({ children }) {
         }
 
         // login (felhasználónév vagy email + jelszó)
-        const { data } = await myAxios.post("/login", { email, password });
+        const { data } = await withTimeout(myAxios.post("/login", { email, password }));
 
         // token alapú válasz támogatása (ha van)
         if (data && data.token) {
@@ -177,7 +187,7 @@ export function AuthProvider({ children }) {
         }
 
         // regisztráció
-        await myAxios.post("/register", adat);
+        await withTimeout(myAxios.post("/register", adat));
 
         return true;
       } catch (e) {
@@ -218,16 +228,16 @@ export function AuthProvider({ children }) {
 
       if (hasBearerToken) {
         try {
-          await myAxios.post("/api/logout");
+          await withTimeout(myAxios.post("/api/logout"));
         } catch (apiError) {
           const apiStatus = apiError?.response?.status;
 
           if (apiStatus !== 401 && apiStatus !== 419) {
-            await myAxios.post("/logout");
+            await withTimeout(myAxios.post("/logout"));
           }
         }
       } else {
-        await myAxios.post("/logout");
+        await withTimeout(myAxios.post("/logout"));
       }
 
       localStorage.removeItem('token');

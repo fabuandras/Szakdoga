@@ -22,6 +22,8 @@ class User extends Authenticatable
         'megszolitas',
         'tel_szam',
         'szul_datum',
+        'kedvencek',
+        'kosar',
     ];
 
     protected $hidden = [
@@ -31,6 +33,8 @@ class User extends Authenticatable
 
     protected $casts = [
         'szul_datum' => 'date',
+        'kedvencek' => 'array',
+        'kosar' => 'array',
     ];
 
     public function getAuthPassword()

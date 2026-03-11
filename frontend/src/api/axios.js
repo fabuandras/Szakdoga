@@ -27,4 +27,14 @@ if (token) {
 }
 
 export const myAxios = api;
+
+export const publicAxios = axios.create({
+  baseURL: backend,
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
+  withCredentials: false,
+});
+
 export default api;

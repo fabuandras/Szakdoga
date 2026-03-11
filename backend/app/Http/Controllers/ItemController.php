@@ -2,46 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Item;
-use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
-class ItemController extends BaseController
+class ItemController extends Controller
 {
-    public function __construct()
-    {
-        // apply auth middleware to write operations
-        $this->middleware('auth:sanctum')->only(['store', 'update', 'destroy']);
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return response()->json(Item::all());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $this->authorize('create', Item::class);
-
         $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric',
-            'stock' => 'nullable|integer',
+            'elnevezes' => ['required', 'string', 'max:50'],
+            'akt_keszlet' => ['required', 'integer', 'min:0'],
+            'egyseg_ar' => ['required', 'numeric', 'min:0'],
+            'kep_url' => ['nullable', 'string', 'max:255'],
+            'kartya_hatterszin' => ['nullable', 'string', 'max:20'],
+            'kartya_stilus' => ['nullable', 'string', 'max:50'],
         ]);
 
         $item = Item::create($data);
@@ -49,36 +29,24 @@ class ItemController extends BaseController
         return response()->json($item, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
         $item = Item::findOrFail($id);
+
         return response()->json($item);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Item $item)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         $item = Item::findOrFail($id);
-        $this->authorize('update', $item);
 
         $data = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'sometimes|required|numeric',
-            'stock' => 'nullable|integer',
+            'elnevezes' => ['sometimes', 'required', 'string', 'max:50'],
+            'akt_keszlet' => ['sometimes', 'required', 'integer', 'min:0'],
+            'egyseg_ar' => ['sometimes', 'required', 'numeric', 'min:0'],
+            'kep_url' => ['nullable', 'string', 'max:255'],
+            'kartya_hatterszin' => ['nullable', 'string', 'max:20'],
+            'kartya_stilus' => ['nullable', 'string', 'max:50'],
         ]);
 
         $item->update($data);
@@ -86,16 +54,45 @@ class ItemController extends BaseController
         return response()->json($item);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
         $item = Item::findOrFail($id);
-        $this->authorize('delete', $item);
 
         $item->delete();
 
         return response()->json(['message' => 'Deleted']);
+    }
+
+    public function publicProducts()
+    {
+        $selectColumns = ['cikk_szam', 'elnevezes', 'egyseg_ar'];
+
+        if (Schema::hasColumn('items', 'kep_url')) {
+            $selectColumns[] = 'kep_url';
+        }
+        if (Schema::hasColumn('items', 'kartya_hatterszin')) {
+            $selectColumns[] = 'kartya_hatterszin';
+        }
+        if (Schema::hasColumn('items', 'kartya_stilus')) {
+            $selectColumns[] = 'kartya_stilus';
+        }
+
+        $products = Item::query()
+            ->select($selectColumns)
+            ->orderBy('cikk_szam')
+            ->limit(20)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => (int) $item->cikk_szam,
+                    'name' => $item->elnevezes,
+                    'price' => (float) $item->egyseg_ar,
+                    'image' => $item->kep_url,
+                    'cardBackground' => $item->kartya_hatterszin,
+                    'cardStyle' => $item->kartya_stilus,
+                ];
+            });
+
+        return response()->json($products);
     }
 }

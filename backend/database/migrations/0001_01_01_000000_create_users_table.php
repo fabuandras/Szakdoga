@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
 
             $table->id('vKod');
+            $table->string('felhasznalonev', 30)->unique();
 
             $table->string('vez_nev', 20);
             $table->string('ker_nev', 20);
@@ -19,6 +20,8 @@ return new class extends Migration
             $table->string('megszolitas', 10);
             $table->string('tel_szam', 20);
             $table->date('szul_datum');
+            $table->json('kedvencek')->nullable();
+            $table->json('kosar')->nullable();
 
             $table->timestamps();
         });

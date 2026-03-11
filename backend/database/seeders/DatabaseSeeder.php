@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -30,6 +29,22 @@ class DatabaseSeeder extends Seeder
                 'szul_datum' => '2000-10-10',
                 'email' => 'ilyesbori@raktaros.hu',
                 'jelszo' => Hash::make('Aa123456@'),
+                'kedvencek' => json_encode([]),
+                'kosar' => json_encode([]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'felhasznalonev' => 'Anna',
+                'vez_nev' => 'Kiss',
+                'ker_nev' => 'Anna',
+                'megszolitas' => 'Ms',
+                'tel_szam' => '+36 30 123 4567',
+                'szul_datum' => '1998-05-12',
+                'email' => 'anna@webshop.hu',
+                'jelszo' => Hash::make('Aa123456@'),
+                'kedvencek' => json_encode([]),
+                'kosar' => json_encode([]),
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

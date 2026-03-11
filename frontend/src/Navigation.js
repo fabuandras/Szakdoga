@@ -81,6 +81,12 @@ export default function Navigation({ theme, toggleTheme }) {
                   <NavLink to="/profile" onClick={() => { setMenuOpen(false); setMobileMenuOpen(false); }}>
                     Profilom
                   </NavLink>
+                  <NavLink to="/kedvencek" onClick={() => { setMenuOpen(false); setMobileMenuOpen(false); }}>
+                    Kedvencek
+                  </NavLink>
+                  <NavLink to="/kosar" onClick={() => { setMenuOpen(false); setMobileMenuOpen(false); }}>
+                    Kosar
+                  </NavLink>
                   <button type="button" className="nav-link-btn" onClick={handleLogout}>
                     <i className="bi bi-box-arrow-right"></i> Kijelentkezés
                   </button>

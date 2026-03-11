@@ -16,6 +16,9 @@ class Item extends Model
         'elnevezes',
         'akt_keszlet',
         'egyseg_ar',
+        'kep_url',
+        'kartya_hatterszin',
+        'kartya_stilus',
     ];
 
     // 🔗 KAPCSOLAT

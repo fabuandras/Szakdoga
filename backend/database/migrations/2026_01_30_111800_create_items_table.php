@@ -14,6 +14,9 @@ return new class extends Migration
             $table->string('elnevezes', 50);
             $table->integer('akt_keszlet');
             $table->decimal('egyseg_ar', 10, 2);
+            $table->string('kep_url')->nullable();
+            $table->string('kartya_hatterszin', 20)->nullable();
+            $table->string('kartya_stilus', 50)->nullable();
 
             $table->timestamps();
         });

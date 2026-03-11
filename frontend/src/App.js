@@ -10,6 +10,8 @@ import Home from "./pages/Home";
 import Rolunk from "./pages/Rolunk";
 import Termekek from "./pages/Termekek";
 import Kapcsolat from "./pages/Kapcsolat";
+import Kedvencek from "./pages/Kedvencek";
+import Kosar from "./pages/Kosar";
 import Login from "./pages/Login";
 import Registration from "./pages/Registration";
 import Profile from "./pages/Profile";
@@ -109,6 +111,26 @@ function App() {
               <RequireAuth>
                 <RedirectWarehouseOnly>
                   <Profile />
+                </RedirectWarehouseOnly>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="kedvencek"
+            element={
+              <RequireAuth>
+                <RedirectWarehouseOnly>
+                  <Kedvencek />
+                </RedirectWarehouseOnly>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="kosar"
+            element={
+              <RequireAuth>
+                <RedirectWarehouseOnly>
+                  <Kosar />
                 </RedirectWarehouseOnly>
               </RequireAuth>
             }
