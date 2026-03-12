@@ -31,17 +31,24 @@ export default function Termekek() {
     setMessage(null);
 
     try {
-      const response = await publicAxios.get("/api/products");
+      // primary endpoint for items
+      const response = await publicAxios.get("/api/items");
       const mapped = (response?.data || []).map(mapBackendProduct);
       setProducts(mapped);
       return;
     } catch (publicError) {
-      try {
-        const webFallback = await publicAxios.get("/products-public");
-        const mapped = (webFallback?.data || []).map(mapBackendProduct);
-        setProducts(mapped);
-        return;
-      } catch (webFallbackError) {
+      // if not found or unauthorized, try a public endpoint fallback
+      if (publicError.response && (publicError.response.status === 404 || publicError.response.status === 401)) {
+        try {
+          const webFallback = await publicAxios.get("/api/items-public");
+          const mapped = (webFallback?.data || []).map(mapBackendProduct);
+          setProducts(mapped);
+          return;
+        } catch (webFallbackError) {
+          setProducts([]);
+          setMessage("A termékek most nem érhetőek el. Próbáld újra pár másodperc múlva.");
+        }
+      } else {
         setProducts([]);
         setMessage("A termékek most nem érhetőek el. Próbáld újra pár másodperc múlva.");
       }

@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
+use App\Models\Item;
 
 Route::get('/products', [ItemController::class, 'publicProducts']);
 Route::post('/login', [AuthenticatedSessionController::class, 'apiStore']);
@@ -18,6 +20,31 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
+<<<<<<< HEAD
+Route::get('/items', function (Request $request) {
+    try {
+        if (! class_exists(Item::class) || ! Schema::hasTable('items')) {
+            return response()->json([], 200);
+        }
+        return response()->json(Item::all());
+    } catch (\Throwable $e) {
+        return response()->json([], 200);
+    }
+});
+
+Route::get('/items-public', function (Request $request) {
+    try {
+        if (! class_exists(Item::class) || ! Schema::hasTable('items')) {
+            return response()->json([], 200);
+        }
+        if (Schema::hasColumn('items', 'public')) {
+            return response()->json(Item::where('public', 1)->get());
+        }
+        return response()->json(Item::all());
+    } catch (\Throwable $e) {
+        return response()->json([], 200);
+    }
+=======
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('items', ItemController::class);
 
@@ -30,4 +57,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/shop/cart/item/{itemId}', [ShopController::class, 'removeCartItem']);
 
     Route::post('/logout', [ShopController::class, 'logout']);
+>>>>>>> 49aed2ab478fd4da1a1aa8d4ee66ba328d949725
 });
