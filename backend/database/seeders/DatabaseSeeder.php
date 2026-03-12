@@ -11,8 +11,10 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
+     *
+     * @return void
      */
-    public function run(): void
+    public function run()
     {
         // Ensure fresh data: disable foreign key checks, truncate users, then re-enable
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
@@ -58,12 +60,27 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
-        // Get actual columns present in users table
+        // Get actual columns present in users table and their metadata
         if (! Schema::hasTable('users')) {
             return;
         }
 
+        $dbName = DB::connection()->getDatabaseName();
+        $metaRows = DB::select(
+            'SELECT COLUMN_NAME, IS_NULLABLE, COLUMN_DEFAULT, DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?',
+            [$dbName, 'users']
+        );
+
         $columns = Schema::getColumnListing('users');
+
+        $colsInfo = [];
+        foreach ($metaRows as $m) {
+            $colsInfo[$m->COLUMN_NAME] = [
+                'nullable' => strtoupper($m->IS_NULLABLE) === 'YES',
+                'default' => $m->COLUMN_DEFAULT,
+                'type' => strtolower($m->DATA_TYPE),
+            ];
+        }
 
         foreach ($users as $user) {
             $row = [];
@@ -106,6 +123,52 @@ class DatabaseSeeder extends Seeder
             }
             if (in_array('updated_at', $columns) && ! isset($row['updated_at'])) {
                 $row['updated_at'] = now();
+            }
+
+            // Fill missing NOT NULL columns with safe defaults to avoid SQL errors
+            foreach ($colsInfo as $colName => $info) {
+                if (array_key_exists($colName, $row)) {
+                    continue;
+                }
+
+                // skip timestamps handled above
+                if (in_array($colName, ['created_at', 'updated_at'])) {
+                    continue;
+                }
+
+                // if column has a database default, skip
+                if (! is_null($info['default'])) {
+                    // do not set, DB will use default
+                    continue;
+                }
+
+                if ($info['nullable']) {
+                    $row[$colName] = null;
+                    continue;
+                }
+
+                // Non-nullable and no default -> provide a safe default based on type
+                $type = $info['type'];
+                // handle date/time types first
+                if (in_array($type, ['date','datetime','timestamp','time','year'])) {
+                    if ($type === 'date') {
+                        $row[$colName] = date('Y-m-d');
+                    } elseif ($type === 'time') {
+                        $row[$colName] = date('H:i:s');
+                    } elseif ($type === 'year') {
+                        $row[$colName] = date('Y');
+                    } else {
+                        // datetime/timestamp
+                        $row[$colName] = date('Y-m-d H:i:s');
+                    }
+                } elseif (in_array($type, ['int','bigint','smallint','mediumint','tinyint','integer'])) {
+                    $row[$colName] = 0;
+                } elseif (in_array($type, ['decimal','float','double'])) {
+                    $row[$colName] = 0;
+                } else {
+                    // string types -> empty string
+                    $row[$colName] = '';
+                }
             }
 
             // Only insert if we have at least one column to insert

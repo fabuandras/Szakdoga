@@ -2,15 +2,24 @@
 
 namespace Database\Seeders;
 
-use App\Models\Item;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ItemSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
-        $products = [
-            ['elnevezes' => 'Pihe-puha Alpakka Fonal', 'egyseg_ar' => 3490, 'akt_keszlet' => 40, 'kep_url' => 'https://images.unsplash.com/photo-1519682577862-22b62b24e493?auto=format&fit=crop&w=900&q=80', 'kartya_hatterszin' => '#f9efe6', 'kartya_stilus' => 'meleg'],
+        // Example items to seed
+        $items = [
+            [
+                'elnevezes' => 'Pihe-puha Alpakka Fonal',
+                'egyseg_ar' => 3490,
+                'akt_keszlet' => 40,
+                'kep_url' => 'https://images.unsplash.com/photo-1519682577862-22b62b24e493?auto=format&fit=crop&w=900&q=80',
+                'kartya_hatterszin' => '#f9efe6',
+                'kartya_stilus' => 'meleg',
+            ],
             ['elnevezes' => 'Pasztell Pamut Fonal Csomag', 'egyseg_ar' => 4990, 'akt_keszlet' => 55, 'kep_url' => 'https://images.unsplash.com/photo-1604881987924-1b6f8f665fb2?auto=format&fit=crop&w=900&q=80', 'kartya_hatterszin' => '#f3f8ef', 'kartya_stilus' => 'pasztell'],
             ['elnevezes' => 'Ergonomikus Horgolotu 3.5mm', 'egyseg_ar' => 1490, 'akt_keszlet' => 95, 'kep_url' => 'https://images.unsplash.com/photo-1512295767273-ac109ac3acfa?auto=format&fit=crop&w=900&q=80', 'kartya_hatterszin' => '#eef5ff', 'kartya_stilus' => 'minimal'],
             ['elnevezes' => 'Amigurumi Starter Kit', 'egyseg_ar' => 7990, 'akt_keszlet' => 28, 'kep_url' => 'https://images.unsplash.com/photo-1610701596061-2ecf227e85b2?auto=format&fit=crop&w=900&q=80', 'kartya_hatterszin' => '#fff6e9', 'kartya_stilus' => 'jatekos'],
@@ -32,8 +41,88 @@ class ItemSeeder extends Seeder
             ['elnevezes' => 'Kezdo Horgolo Ajandekdoboz', 'egyseg_ar' => 9990, 'akt_keszlet' => 18, 'kep_url' => 'https://images.unsplash.com/photo-1519720842496-c64e5c8f7f0d?auto=format&fit=crop&w=900&q=80', 'kartya_hatterszin' => '#fff0f8', 'kartya_stilus' => 'gift'],
         ];
 
-        foreach ($products as $product) {
-            Item::create($product);
+        if (! Schema::hasTable('items')) {
+            return;
+        }
+
+        $dbName = DB::connection()->getDatabaseName();
+        $metaRows = DB::select(
+            'SELECT COLUMN_NAME, IS_NULLABLE, COLUMN_DEFAULT, DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?',
+            [$dbName, 'items']
+        );
+
+        $columns = Schema::getColumnListing('items');
+
+        $colsInfo = [];
+        foreach ($metaRows as $m) {
+            $colsInfo[$m->COLUMN_NAME] = [
+                'nullable' => strtoupper($m->IS_NULLABLE) === 'YES',
+                'default' => $m->COLUMN_DEFAULT,
+                'type' => strtolower($m->DATA_TYPE),
+            ];
+        }
+
+        foreach ($items as $item) {
+            $row = [];
+
+            // Map possible localized keys to actual column names if necessary
+            // e.g. keep 'kep_url' as is, map other keys if your schema uses different names
+            foreach ($item as $key => $value) {
+                if (in_array($key, $columns)) {
+                    $row[$key] = $value;
+                }
+            }
+
+            // Ensure timestamps if present on table
+            if (in_array('created_at', $columns) && ! isset($row['created_at'])) {
+                $row['created_at'] = now();
+            }
+            if (in_array('updated_at', $columns) && ! isset($row['updated_at'])) {
+                $row['updated_at'] = now();
+            }
+
+            // Fill missing NOT NULL columns with safe defaults
+            foreach ($colsInfo as $colName => $info) {
+                if (array_key_exists($colName, $row)) {
+                    continue;
+                }
+
+                if (in_array($colName, ['created_at', 'updated_at'])) {
+                    continue;
+                }
+
+                if (! is_null($info['default'])) {
+                    continue; // DB will use default
+                }
+
+                if ($info['nullable']) {
+                    $row[$colName] = null;
+                    continue;
+                }
+
+                $type = $info['type'];
+                if (in_array($type, ['date','datetime','timestamp','time','year'])) {
+                    if ($type === 'date') {
+                        $row[$colName] = date('Y-m-d');
+                    } elseif ($type === 'time') {
+                        $row[$colName] = date('H:i:s');
+                    } elseif ($type === 'year') {
+                        $row[$colName] = date('Y');
+                    } else {
+                        $row[$colName] = date('Y-m-d H:i:s');
+                    }
+                } elseif (in_array($type, ['int','bigint','smallint','mediumint','tinyint','integer'])) {
+                    $row[$colName] = 0;
+                } elseif (in_array($type, ['decimal','float','double'])) {
+                    $row[$colName] = 0;
+                } else {
+                    $row[$colName] = '';
+                }
+            }
+
+            if (! empty($row)) {
+                DB::table('items')->insert($row);
+            }
         }
     }
 }
