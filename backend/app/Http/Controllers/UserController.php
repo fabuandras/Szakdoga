@@ -24,7 +24,7 @@ class UserController extends Controller
             'password.confirmed' => 'A jelszó megerősítése nem egyezik.',
             'password.min' => 'A jelszónak legalább :min karakter hosszúnak kell lennie.',
         ];
-//test 2
+
         $data = $request->validate([
             'felhasznalonev' => 'required|string|max:255|unique:users,felhasznalonev',
             'vez_nev' => 'required|string|max:255',
@@ -115,7 +115,42 @@ class UserController extends Controller
 
         return response()->json(['users' => $users]);
     }
-//test
+
+    // Return single user by username (felhasznalonev)
+    public function show($username)
+    {
+        $r = DB::table('users')->select(
+            'felhasznalonev',
+            'vez_nev',
+            'ker_nev',
+            'megszolitas',
+            'tel_szam',
+            'szul_datum',
+            'email',
+            'created_at',
+            'updated_at'
+        )->where('felhasznalonev', $username)->first();
+
+        if (! $r) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $user = [
+            'id' => $r->felhasznalonev,
+            'felhasznalonev' => $r->felhasznalonev,
+            'vez_nev' => $r->vez_nev,
+            'ker_nev' => $r->ker_nev,
+            'megszolitas' => $r->megszolitas,
+            'tel_szam' => $r->tel_szam,
+            'szul_datum' => $r->szul_datum,
+            'email' => $r->email,
+            'created_at' => $r->created_at,
+            'updated_at' => $r->updated_at,
+        ];
+
+        return response()->json(['user' => $user]);
+    }
+
     public function logout(Request $request)
     {
         if ($request->user()) {

@@ -3,11 +3,16 @@
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/products', [ItemController::class, 'publicProducts']);
 Route::post('/login', [AuthenticatedSessionController::class, 'apiStore']);
+
+// Public user endpoints for frontend
+Route::get('/users', [UserController::class, 'index']);
+Route::get('/users/{username}', [UserController::class, 'show']);
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();

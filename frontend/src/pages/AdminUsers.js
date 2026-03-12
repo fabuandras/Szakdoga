@@ -1,11 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 export default function AdminUsers() {
   
-  const users = [
-    { id: 1, name: 'Kovács A.', email: 'a@pelda.hu', role: 'Admin', status: 'Aktív' },
-    { id: 2, name: 'Nagy B.', email: 'b@pelda.hu', role: 'Felhasz.', status: 'Inaktív' },
-  ];
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      try {
+        const res = await axios.get('http://localhost:8000/api/users', { withCredentials: true });
+        if (!mounted) return;
+        setUsers(res.data.users || []);
+      } catch (e) {
+        if (!mounted) return;
+        setError(e);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    load();
+    return () => { mounted = false; };
+  }, []);
 
   return (
     <div className="admin-container d-flex">
@@ -27,27 +45,35 @@ export default function AdminUsers() {
           <table className="table mb-0">
             <thead className="table-light">
               <tr>
+                <th scope="col">Felhasználónév</th>
                 <th scope="col">Név</th>
                 <th scope="col">Email</th>
-                <th scope="col">Szerepkör</th>
-                <th scope="col">Státusz</th>
+                <th scope="col">Létrehozva</th>
                 <th scope="col">Műveletek</th>
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
-                <tr key={u.id}>
-                  <td>{u.name}</td>
-                  <td>{u.email}</td>
-                  <td>{u.role}</td>
-                  <td>{u.status}</td>
-                  <td>
-                    <button className="btn btn-sm btn-outline-primary me-1">Szerk</button>
-                    <button className="btn btn-sm btn-outline-danger">Tilt</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+              {loading ? (
+                <tr><td colSpan="5">Betöltés...</td></tr>
+              ) : error ? (
+                <tr><td colSpan="5">Hiba: {error.message}</td></tr>
+              ) : users.length === 0 ? (
+                <tr><td colSpan="5">Nincs felhasználó</td></tr>
+              ) : (
+                users.map((u) => (
+                  <tr key={u.id}>
+                    <td>{u.felhasznalonev}</td>
+                    <td>{u.vez_nev ? `${u.vez_nev} ${u.ker_nev}` : ''}</td>
+                    <td>{u.email}</td>
+                    <td>{u.created_at ? new Date(u.created_at).toLocaleString() : '-'}</td>
+                     <td>
+                       <button className="btn btn-sm btn-outline-primary me-1">Szerk</button>
+                       <button className="btn btn-sm btn-outline-danger">Tilt</button>
+                     </td>
+                   </tr>
+                 ))
+               )}
+             </tbody>
           </table>
 
           <div className="p-3 border-top d-flex justify-content-between align-items-center">
