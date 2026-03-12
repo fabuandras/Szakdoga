@@ -31,6 +31,21 @@ export default function Termekek() {
     setMessage(null);
 
     try {
+      // Try public endpoint first without credentials
+      const alt = await fetch("http://localhost:8000/api/items-public", {
+        headers: { Accept: "application/json" },
+      });
+      if (alt.ok) {
+        const data = await alt.json();
+        setProducts((data || []).map(mapBackendProduct));
+        setLoading(false);
+        return;
+      }
+    } catch (e) {
+      // ignore and try authenticated endpoint
+    }
+
+    try {
       // primary endpoint for items
       const response = await publicAxios.get("/api/items");
       const mapped = (response?.data || []).map(mapBackendProduct);

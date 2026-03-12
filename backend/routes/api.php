@@ -20,7 +20,6 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
-<<<<<<< HEAD
 Route::get('/items', function (Request $request) {
     try {
         if (! class_exists(Item::class) || ! Schema::hasTable('items')) {
@@ -44,18 +43,4 @@ Route::get('/items-public', function (Request $request) {
     } catch (\Throwable $e) {
         return response()->json([], 200);
     }
-=======
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::apiResource('items', ItemController::class);
-
-    Route::get('/shop/favorites', [ShopController::class, 'favorites']);
-    Route::post('/shop/favorites/toggle', [ShopController::class, 'toggleFavorite']);
-
-    Route::get('/shop/cart', [ShopController::class, 'cart']);
-    Route::post('/shop/cart/add', [ShopController::class, 'addToCart']);
-    Route::patch('/shop/cart/item', [ShopController::class, 'updateCartItem']);
-    Route::delete('/shop/cart/item/{itemId}', [ShopController::class, 'removeCartItem']);
-
-    Route::post('/logout', [ShopController::class, 'logout']);
->>>>>>> 49aed2ab478fd4da1a1aa8d4ee66ba328d949725
 });

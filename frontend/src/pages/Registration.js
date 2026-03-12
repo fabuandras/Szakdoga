@@ -2,6 +2,7 @@ import { useContext, useState, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../Registration.css";
 import { AuthContext } from "../contexts/AuthContext";
+import api from '../api/axios';
 
 export default function Registration() {
   const navigate = useNavigate();
@@ -150,22 +151,33 @@ export default function Registration() {
 
       const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
 
-      try {
-        await register({
-          felhasznalonev: formData.felhasznalonev.trim(),
-          vez_nev: formData.lastName.trim(),
-          ker_nev: formData.firstName.trim(),
-          megszolitas: formData.salutation,
-          email: formData.email.trim(),
-          tel_szam: formData.phone.trim(),
-          szul_datum: formData.birthDate, // yyyy-mm-dd
-          password: formData.password,
-          password_confirmation: formData.passwordConfirm,
-        });
+      // Build payload matching backend validation: include 'name' and password_confirmation
+      const name = formData.felhasznalonev.trim() || `${formData.lastName.trim()} ${formData.firstName.trim()}`.trim();
 
+      const payload = {
+        name,
+        email: formData.email.trim(),
+        password: formData.password,
+        password_confirmation: formData.passwordConfirm,
+        phone: formData.phone.trim(),
+        megszolitas: formData.salutation,
+        // include other fields if backend expects them
+      };
+
+      try {
+        // ensure CSRF cookie is set for sanctum
+        await api.get('/sanctum/csrf-cookie');
+        const res = await api.post('/register', payload);
+        // handle success (e.g., redirect to login or auto-login)
+        console.log('REGISTER SUCCESS', res.data);
         navigate("/login");
-      } catch {
-        // hibát a context kezeli
+      } catch (err) {
+        console.error('REGISTER ERROR', err.response && err.response.status, err.response && err.response.data);
+        if (err.response && err.response.status === 422) {
+          setErrors(err.response.data.errors || err.response.data);
+        } else {
+          setErrors({ message: 'Regisztráció sikertelen' });
+        }
       }
     },
     [validate, register, setErrors, setGeneralError, navigate, formData]
