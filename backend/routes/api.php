@@ -4,22 +4,13 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\UserController;
+use App\Models\Item;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\Item;
 use Illuminate\Support\Facades\Schema;
 
+// Public product endpoints
 Route::get('/products', [ItemController::class, 'publicProducts']);
-Route::post('/login', [AuthenticatedSessionController::class, 'apiStore']);
-
-// Public user endpoints for frontend
-Route::get('/users', [UserController::class, 'index']);
-Route::get('/users/{username}', [UserController::class, 'show']);
-
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 Route::get('/items', function (Request $request) {
     try {
         if (! class_exists(Item::class) || ! Schema::hasTable('items')) {
@@ -43,4 +34,16 @@ Route::get('/items-public', function (Request $request) {
     } catch (\Throwable $e) {
         return response()->json([], 200);
     }
+});
+
+// Auth routes
+Route::post('/login', [AuthenticatedSessionController::class, 'apiStore']);
+
+// Public user endpoints
+Route::get('/users', [UserController::class, 'index']);
+Route::get('/users/{username}', [UserController::class, 'show']);
+
+// Authenticated user info
+Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
+    return $request->user();
 });
