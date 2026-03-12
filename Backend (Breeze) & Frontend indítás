@@ -27,7 +27,7 @@ docker exec -it 8d49076f7d83 /bin/bash
 cd Szakdoga
 cd frontend
 npm install
-Ezek csak egyszer kell lefuttatni a clonolaskor
+Ezeket csak egyszer kell lefuttatni a cloneozáskor:
     npm install axios
     npm install react-router-dom
     npm install bootstrap

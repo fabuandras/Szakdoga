@@ -9,36 +9,28 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
+use Illuminate\Validation\ValidationException;
 
 class RegisteredUserController extends Controller
 {
     /**
      * Handle an incoming registration request.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function store(Request $request): Response
     {
         $request->validate([
-            'felhasznalonev' => ['required', 'string', 'max:30', 'unique:'.User::class.',felhasznalonev'],
-            'vez_nev' => ['required', 'string', 'max:20'],
-            'ker_nev' => ['required', 'string', 'max:20'],
-            'megszolitas' => ['required', 'string', 'max:10'],
-            'email' => ['required', 'string', 'email', 'max:40', 'unique:'.User::class.',email'],
-            'tel_szam' => ['required', 'string', 'max:20'],
-            'szul_datum' => ['required', 'date'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
-            'felhasznalonev' => $request->string('felhasznalonev')->toString(),
-            'vez_nev' => $request->string('vez_nev')->toString(),
-            'ker_nev' => $request->string('ker_nev')->toString(),
-            'megszolitas' => $request->string('megszolitas')->toString(),
+            'name' => $request->name,
             'email' => $request->email,
-            'tel_szam' => $request->string('tel_szam')->toString(),
-            'szul_datum' => $request->input('szul_datum'),
-            'jelszo' => Hash::make($request->string('password')->toString()),
+            'password' => Hash::make($request->string('password')),
         ]);
 
         event(new Registered($user));
