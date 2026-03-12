@@ -1,11 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 export default function AdminProducts() {
 
-  const products = [
-    { id: 1, name: 'Naggyon ari plüss', category: 'valami', price: 'igen Ft', pieces: '69', status: 'Aktív' },
-    { id: 2, name: 'Migiri', category: 'semmi', price: '0 Ft', pieces: '42', status: 'Inaktív' },
-  ];
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      try {
+        const res = await axios.get('http://localhost:8000/api/products', { withCredentials: true });
+        if (!mounted) return;
+        // assume API returns { products: [...] } or an array directly
+        const payload = res.data.products || res.data || [];
+        setProducts(Array.isArray(payload) ? payload : []);
+      } catch (e) {
+        if (!mounted) return;
+        setError(e);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    load();
+    return () => { mounted = false; };
+  }, []);
+
+  const formatName = (p) => p.name || p.nev || p.title || p.product_name || '';
+  const formatCategory = (p) => p.category || p.kategoria || p.cat || '-';
+  const formatPrice = (p) => p.price || p.ar || '-';
+  const formatPieces = (p) => p.pieces || p.stock || p.darab || '-';
+  const formatStatus = (p) => p.status || p.statusz || '-';
 
   return (
     <div className="admin-container d-flex">
@@ -36,19 +62,27 @@ export default function AdminProducts() {
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => (
-                <tr key={p.id}>
-                  <td>{p.name}</td>
-                  <td>{p.category}</td>
-                  <td>{p.price}</td>
-                  <td>{p.pieces}</td>
-                  <td>{p.status}</td>
-                  <td>
-                    <button className="btn btn-sm btn-outline-primary me-1">Szerk</button>
-                    <button className="btn btn-sm btn-outline-danger">Tilt</button>
-                  </td>
-                </tr>
-              ))}
+              {loading ? (
+                <tr><td colSpan="6">Betöltés...</td></tr>
+              ) : error ? (
+                <tr><td colSpan="6">Hiba: {error.message}</td></tr>
+              ) : products.length === 0 ? (
+                <tr><td colSpan="6">Nincs termék</td></tr>
+              ) : (
+                products.map((p) => (
+                  <tr key={p.id || p._id || p.sku || formatName(p)}>
+                    <td>{formatName(p)}</td>
+                    <td>{formatCategory(p)}</td>
+                    <td>{formatPrice(p)}</td>
+                    <td>{formatPieces(p)}</td>
+                    <td>{formatStatus(p)}</td>
+                    <td>
+                      <button className="btn btn-sm btn-outline-primary me-1">Szerk</button>
+                      <button className="btn btn-sm btn-outline-danger">Tilt</button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
 
