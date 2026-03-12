@@ -37,9 +37,21 @@ class User extends Authenticatable
         'kosar' => 'array',
     ];
 
+    /**
+     * Return the password for the user for authentication.
+     * Supports localized column name 'jelszo' if 'password' column is not present.
+     */
     public function getAuthPassword()
     {
-        return $this->jelszo;
+        if (isset($this->attributes['password'])) {
+            return $this->attributes['password'];
+        }
+
+        if (isset($this->attributes['jelszo'])) {
+            return $this->attributes['jelszo'];
+        }
+
+        return null;
     }
 
     //  KAPCSOLAT

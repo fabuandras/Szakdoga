@@ -47,13 +47,26 @@ Route::post('/login', function (Request $request) {
         return response()->json(['message' => 'Email and password required'], 422);
     }
 
-    // attempt to find user by email or username/name
-    $user = User::where('email', $data['email'])
-        ->orWhere('name', $data['email'])
-        ->orWhere('felhasznalonev', $data['email'] ?? null)
-        ->first();
+    // build query using only columns that exist to avoid SQL errors
+    $query = User::query();
+    $query->where('email', $data['email']);
 
-    if (! $user || ! Hash::check($data['password'], $user->password)) {
+    if (Schema::hasColumn('users', 'name')) {
+        $query->orWhere('name', $data['email']);
+    }
+    if (Schema::hasColumn('users', 'username')) {
+        $query->orWhere('username', $data['email']);
+    }
+    if (Schema::hasColumn('users', 'felhasznalonev')) {
+        $query->orWhere('felhasznalonev', $data['email']);
+    }
+
+    $user = $query->first();
+
+    // determine password column
+    $passwordColumn = Schema::hasColumn('users', 'password') ? 'password' : (Schema::hasColumn('users', 'jelszo') ? 'jelszo' : null);
+
+    if (! $user || ! $passwordColumn || ! Hash::check($data['password'], $user->{$passwordColumn})) {
         return response()->json(['message' => 'The provided credentials are incorrect.'], 401);
     }
 
