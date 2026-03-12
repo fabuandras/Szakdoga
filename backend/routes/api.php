@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Models\Item;
+use Illuminate\Support\Facades\Schema;
 
 Route::get('/products', [ItemController::class, 'publicProducts']);
 Route::post('/login', [AuthenticatedSessionController::class, 'apiStore']);
