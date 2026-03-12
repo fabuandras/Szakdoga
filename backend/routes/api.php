@@ -87,3 +87,30 @@ Route::get('/users/{username}', [UserController::class, 'show']);
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Logout
+Route::middleware(['auth:sanctum'])->post('/logout', function (Request $request) {
+    $user = $request->user();
+
+    if ($user) {
+        // If token-based auth, delete current access token
+        try {
+            if (method_exists($user, 'currentAccessToken') && $user->currentAccessToken()) {
+                $user->currentAccessToken()->delete();
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        // Logout session if any
+        try {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        } catch (\Throwable $e) {
+            // ignore
+        }
+    }
+
+    return response()->json(null, 204);
+});

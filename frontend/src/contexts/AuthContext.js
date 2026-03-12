@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useCallback, useMemo } from "react";
 import { myAxios } from "../api/axios";
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext();
 
@@ -282,6 +283,65 @@ export function AuthProvider({ children }) {
 
     checkUser();
   }, [getUser]);
+
+  // preserve these frontend paths when user is authenticated (do not auto-redirect away)
+  const PRESERVE_PATHS = ['/warehouse', '/raktaros', '/admin/warehouse'];
+
+  // Paths that are public and do not require auth
+  const PUBLIC_PATHS = ['/', '/home', '/termekek', '/products', '/products-public', '/items', '/items-public', '/login', '/register'];
+
+  // Paths that require auth (only redirect to login when unauthenticated and path matches one of these)
+  const PROTECTED_PATHS = ['/profile', '/kosar', '/bevitel', '/inventory', '/warehouse', '/admin', '/account', '/orders', '/user', '/checkout'];
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // if (user) {
+    //   // ha be van jelentkezve felhasználó, automatikusan lekérjük az adatait
+    //   const fetchUser = async () => {
+    //     try {
+    //       await getUser();
+    //     } catch (e) {
+    //       console.log("User data fetch error:", e);
+    //     }
+    //   };
+
+    //   fetchUser();
+    // }
+
+    // avoid forcing navigation away if user is on a preserved path
+    if (user) {
+      const path = location.pathname || '';
+      if (PRESERVE_PATHS.some(p => path.startsWith(p))) {
+        return; // keep user on the current warehouse/raktaros page
+      }
+      // if user is on login/register, redirect to home
+      if (path === '/login' || path === '/register') {
+        navigate('/');
+        return;
+      }
+      return;
+    }
+
+    // if no user: only redirect to login when visiting a protected path
+    const currentPath = (location && location.pathname) ? location.pathname : '';
+    const isPublic = PUBLIC_PATHS.some(p => currentPath === p || currentPath.startsWith(p + '/'));
+    const isProtected = PROTECTED_PATHS.some(p => currentPath === p || currentPath.startsWith(p + '/'));
+
+    if (!isPublic && !isProtected) {
+      // unknown path — do nothing
+      return;
+    }
+
+    if (!user && isProtected) {
+      // attempt to load CSRF cookie then redirect to login
+      navigate('/login');
+      return;
+    }
+
+    // ...existing code...
+  }, [user, location, navigate]);
 
   const value = useMemo(
     () => ({
