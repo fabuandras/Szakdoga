@@ -112,7 +112,7 @@ export default function AdminHomePage() {
                             <div className="card h-100 text-center">
                                 <div className="card-body d-flex flex-column justify-content-center">
                                     <h5 className="card-title">Új Termék </h5>
-                                    <button className="btn btn-primary mt-2">Hozzáad</button>
+                                    <button className="btn btn-primary mt-2"><Link to="/admin/products">Hozzáad</Link></button>
                                 </div>
                             </div>
                         </div>
