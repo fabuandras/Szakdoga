@@ -5,30 +5,50 @@ import axios from 'axios';
 
 export default function AdminHomePage() {
     const [showAside, setShowAside] = useState(false);
-
-
+    
     const [users, setUsers] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [loadingUsers, setLoadingUsers] = useState(true);
+    const [loadingProducts, setLoadingProducts] = useState(true);
+    const [usersError, setUsersError] = useState(null);
+    const [productsError, setProductsError] = useState(null);
 
     useEffect(() => {
-        let isMounted = true;
+        let mounted = true;
+
         async function loadUsers() {
             try {
-                const res = await axios.get('/api/users', { withCredentials: true });
-                
-                if (isMounted) setUsers(res.data.users || []);
+                const res = await axios.get('http://localhost:8000/api/users', { withCredentials: true });
+                if (!mounted) return;
+                setUsers(res.data.users || []);
             } catch (e) {
-                console.error('Error loading users', e);
+                if (!mounted) return;
+                setUsersError(e);
+            } finally {
+                if (mounted) setLoadingUsers(false);
             }
         }
-        loadUsers();
-        return () => { isMounted = false; };
-    }, []);
 
-    const products = [
-        { id: 1, name: 'Hímzett póló', category: 'Ruházat', price: 5490, status: 'Aktív' },
-        { id: 2, name: 'Női sapka', category: 'Kiegészítők', price: 2990, status: 'Raktáron' },
-        { id: 3, name: 'Gyerek pulóver', category: 'Gyerek', price: 6990, status: 'Leárazva' },
-    ];
+        async function loadProducts() {
+            try {
+                const res = await axios.get('http://localhost:8000/api/products');
+                if (!mounted) return;
+                // API might return { products: [...] } or array directly
+                const payload = res.data.products || res.data || [];
+                setProducts(Array.isArray(payload) ? payload : []);
+            } catch (e) {
+                if (!mounted) return;
+                setProductsError(e);
+            } finally {
+                if (mounted) setLoadingProducts(false);
+            }
+        }
+
+        loadUsers();
+        loadProducts();
+
+        return () => { mounted = false; };
+    }, []);
 
     const messages = [
         { id: 1, from: 'Vásárló', subject: 'Megrendelés kérdés', date: '2026-02-20' },
@@ -37,6 +57,10 @@ export default function AdminHomePage() {
     ];
 
     const stats = { sales: 1234, visitors: 5678 };
+    
+    // helper to get first three items
+    const firstUsers = users.slice(0, 3);
+    const firstProducts = products.slice(0, 3);
 
     return (
         <div className="admin-container container-fluid py-3">
@@ -128,15 +152,21 @@ export default function AdminHomePage() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {users.slice(0,3).map(u => (
-                                                    <tr key={u.id}>
-                                                        <td>{u.vez_nev ? `${u.vez_nev} ${u.ker_nev}` : u.felhasznalonev}</td>
-                                                        <td>{u.email}</td>
-                                                        <td>{u.role || '-'}</td>
-                                                        <td className="text-end"><button className="btn btn-sm btn-outline-secondary">Kezelés</button></td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
+                                                {loadingUsers ? (
+                                                    <tr><td colSpan="4">Felhasználók betöltése...</td></tr>
+                                                ) : usersError ? (
+                                                    <tr><td colSpan="4">Hiba: {usersError.message}</td></tr>
+                                                ) : (
+                                                    firstUsers.map(u => (
+                                                        <tr key={u.id}>
+                                                            <td>{u.vez_nev ? `${u.vez_nev} ${u.ker_nev}` : u.felhasznalonev}</td>
+                                                            <td>{u.email}</td>
+                                                            <td>{u.role || '-'}</td>
+                                                            <td className="text-end"><button className="btn btn-sm btn-outline-secondary">Kezelés</button></td>
+                                                        </tr>
+                                                    ))
+                                                )}
+                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
@@ -161,15 +191,21 @@ export default function AdminHomePage() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {products.map(p => (
-                                                    <tr key={p.id}>
-                                                        <td>{p.name}</td>
-                                                        <td>{p.category}</td>
-                                                        <td>{p.price} Ft</td>
-                                                        <td>{p.status}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
+                                                {loadingProducts ? (
+                                                    <tr><td colSpan="4">Termékek betöltése...</td></tr>
+                                                ) : productsError ? (
+                                                    <tr><td colSpan="4">Hiba: {productsError.message}</td></tr>
+                                                ) : (
+                                                    firstProducts.map(p => (
+                                                        <tr key={p.id || p._id || p.sku || p.name}>
+                                                            <td>{p.name || p.nev || p.title}</td>
+                                                            <td>{p.category || p.kategoria}</td>
+                                                            <td>{p.price ? `${p.price} Ft` : '-'}</td>
+                                                            <td>{p.status || '-'}</td>
+                                                        </tr>
+                                                    ))
+                                                )}
+                                         </tbody>
                                         </table>
                                     </div>
                                 </div>
