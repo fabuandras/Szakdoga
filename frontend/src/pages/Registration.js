@@ -165,12 +165,13 @@ export default function Registration() {
       };
 
       try {
-        // ensure CSRF cookie is set for sanctum
         await api.get('/sanctum/csrf-cookie');
-        const res = await api.post('/register', payload);
-        // handle success (e.g., redirect to login or auto-login)
+        const res = await api.post('/api/register', payload);
         console.log('REGISTER SUCCESS', res.data);
-        navigate("/login");
+        if (res.data && res.data.token) {
+          localStorage.setItem('token', res.data.token);
+          api.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
+        }
       } catch (err) {
         console.error('REGISTER ERROR', err.response && err.response.status, err.response && err.response.data);
         if (err.response && err.response.status === 422) {
