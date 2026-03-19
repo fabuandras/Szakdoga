@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -36,13 +37,23 @@ class UserController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ], $messages);
 
+        // Normalize birthdate: convert empty string to null and format valid dates to Y-m-d
+        $szul_datum = null;
+        if (isset($data['szul_datum']) && $data['szul_datum'] !== '') {
+            try {
+                $szul_datum = Carbon::parse($data['szul_datum'])->format('Y-m-d');
+            } catch (\Exception $e) {
+                $szul_datum = null;
+            }
+        }
+
         $user = User::create([
             'felhasznalonev' => $data['felhasznalonev'],
             'vez_nev' => $data['vez_nev'],
             'ker_nev' => $data['ker_nev'],
             'megszolitas' => $data['megszolitas'] ?? null,
             'tel_szam' => $data['tel_szam'] ?? null,
-            'szul_datum' => $data['szul_datum'] ?? null,
+            'szul_datum' => $szul_datum,
             'email' => $data['email'],
             'jelszo' => Hash::make($data['password']),
         ]);

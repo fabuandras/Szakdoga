@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
@@ -17,13 +18,11 @@ class User extends Authenticatable
         'felhasznalonev',
         'vez_nev',
         'ker_nev',
-        'jelszo',
-        'email',
         'megszolitas',
         'tel_szam',
         'szul_datum',
-        'kedvencek',
-        'kosar',
+        'email',
+        'jelszo',
     ];
 
     protected $hidden = [
@@ -32,10 +31,24 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'szul_datum' => 'date',
-        'kedvencek' => 'array',
-        'kosar' => 'array',
+        'szul_datum' => 'date:Y-m-d',
+        'email_verified_at' => 'datetime',
     ];
+
+    // Ensure empty string dates become null and valid dates are formatted
+    public function setSzulDatumAttribute($value)
+    {
+        if ($value === null || $value === '') {
+            $this->attributes['szul_datum'] = null;
+            return;
+        }
+
+        try {
+            $this->attributes['szul_datum'] = Carbon::parse($value)->format('Y-m-d');
+        } catch (\Exception $e) {
+            $this->attributes['szul_datum'] = null;
+        }
+    }
 
     /**
      * Return the password for the user for authentication.
