@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 export default function AdminProducts() {
-
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     let mounted = true;
@@ -27,11 +27,20 @@ export default function AdminProducts() {
     return () => { mounted = false; };
   }, []);
 
+  const filtered = React.useMemo(() => {
+    if (!query) return products;
+    const q = query.toLowerCase();
+    return products.filter(p => String(p.nev || p.name || '').toLowerCase().startsWith(q));
+  }, [products, query]);
+
   const formatName = (p) => p.name || p.nev || p.title || p.product_name || '';
   const formatCategory = (p) => p.category || p.kategoria || p.cat || '-';
   const formatPrice = (p) => p.price || p.ar || '-';
   const formatPieces = (p) => p.pieces || p.stock || p.darab || '-';
   const formatStatus = (p) => p.status || p.statusz || '-';
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error loading products.</div>;
 
   return (
     <div className="admin-container d-flex">
@@ -45,7 +54,7 @@ export default function AdminProducts() {
           </div>
 
           <div className="d-flex align-items-center">
-            <input className="form-control" style={{ minWidth: 200 }} placeholder="Keresés:" />
+            <input className="form-control" style={{ minWidth: 200 }} placeholder="Keresés:" value={query} onChange={e => setQuery(e.target.value)} />
           </div>
         </div>
 
@@ -68,8 +77,10 @@ export default function AdminProducts() {
                 <tr><td colSpan="6">Hiba: {error.message}</td></tr>
               ) : products.length === 0 ? (
                 <tr><td colSpan="6">Nincs termék</td></tr>
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan="6">Nincs találat</td></tr>
               ) : (
-                products.map((p) => (
+                filtered.map((p) => (
                   <tr key={p.id || p._id || p.sku || formatName(p)}>
                     <td>{formatName(p)}</td>
                     <td>{formatCategory(p)}</td>

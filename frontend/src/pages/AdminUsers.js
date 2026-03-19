@@ -6,6 +6,7 @@ export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     let mounted = true;
@@ -25,6 +26,19 @@ export default function AdminUsers() {
     return () => { mounted = false; };
   }, []);
 
+  const filtered = React.useMemo(() => {
+    if (!query) return users;
+    const q = query.toLowerCase();
+    return users.filter(u => {
+      // prefer felhasznalonev or fallback to first string property
+      const first = (u.felhasznalonev || Object.keys(u).find(k => typeof u[k] === 'string' && u[k]) && u[Object.keys(u).find(k => typeof u[k] === 'string')]) || '';
+      return String(first).toLowerCase().startsWith(q);
+    });
+  }, [users, query]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error loading users.</div>;
+
   return (
     <div className="admin-container d-flex">
       <main className="col-md-9 flex-grow-1 p-3">
@@ -37,7 +51,7 @@ export default function AdminUsers() {
           </div>
 
           <div className="d-flex align-items-center">
-            <input className="form-control" style={{ minWidth: 200 }} placeholder="Keresés:" />
+            <input className="form-control" style={{ minWidth: 200 }} placeholder="Keresés:" value={query} onChange={e => setQuery(e.target.value)} />
           </div>
         </div>
 
@@ -60,7 +74,7 @@ export default function AdminUsers() {
               ) : users.length === 0 ? (
                 <tr><td colSpan="5">Nincs felhasználó</td></tr>
               ) : (
-                users.map((u) => (
+                filtered.map((u) => (
                   <tr key={u.id}>
                     <td>{u.felhasznalonev}</td>
                     <td>{u.vez_nev ? `${u.vez_nev} ${u.ker_nev}` : ''}</td>

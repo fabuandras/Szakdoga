@@ -77,6 +77,7 @@ function normalizeLaravelErrors(errorsObj) {
 }
 
 export function AuthProvider({ children }) {
+  // start unauthenticated by default
   const [user, setUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
 
@@ -180,8 +181,8 @@ export function AuthProvider({ children }) {
         // CSRF token lekérés
         await csrf();
 
-        // regisztráció
-        await myAxios.post("/register", adat);
+        // regisztráció — use API route
+        await myAxios.post("/api/register", adat);
 
         return true;
       } catch (e) {
@@ -292,9 +293,13 @@ export function AuthProvider({ children }) {
 
   // Paths that require auth (only redirect to login when unauthenticated and path matches one of these)
   const PROTECTED_PATHS = ['/profile', '/kosar', '/bevitel', '/inventory', '/warehouse', '/admin', '/account', '/orders', '/user', '/checkout'];
-
+ 
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Control automatic redirect to /login when unauthenticated
+  // Set to true to disable redirect (dev), false to enforce auth-based redirects
+  const DISABLE_AUTH_REDIRECT = false;
 
   useEffect(() => {
     // if (user) {
@@ -306,10 +311,10 @@ export function AuthProvider({ children }) {
     //       console.log("User data fetch error:", e);
     //     }
     //   };
-
+ 
     //   fetchUser();
     // }
-
+ 
     // avoid forcing navigation away if user is on a preserved path
     if (user) {
       const path = location.pathname || '';
@@ -323,41 +328,44 @@ export function AuthProvider({ children }) {
       }
       return;
     }
-
+ 
     // if no user: only redirect to login when visiting a protected path
     const currentPath = (location && location.pathname) ? location.pathname : '';
     const isPublic = PUBLIC_PATHS.some(p => currentPath === p || currentPath.startsWith(p + '/'));
     const isProtected = PROTECTED_PATHS.some(p => currentPath === p || currentPath.startsWith(p + '/'));
-
+ 
     if (!isPublic && !isProtected) {
       // unknown path — do nothing
       return;
     }
-
+ 
     if (!user && isProtected) {
-      // attempt to load CSRF cookie then redirect to login
-      navigate('/login');
-      return;
-    }
-
-    // ...existing code...
-  }, [user, location, navigate]);
-
-  const value = useMemo(
-    () => ({
-      user,
-      authReady,
-      errors,
-      generalError,
-      setErrors,
-      setGeneralError,
-      login,
-      register,
-      logout,
-      getUser,
-    }),
-    [user, authReady, errors, generalError, login, register, logout, getUser]
-  );
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+      // In development you may want to avoid forcing a redirect to the login page.
+      if (!DISABLE_AUTH_REDIRECT) {
+        // attempt to load CSRF cookie then redirect to login
+        navigate('/login');
+      }
+       return;
+     }
+ 
+     // ...existing code...
+   }, [user, location, navigate, PRESERVE_PATHS, PROTECTED_PATHS, PUBLIC_PATHS]);
+ 
+   const value = useMemo(
+     () => ({
+       user,
+       authReady,
+       errors,
+       generalError,
+       setErrors,
+       setGeneralError,
+       login,
+       register,
+       logout,
+       getUser,
+     }),
+     [user, authReady, errors, generalError, login, register, logout, getUser]
+   );
+ 
+   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
