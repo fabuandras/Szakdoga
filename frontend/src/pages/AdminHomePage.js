@@ -108,32 +108,6 @@ export default function AdminHomePage() {
                     </div>
 
                     <div className="row g-3 mb-3">
-                        <div className="col-md-4">
-                            <div className="card h-100 text-center">
-                                <div className="card-body d-flex flex-column justify-content-center">
-                                    <h5 className="card-title">Új Termék </h5>
-                                    <button className="btn btn-primary mt-2"><Link to="/admin/products">Hozzáad</Link></button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="col-md-4">
-                            <div className="card h-100 text-center">
-                                <div className="card-body d-flex flex-column justify-content-center">
-                                    <h5 className="card-title">Felhasználók Kezelése</h5>
-                                    <button className="btn btn-outline-primary mt-2"><Link to="/admin/users">Kezelés</Link></button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="col-md-4">
-                            <div className="card h-100 text-center">
-                                <div className="card-body d-flex flex-column justify-content-center">
-                                    <h5 className="card-title">Vélemények </h5>
-                                    <button className="btn btn-outline-danger mt-2">Moderál</button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <div className="row g-3">

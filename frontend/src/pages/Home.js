@@ -30,22 +30,6 @@ export default function Home() {
       ) : (
         <>
           <h1>Főoldal</h1>
-          <p>Modern raktárkezelés és egyszerű adminisztráció egy helyen.</p>
-
-          <div className="home-actions">
-            <NavLink to="/login" className="home-action-card">
-              <i className="bi bi-box-arrow-in-right"></i>
-              <span>Bejelentkezés</span>
-            </NavLink>
-            <NavLink to="/register" className="home-action-card">
-              <i className="bi bi-person-plus"></i>
-              <span>Regisztráció</span>
-            </NavLink>
-            <NavLink to="/termekek" className="home-action-card">
-              <i className="bi bi-grid"></i>
-              <span>Termékek</span>
-            </NavLink>
-          </div>
 
           <div className="home-feature-grid">
             <article className="home-feature-card">
