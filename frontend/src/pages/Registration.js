@@ -4,24 +4,29 @@ import "../Registration.css";
 import { AuthContext } from "../contexts/AuthContext";
 import api from '../api/axios';
 
-export default function Registration() {
+const Registration = () => {
   const navigate = useNavigate();
-  const { register, errors, generalError, setErrors, setGeneralError } =
+  const { register, errors: contextErrors, generalError, setErrors: setContextErrors, setGeneralError } =
     useContext(AuthContext);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+
+  // state declarations (must be at top of component)
+  const [vezeteknev, setVezeteknev] = useState('');
+  const [keresztnev, setKeresztnev] = useState('');
+  const [felhasznalonev, setFelhasznalonev] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // local state for the registration form
+  const [errors, setErrors] = useState(contextErrors || null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+
   const [formData, setFormData] = useState({
-    felhasznalonev: "",
-    lastName: "",
-    firstName: "",
     salutation: "",
-    email: "",
     phone: "",
     birthDate: "",
-    password: "",
-    passwordConfirm: "",
   });
 
   const birthDateRef = useRef(null);
@@ -90,25 +95,25 @@ export default function Registration() {
   const validate = useCallback(() => {
     const newErrors = {};
 
-    if (!formData.felhasznalonev.trim())
+    if (!felhasznalonev.trim())
       newErrors.felhasznalonev = "A felhasználónév megadása kötelező.";
-    else if (formData.felhasznalonev.length < 3)
+    else if (felhasznalonev.length < 3)
       newErrors.felhasznalonev = "A felhasználónév legalább 3 karakter legyen.";
 
-    if (!formData.lastName.trim())
+    if (!vezeteknev.trim())
       newErrors.lastName = "A vezetéknév megadása kötelező.";
-    else if (!/^[A-Za-zÀ-ÖØ-öø-ÿ\u0100-\u017F '\-]+$/.test(formData.lastName.trim()))
+    else if (!/^[A-Za-zÀ-ÖØ-öø-ÿ\u0100-\u017F '\-]+$/.test(vezeteknev.trim()))
       newErrors.lastName = "A vezetéknév csak betűket tartalmazhat.";
 
-    if (!formData.firstName.trim())
+    if (!keresztnev.trim())
       newErrors.firstName = "A keresztnév megadása kötelező.";
-    else if (!/^[A-Za-zÀ-ÖØ-öø-ÿ\u0100-\u017F '\-]+$/.test(formData.firstName.trim()))
+    else if (!/^[A-Za-zÀ-ÖØ-öø-ÿ\u0100-\u017F '\-]+$/.test(keresztnev.trim()))
       newErrors.firstName = "A keresztnév csak betűket tartalmazhat.";
 
     if (!formData.salutation) newErrors.salutation = "A megszólítás megadása kötelező.";
 
-    if (!formData.email.trim()) newErrors.email = "Az email megadása kötelező.";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim()))
+    if (!email.trim()) newErrors.email = "Az email megadása kötelező.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
       newErrors.email = "Érvénytelen email formátum.";
 
     if (!formData.phone.trim()) newErrors.phone = "A telefonszám megadása kötelező.";
@@ -131,41 +136,28 @@ export default function Registration() {
       }
     }
 
-    if (!formData.password) newErrors.password = "A jelszó megadása kötelező.";
-    else if (formData.password.length < 8) newErrors.password = "A jelszó legalább 8 karakter legyen.";
+    if (!password) newErrors.password = "A jelszó megadása kötelező.";
+    else if (password.length < 8) newErrors.password = "A jelszó legalább 8 karakter legyen.";
 
-    if (!formData.passwordConfirm) newErrors.passwordConfirm = "A jelszó megerősítése kötelező.";
-    else if (formData.password !== formData.passwordConfirm)
+    if (!passwordConfirm) newErrors.passwordConfirm = "A jelszó megerősítése kötelező.";
+    else if (password !== passwordConfirm)
       newErrors.passwordConfirm = "A két jelszó nem egyezik.";
 
     return newErrors;
-  }, [formData]);
+  }, [formData, felhasznalonev, vezeteknev, keresztnev, email, password, passwordConfirm]);
 
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
+      console.log('Registration handleSubmit called', { vezeteknev, keresztnev, felhasznalonev, email });
       setGeneralError(null);
 
       const validationErrors = validate();
       setErrors(validationErrors);
       if (Object.keys(validationErrors).length > 0) return;
 
-      const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim();
-
       // Build payload matching backend validation: include 'name' and password_confirmation
-      const name = formData.felhasznalonev.trim() || `${formData.lastName.trim()} ${formData.firstName.trim()}`.trim();
-
-      const {
-        felhasznalonev,
-        lastName: vezeteknev,
-        firstName: keresztnev,
-        salutation: megszolitas,
-        email,
-        phone: telefon,
-        birthDate: szulDatum,
-        password,
-        passwordConfirm,
-      } = formData;
+      const name = felhasznalonev.trim() || `${vezeteknev.trim()} ${keresztnev.trim()}`.trim();
 
       const payload = {
         vez_nev: vezeteknev,
@@ -185,7 +177,7 @@ export default function Registration() {
         setShowSuccess(true);
         // keep modal visible until user clicks the button
      } catch (err) {
-        console.error('REGISTER ERROR', err.response && err.response.data);
+        console.error('REGISTER ERROR', err);
         if (err.response && err.response.status === 422) {
           setErrors(err.response.data.errors || err.response.data);
         } else {
@@ -193,7 +185,7 @@ export default function Registration() {
         }
       }
     },
-    [validate, register, setErrors, setGeneralError, navigate, formData]
+    [validate, register, setContextErrors, setGeneralError, navigate, felhasznalonev, vezeteknev, keresztnev, email, password, passwordConfirm]
   );
 
   return (
@@ -212,8 +204,8 @@ export default function Registration() {
                 className="form-control"
                 name="lastName"
                 placeholder="Vezetéknév"
-                value={formData.lastName}
-                onChange={handleChange}
+                value={vezeteknev}
+                onChange={(e) => setVezeteknev(e.target.value)}
                 autoComplete="family-name"
                 required
               />
@@ -226,8 +218,8 @@ export default function Registration() {
                 className="form-control"
                 name="firstName"
                 placeholder="Keresztnév"
-                value={formData.firstName}
-                onChange={handleChange}
+                value={keresztnev}
+                onChange={(e) => setKeresztnev(e.target.value)}
                 autoComplete="given-name"
                 required
               />
@@ -240,8 +232,8 @@ export default function Registration() {
                 className="form-control"
                 name="felhasznalonev"
                 placeholder="Felhasználónév"
-                value={formData.felhasznalonev}
-                onChange={handleChange}
+                value={felhasznalonev}
+                onChange={(e) => setFelhasznalonev(e.target.value)}
                 autoComplete="username"
                 required
               />
@@ -255,8 +247,8 @@ export default function Registration() {
                 type="email"
                 name="email"
                 placeholder="Email"
-                value={formData.email}
-                onChange={handleChange}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
                 required
               />
@@ -268,11 +260,11 @@ export default function Registration() {
               <div className="password-input-wrapper">
                 <input
                   className="form-control"
-                  type={showPassword ? "text" : "password"}
+                  type="password"
                   name="password"
                   placeholder="Jelszó"
-                  value={formData.password}
-                  onChange={handleChange}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   autoComplete="new-password"
                   required
                 />
@@ -289,11 +281,11 @@ export default function Registration() {
               <div className="password-input-wrapper">
                 <input
                   className="form-control"
-                  type={showPasswordConfirm ? "text" : "password"}
+                  type="password"
                   name="passwordConfirm"
                   placeholder="Jelszó megerősítése"
-                  value={formData.passwordConfirm}
-                  onChange={handleChange}
+                  value={passwordConfirm}
+                  onChange={(e) => setPasswordConfirm(e.target.value)}
                   autoComplete="new-password"
                   required
                 />
@@ -307,9 +299,9 @@ export default function Registration() {
               )}
             </div>
 
-            <button type="submit" className="btn btn-success w-100">
-              Regisztráció
-            </button>
+            <div className="form-row">
+              <button className="btn primary" type="submit">Regisztráció</button>
+            </div>
           </form>
 
           <div className="auth-footer">
@@ -334,3 +326,5 @@ export default function Registration() {
     </>
   );
 }
+
+export default Registration;
