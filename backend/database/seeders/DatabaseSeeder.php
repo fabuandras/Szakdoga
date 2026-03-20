@@ -23,14 +23,6 @@ class DatabaseSeeder extends Seeder
 
         $users = [
             [
-                'created_at' => now(),
-                'email' => 'demo@example.com',
-                'felhasznalonev' => 'demo',
-                'jelszo' => 'password',
-                'ker_nev' => 'Demo',
-                'vez_nev' => 'User',
-            ],
-            [
                 'felhasznalonev' => 'Bori',
                 'vez_nev' => 'Ilyés',
                 'ker_nev' => 'Borbála',
