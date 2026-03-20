@@ -10,6 +10,7 @@ export default function Registration() {
     useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     felhasznalonev: "",
@@ -154,26 +155,53 @@ export default function Registration() {
       // Build payload matching backend validation: include 'name' and password_confirmation
       const name = formData.felhasznalonev.trim() || `${formData.lastName.trim()} ${formData.firstName.trim()}`.trim();
 
+      const {
+        felhasznalonev,
+        lastName: vezeteknev,
+        firstName: keresztnev,
+        salutation: megszolitas,
+        email,
+        phone: telefon,
+        birthDate: szulDatum,
+        password,
+        passwordConfirm,
+      } = formData;
+
       const payload = {
-        name,
-        email: formData.email.trim(),
-        password: formData.password,
-        password_confirmation: formData.passwordConfirm,
-        phone: formData.phone.trim(),
-        megszolitas: formData.salutation,
-        // include other fields if backend expects them
+        felhasznalonev: felhasznalonev,
+        name: felhasznalonev,
+
+        // send multiple variants for last name and first name
+        vez_nev: vezeteknev,
+        vezeteknev: vezeteknev,
+        last_name: vezeteknev,
+
+        ker_nev: keresztnev,
+        keresztnev: keresztnev,
+        first_name: keresztnev,
+
+        megszolitas: megszolitas,
+        email,
+
+        tel_szam: telefon,
+        telefonszam: telefon,
+
+        szul_datum: szulDatum,
+        birthdate: szulDatum,
+
+        password,
+        password_confirmation: passwordConfirm,
       };
 
       try {
         await api.get('/sanctum/csrf-cookie');
         const res = await api.post('/api/register', payload);
         console.log('REGISTER SUCCESS', res.data);
-        if (res.data && res.data.token) {
-          localStorage.setItem('token', res.data.token);
-          api.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
-        }
-      } catch (err) {
-        console.error('REGISTER ERROR', err.response && err.response.status, err.response && err.response.data);
+        // show in-page modal success message
+        setShowSuccess(true);
+        // keep modal visible until user clicks the button
+     } catch (err) {
+        console.error('REGISTER ERROR', err.response && err.response.data);
         if (err.response && err.response.status === 422) {
           setErrors(err.response.data.errors || err.response.data);
         } else {
@@ -185,164 +213,180 @@ export default function Registration() {
   );
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <h1 className="auth-title">Regisztráció</h1>
+    <>
+      <div className="auth-page">
+        <div className="auth-card">
+          <h1 className="auth-title">Regisztráció</h1>
 
-        {generalError && <div className="auth-error">{generalError}</div>}
+          {generalError && <div className="auth-error">{generalError}</div>}
 
-        <form onSubmit={handleSubmit} noValidate>
-          <div className="mb-2">
-            <label className="form-label">Felhasználónév</label>
-            <input
-              className="form-control"
-              name="felhasznalonev"
-              placeholder="Felhasználónév"
-              value={formData.felhasznalonev}
-              onChange={handleChange}
-              autoComplete="username"
-            />
-            {errors.felhasznalonev && <div className="auth-error">{errors.felhasznalonev}</div>}
-          </div>
-
-          <div className="mb-2">
-            <label className="form-label">Vezetéknév</label>
-            <input
-              className="form-control"
-              name="lastName"
-              placeholder="Vezetéknév"
-              value={formData.lastName}
-              onChange={handleChange}
-              autoComplete="family-name"
-            />
-            {errors.lastName && <div className="auth-error">{errors.lastName}</div>}
-          </div>
-
-          <div className="mb-2">
-            <label className="form-label">Keresztnév</label>
-            <input
-              className="form-control"
-              name="firstName"
-              placeholder="Keresztnév"
-              value={formData.firstName}
-              onChange={handleChange}
-              autoComplete="given-name"
-            />
-            {errors.firstName && <div className="auth-error">{errors.firstName}</div>}
-          </div>
-
-          <div className="mb-2">
-            <label className="form-label">Megszólítás</label>
-            <select
-              className="form-control"
-              name="salutation"
-              value={formData.salutation}
-              onChange={handleChange}
-            >
-              <option value="">Megszólítás kiválasztása</option>
-              <option value="Mr">Mr.</option>
-              <option value="Ms">Ms.</option>
-              <option value="Miss">Miss.</option>
-              <option value="Dr">Dr.</option>
-            </select>
-            {errors.salutation && (
-              <div className="auth-error">{errors.salutation}</div>
-            )}
-          </div>
-
-          <div className="mb-2">
-            <label className="form-label">Email</label>
-            <input
-              className="form-control"
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              autoComplete="email"
-            />
-            {errors.email && <div className="auth-error">{errors.email}</div>}
-          </div>
-
-          <div className="mb-2">
-            <label className="form-label">Telefonszám</label>
-            <input
-              className="form-control"
-              name="phone"
-              placeholder="Telefonszám (pl. +36 20 123 4567)"
-              value={formData.phone}
-              onChange={handleChange}
-              autoComplete="tel"
-            />
-            {errors.phone && <div className="auth-error">{errors.phone}</div>}
-          </div>
-
-          <div className="mb-2">
-            <label className="form-label">Születési dátum</label>
-            <input
-              className="form-control"
-              type="date"
-              name="birthDate"
-              placeholder="Születési dátum"
-              value={formData.birthDate}
-              onChange={handleChange}
-              ref={birthDateRef}
-               autoComplete="bday"
-             />
-            {errors.birthDate && <div className="auth-error">{errors.birthDate}</div>}
-          </div>
-
-          <div className="mb-2 password-field">
-            <label className="form-label">Jelszó</label>
-            <div className="password-input-wrapper">
+          <form onSubmit={handleSubmit} noValidate>
+            <div className="mb-2">
+              <label className="form-label">Felhasználónév</label>
               <input
                 className="form-control"
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="Jelszó"
-                value={formData.password}
+                name="felhasznalonev"
+                placeholder="Felhasználónév"
+                value={formData.felhasznalonev}
                 onChange={handleChange}
-                autoComplete="new-password"
+                autoComplete="username"
               />
-              <i
-                className={"password-toggle bi " + (showPassword ? "bi-eye-slash" : "bi-eye")}
-                onClick={() => setShowPassword((v) => !v)}
-              />
+              {errors.felhasznalonev && <div className="auth-error">{errors.felhasznalonev}</div>}
             </div>
-            {errors.password && <div className="auth-error">{errors.password}</div>}
-          </div>
 
-          <div className="mb-2 password-field">
-            <label className="form-label">Jelszó megerősítése</label>
-            <div className="password-input-wrapper">
+            <div className="mb-2">
+              <label className="form-label">Vezetéknév</label>
               <input
                 className="form-control"
-                type={showPasswordConfirm ? "text" : "password"}
-                name="passwordConfirm"
-                placeholder="Jelszó megerősítése"
-                value={formData.passwordConfirm}
+                name="lastName"
+                placeholder="Vezetéknév"
+                value={formData.lastName}
                 onChange={handleChange}
-                autoComplete="new-password"
+                autoComplete="family-name"
               />
-              <i
-                className={"password-toggle bi " + (showPasswordConfirm ? "bi-eye-slash" : "bi-eye")}
-                onClick={() => setShowPasswordConfirm((v) => !v)}
-              />
+              {errors.lastName && <div className="auth-error">{errors.lastName}</div>}
             </div>
-            {errors.passwordConfirm && (
-              <div className="auth-error">{errors.passwordConfirm}</div>
-            )}
+
+            <div className="mb-2">
+              <label className="form-label">Keresztnév</label>
+              <input
+                className="form-control"
+                name="firstName"
+                placeholder="Keresztnév"
+                value={formData.firstName}
+                onChange={handleChange}
+                autoComplete="given-name"
+              />
+              {errors.firstName && <div className="auth-error">{errors.firstName}</div>}
+            </div>
+
+            <div className="mb-2">
+              <label className="form-label">Megszólítás</label>
+              <select
+                className="form-control"
+                name="salutation"
+                value={formData.salutation}
+                onChange={handleChange}
+              >
+                <option value="">Megszólítás kiválasztása</option>
+                <option value="Mr">Mr.</option>
+                <option value="Ms">Ms.</option>
+                <option value="Miss">Miss.</option>
+                <option value="Dr">Dr.</option>
+              </select>
+              {errors.salutation && (
+                <div className="auth-error">{errors.salutation}</div>
+              )}
+            </div>
+
+            <div className="mb-2">
+              <label className="form-label">Email</label>
+              <input
+                className="form-control"
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleChange}
+                autoComplete="email"
+              />
+              {errors.email && <div className="auth-error">{errors.email}</div>}
+            </div>
+
+            <div className="mb-2">
+              <label className="form-label">Telefonszám</label>
+              <input
+                className="form-control"
+                name="phone"
+                placeholder="Telefonszám (pl. +36 20 123 4567)"
+                value={formData.phone}
+                onChange={handleChange}
+                autoComplete="tel"
+              />
+              {errors.phone && <div className="auth-error">{errors.phone}</div>}
+            </div>
+
+            <div className="mb-2">
+              <label className="form-label">Születési dátum</label>
+              <input
+                className="form-control"
+                type="date"
+                name="birthDate"
+                placeholder="Születési dátum"
+                value={formData.birthDate}
+                onChange={handleChange}
+                ref={birthDateRef}
+                 autoComplete="bday"
+               />
+              {errors.birthDate && <div className="auth-error">{errors.birthDate}</div>}
+            </div>
+
+            <div className="mb-2 password-field">
+              <label className="form-label">Jelszó</label>
+              <div className="password-input-wrapper">
+                <input
+                  className="form-control"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Jelszó"
+                  value={formData.password}
+                  onChange={handleChange}
+                  autoComplete="new-password"
+                />
+                <i
+                  className={"password-toggle bi " + (showPassword ? "bi-eye-slash" : "bi-eye")}
+                  onClick={() => setShowPassword((v) => !v)}
+                />
+              </div>
+              {errors.password && <div className="auth-error">{errors.password}</div>}
+            </div>
+
+            <div className="mb-2 password-field">
+              <label className="form-label">Jelszó megerősítése</label>
+              <div className="password-input-wrapper">
+                <input
+                  className="form-control"
+                  type={showPasswordConfirm ? "text" : "password"}
+                  name="passwordConfirm"
+                  placeholder="Jelszó megerősítése"
+                  value={formData.passwordConfirm}
+                  onChange={handleChange}
+                  autoComplete="new-password"
+                />
+                <i
+                  className={"password-toggle bi " + (showPasswordConfirm ? "bi-eye-slash" : "bi-eye")}
+                  onClick={() => setShowPasswordConfirm((v) => !v)}
+                />
+              </div>
+              {errors.passwordConfirm && (
+                <div className="auth-error">{errors.passwordConfirm}</div>
+              )}
+            </div>
+
+            <button type="submit" className="btn btn-success w-100">
+              Regisztráció
+            </button>
+          </form>
+
+          <div className="auth-footer">
+            Van már fiókod? <Link to="/login">Bejelentkezek!</Link>
           </div>
-
-          <button type="submit" className="btn btn-success w-100">
-            Regisztráció
-          </button>
-        </form>
-
-        <div className="auth-footer">
-          Van már fiókod? <Link to="/login">Bejelentkezek!</Link>
         </div>
       </div>
-    </div>
+
+      {showSuccess && (
+        <div className="reg-modal-overlay">
+          <div className="reg-modal-backdrop" />
+          <div className="reg-modal-box">
+            <div className="reg-modal-check">✓</div>
+            <h2 className="reg-modal-title">Sikeres regisztráció</h2>
+            <p className="reg-modal-desc">A fiók létrejött. Kérjük, jelentkezz be a folytatáshoz.</p>
+            <div className="reg-modal-actions">
+              <button onClick={() => navigate('/login')} className="reg-modal-btn primary">Tovább a bejelentkezéshez</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

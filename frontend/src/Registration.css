@@ -98,4 +98,37 @@
 }
 .password-toggle:hover {
   color: var(--text);
-} 
+}
+
+/* Registration modal styles */
+.reg-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.reg-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+}
+.reg-modal-box {
+  background: #111;
+  color: #fff;
+  padding: 28px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  width: min(520px, 90%);
+  z-index: 10000;
+  text-align: center;
+  border: 3px solid #ef4444;
+}
+.reg-modal-check { font-size: 44px; color: #4ade80; margin-bottom: 8px; }
+.reg-modal-title { margin: 0 0 8px; font-size: 22px; }
+.reg-modal-desc { margin: 0 0 18px; color: #ddd; }
+.reg-modal-actions { margin-top: 18px; }
+.reg-modal-btn { padding: 12px 22px; border-radius: 8px; cursor: pointer; border: none; }
+.reg-modal-btn.primary { background: #ef4444; color: #fff; font-weight: 600; }
+/* end Registration modal styles */
