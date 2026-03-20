@@ -11,7 +11,7 @@ export default function AdminProducts() {
     let mounted = true;
     async function load() {
       try {
-        const res = await axios.get('http://localhost:8000/api/products', { withCredentials: true });
+        const res = await axios.get('http://localhost:8000/api/items', { withCredentials: true });
         if (!mounted) return;
         // assume API returns { products: [...] } or an array directly
         const payload = res.data.products || res.data || [];

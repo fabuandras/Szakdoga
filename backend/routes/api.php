@@ -47,14 +47,74 @@ Route::post('/login', function (Request $request) {
         return response()->json(['message' => 'The provided credentials are incorrect.'], 401);
     }
 
-    // create token
-    $token = $user->createToken('api-token')->plainTextToken;
+    // determine role from email
+    $email = $user->email ?? '';
+    $role = 'webshop';
+    if (function_exists('str_contains')) {
+        if (str_contains($email, '@admin')) {
+            $role = 'admin';
+        } elseif (str_contains($email, '@raktaros')) {
+            $role = 'raktaros';
+        }
+    } else {
+        if (strpos($email, '@admin') !== false) {
+            $role = 'admin';
+        } elseif (strpos($email, '@raktaros') !== false) {
+            $role = 'raktaros';
+        }
+    }
+
+    // create token with role as ability (optional)
+    $token = $user->createToken('api-token', [$role])->plainTextToken;
 
     return response()->json([
         'token' => $token,
         'user' => $user,
+        'role' => $role,
     ], 200);
 });
 
 // API registration (SPA JSON)
 Route::post('/register', [RegisteredUserController::class, 'store']);
+
+// Admin and raktáros routes (protected by sanctum)
+Route::middleware(['auth:sanctum'])->group(function () {
+	// Admin: list users
+	Route::get('/admin/users', function (Request $request) {
+		$user = $request->user();
+		$email = $user->email ?? '';
+		if (! $user || (function_exists('str_contains') ? !str_contains($email, '@admin') : strpos($email, '@admin') === false)) {
+			return response()->json(['message' => 'Forbidden'], 403);
+		}
+		return response()->json(User::all(), 200);
+	});
+
+	// Admin: list all products
+	Route::get('/admin/products', function (Request $request) {
+		$user = $request->user();
+		$email = $user->email ?? '';
+		if (! $user || (function_exists('str_contains') ? !str_contains($email, '@admin') : strpos($email, '@admin') === false)) {
+			return response()->json(['message' => 'Forbidden'], 403);
+		}
+		return response()->json(Item::all(), 200);
+	});
+
+	// Raktáros: list products for warehouse management
+	Route::get('/raktar/products', function (Request $request) {
+		$user = $request->user();
+		$email = $user->email ?? '';
+		if (! $user || (function_exists('str_contains') ? !str_contains($email, '@raktaros') : strpos($email, '@raktaros') === false)) {
+			return response()->json(['message' => 'Forbidden'], 403);
+		}
+		return response()->json(Item::all(), 200);
+	});
+});
+
+// Public webshop products
+Route::get('/items', function () {
+	return response()->json(Item::all(), 200);
+});
+
+Route::get('/users', function () {
+	return response()->json(User::all(), 200);
+});

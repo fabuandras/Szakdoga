@@ -33,11 +33,19 @@ function isWarehouseOnlyUser(user) {
   return user?.felhasznalonev === "Bori";
 }
 
+function isAdminOnlyUser(user) {
+  return user?.felhasznalonev === "Bendeguz";
+}
+
 function RedirectWarehouseOnly({ children }) {
   const { user } = useContext(AuthContext);
 
   if (isWarehouseOnlyUser(user)) {
     return <Navigate to="/warehouse" replace />;
+  }
+
+  if (isAdminOnlyUser(user)) {
+    return <Navigate to="/admin" replace />;
   }
 
   return children;
