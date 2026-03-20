@@ -111,10 +111,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 // Public webshop products
-Route::get('/items', function () {
-	return response()->json(Item::all(), 200);
-});
-
-Route::get('/users', function () {
-	return response()->json(User::all(), 200);
-});
+Route::get('/items', [ItemController::class, 'index']);
+Route::get('/users', [UserController::class, 'index']);

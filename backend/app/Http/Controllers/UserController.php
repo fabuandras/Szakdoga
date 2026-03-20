@@ -11,6 +11,8 @@ use Carbon\Carbon;
 
 class UserController extends Controller
 {
+
+    
     public function register(Request $request)
     {
         $messages = [
@@ -62,6 +64,8 @@ class UserController extends Controller
 
         return response()->json(['user' => $user, 'token' => $token], 201);
     }
+
+   
 
     public function login(Request $request)
     {

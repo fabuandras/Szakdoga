@@ -18,9 +18,15 @@ export default function AdminHomePage() {
 
         async function loadUsers() {
             try {
-                const res = await axios.get('http://localhost:8000/api/users', { withCredentials: true });
+                const token = localStorage.getItem('token');
+                const headers = token ? { Authorization: `Bearer ${token}` } : {};
+                const res = await axios.get('http://localhost:8000/api/users', { headers, withCredentials: true });
                 if (!mounted) return;
-                setUsers(res.data.users || []);
+                const payload = Array.isArray(res.data) ? res.data : (res.data.users || res.data || []);
+                const list = Array.isArray(payload) ? payload : [];
+                // ensure role field exists based on email
+                const mapped = list.map(u => ({ ...u, role: u.role || ((u.email || '').includes('@admin') ? 'admin' : ((u.email || '').includes('@raktaros') ? 'raktaros' : 'webshop')) }));
+                setUsers(mapped);
             } catch (e) {
                 if (!mounted) return;
                 setUsersError(e);
@@ -29,12 +35,14 @@ export default function AdminHomePage() {
             }
         }
 
-        async function loadProducts() {
+        async function loadItems() {
             try {
-                const res = await axios.get('http://localhost:8000/api/products');
+                const token = localStorage.getItem('token');
+                const headers = token ? { Authorization: `Bearer ${token}` } : {};
+                const res = await axios.get('http://localhost:8000/api/items', { headers, withCredentials: true });
                 if (!mounted) return;
-                // API might return { products: [...] } or array directly
-                const payload = res.data.products || res.data || [];
+                // API might return { items: [...] } or array directly
+                const payload = Array.isArray(res.data) ? res.data : (res.data.items || res.data || []);
                 setProducts(Array.isArray(payload) ? payload : []);
             } catch (e) {
                 if (!mounted) return;
@@ -45,7 +53,7 @@ export default function AdminHomePage() {
         }
 
         loadUsers();
-        loadProducts();
+        loadItems();
 
         return () => { mounted = false; };
     }, []);
@@ -61,6 +69,29 @@ export default function AdminHomePage() {
     // helper to get first three items
     const firstUsers = users.slice(0, 3);
     const firstProducts = products.slice(0, 3);
+
+    // helper to get a field from many possible keys, with fuzzy matching
+    const getField = (obj, keys) => {
+        if (!obj) return null;
+        for (const k of keys) {
+            if (obj[k] !== undefined && obj[k] !== null && String(obj[k]).trim() !== '') return obj[k];
+        }
+        for (const k of Object.keys(obj || {})) {
+            if (/nev|name|termek|title|megnevezes|cim/i.test(k) && obj[k]) return obj[k];
+            if (/ar|price|price_huf|ft/i.test(k) && obj[k]) return obj[k];
+            if (/darab|stock|pieces|qty|mennyiseg/i.test(k) && obj[k]) return obj[k];
+            if (/status|statusz/i.test(k) && obj[k]) return obj[k];
+        }
+        return null;
+    };
+
+    const prodName = (p) => String(getField(p, ['name','nev','title','termek_nev','product_name']) || '');
+    const prodCategory = (p) => String(getField(p, ['category','kategoria','cat']) || '-');
+    const prodPrice = (p) => {
+        const v = getField(p, ['price','ar','price_huf']);
+        return v !== null ? `${v} Ft` : '-';
+    };
+    const prodStatus = (p) => String(getField(p, ['status','statusz']) || '-');
 
     return (
         <div className="admin-container container-fluid py-3">
@@ -197,11 +228,11 @@ export default function AdminHomePage() {
                                                     <tr><td colSpan="4">Hiba: {productsError.message}</td></tr>
                                                 ) : (
                                                     firstProducts.map(p => (
-                                                        <tr key={p.id || p._id || p.sku || p.name}>
-                                                            <td>{p.name || p.nev || p.title}</td>
-                                                            <td>{p.category || p.kategoria}</td>
-                                                            <td>{p.price ? `${p.price} Ft` : '-'}</td>
-                                                            <td>{p.status || '-'}</td>
+                                                        <tr key={p.id || p._id || p.sku || prodName(p)}>
+                                                            <td>{prodName(p)}</td>
+                                                            <td>{prodCategory(p)}</td>
+                                                            <td>{prodPrice(p)}</td>
+                                                            <td>{prodStatus(p)}</td>
                                                         </tr>
                                                     ))
                                                 )}

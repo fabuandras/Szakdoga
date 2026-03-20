@@ -11,10 +11,11 @@ export default function AdminProducts() {
     let mounted = true;
     async function load() {
       try {
-        const res = await axios.get('http://localhost:8000/api/items', { withCredentials: true });
+        const token = localStorage.getItem('token');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await axios.get('http://localhost:8000/api/items', { headers, withCredentials: true });
         if (!mounted) return;
-        // assume API returns { products: [...] } or an array directly
-        const payload = res.data.products || res.data || [];
+        const payload = Array.isArray(res.data) ? res.data : (res.data.products || res.data.items || res.data || []);
         setProducts(Array.isArray(payload) ? payload : []);
       } catch (e) {
         if (!mounted) return;
@@ -27,17 +28,37 @@ export default function AdminProducts() {
     return () => { mounted = false; };
   }, []);
 
+  // helper to get a field from many possible keys, with fuzzy matching
+  const getField = (obj, keys) => {
+    if (!obj) return null;
+    for (const k of keys) {
+      if (obj[k] !== undefined && obj[k] !== null && String(obj[k]).trim() !== '') return obj[k];
+    }
+    for (const k of Object.keys(obj)) {
+      if (/nev|name|termek|title|megnevezes|cim/i.test(k) && obj[k]) return obj[k];
+      if (/ar|price|price_huf|ft/i.test(k) && obj[k]) return obj[k];
+      if (/darab|stock|pieces|qty|mennyiseg/i.test(k) && obj[k]) return obj[k];
+    }
+    return null;
+  };
+
+  const formatName = (p) => String(getField(p, ['name','nev','title','product_name','termek_nev']) || '');
+  const formatCategory = (p) => String(getField(p, ['category','kategoria','cat']) || '-');
+  const formatPrice = (p) => {
+    const v = getField(p, ['price','ar','price_huf']);
+    return v !== null ? v : '-';
+  };
+  const formatPieces = (p) => {
+    const v = getField(p, ['pieces','stock','darab','mennyiseg','qty']);
+    return v !== null ? v : '-';
+  };
+  const formatStatus = (p) => String(getField(p, ['status','statusz']) || '-');
+
   const filtered = React.useMemo(() => {
     if (!query) return products;
     const q = query.toLowerCase();
-    return products.filter(p => String(p.nev || p.name || '').toLowerCase().startsWith(q));
+    return products.filter(p => String(formatName(p)).toLowerCase().startsWith(q));
   }, [products, query]);
-
-  const formatName = (p) => p.name || p.nev || p.title || p.product_name || '';
-  const formatCategory = (p) => p.category || p.kategoria || p.cat || '-';
-  const formatPrice = (p) => p.price || p.ar || '-';
-  const formatPieces = (p) => p.pieces || p.stock || p.darab || '-';
-  const formatStatus = (p) => p.status || p.statusz || '-';
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading products.</div>;
@@ -71,11 +92,7 @@ export default function AdminProducts() {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
-                <tr><td colSpan="6">Betöltés...</td></tr>
-              ) : error ? (
-                <tr><td colSpan="6">Hiba: {error.message}</td></tr>
-              ) : products.length === 0 ? (
+              {products.length === 0 ? (
                 <tr><td colSpan="6">Nincs termék</td></tr>
               ) : filtered.length === 0 ? (
                 <tr><td colSpan="6">Nincs találat</td></tr>
