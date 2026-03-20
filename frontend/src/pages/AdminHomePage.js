@@ -70,28 +70,123 @@ export default function AdminHomePage() {
     const firstUsers = users.slice(0, 3);
     const firstProducts = products.slice(0, 3);
 
-    // helper to get a field from many possible keys, with fuzzy matching
-    const getField = (obj, keys) => {
+    // improved helpers: deep unwrap and type-aware field finder
+    const unwrap = (val) => {
+        if (val === undefined || val === null) return null;
+        if (Array.isArray(val)) return val.map(unwrap).filter(v => v != null).join(', ');
+        if (typeof val === 'object') {
+            for (const k of ['name','title','nev','label','value']) {
+                if (val[k] !== undefined && val[k] !== null) return unwrap(val[k]);
+            }
+            for (const k of ['id','_id','sku']) {
+                if (val[k] !== undefined && val[k] !== null) return String(val[k]);
+            }
+            try {
+                const vals = Object.values(val).map(unwrap).filter(v => v != null);
+                if (vals.length) return vals.join(' ');
+            } catch (e) {}
+            return null;
+        }
+        return val;
+    };
+
+    const typeRegex = {
+        name: /nev|name|termek|title|megnevezes|cim/i,
+        category: /kategoria|category|cat/i,
+        price: /ar|price|price_huf|amount|ft/i,
+        pieces: /darab|stock|pieces|qty|mennyiseg/i,
+        status: /status|statusz/i,
+    };
+
+    const findFieldByType = (obj, type, candidates = []) => {
         if (!obj) return null;
-        for (const k of keys) {
-            if (obj[k] !== undefined && obj[k] !== null && String(obj[k]).trim() !== '') return obj[k];
+
+        const deepFind = (o, predicate) => {
+            if (o === undefined || o === null) return null;
+            if (typeof o !== 'object') return null;
+            for (const k of Object.keys(o)) {
+                const v = o[k];
+                try { if (predicate(k, v)) return unwrap(v); } catch (e) {}
+            }
+            for (const k of Object.keys(o)) {
+                const v = o[k];
+                if (v && typeof v === 'object') {
+                    const res = deepFind(v, predicate);
+                    if (res !== null && res !== undefined) return res;
+                }
+            }
+            return null;
+        };
+
+        // 1) candidates directly on root
+        for (const k of candidates) {
+            if (obj[k] !== undefined && obj[k] !== null && String(obj[k]).trim() !== '') return unwrap(obj[k]);
         }
-        for (const k of Object.keys(obj || {})) {
-            if (/nev|name|termek|title|megnevezes|cim/i.test(k) && obj[k]) return obj[k];
-            if (/ar|price|price_huf|ft/i.test(k) && obj[k]) return obj[k];
-            if (/darab|stock|pieces|qty|mennyiseg/i.test(k) && obj[k]) return obj[k];
-            if (/status|statusz/i.test(k) && obj[k]) return obj[k];
+
+        // 2) prefer keys matching type regex at root, then deep
+        const regex = typeRegex[type];
+        if (regex) {
+            for (const k of Object.keys(obj)) {
+                const v = obj[k];
+                if (regex.test(k) && v !== undefined && v !== null && String(v).trim() !== '') return unwrap(v);
+            }
+            const deepMatch = deepFind(obj, (key, val) => regex.test(key) && val !== undefined && val !== null && String(val).trim() !== '');
+            if (deepMatch !== null) return deepMatch;
         }
+
+        // 3) for numeric types try to find numeric-like values deep
+        if (type === 'price' || type === 'pieces') {
+            const numMatch = deepFind(obj, (key, val) => {
+                if (val === undefined || val === null) return false;
+                return /[0-9]/.test(String(val));
+            });
+            if (numMatch !== null) return numMatch;
+        }
+
+        // 4) fallback: any primitive deep
+        const primitive = deepFind(obj, (key, val) => (typeof val === 'string' && val.trim() !== '') || typeof val === 'number');
+        if (primitive !== null) return primitive;
+
         return null;
     };
 
-    const prodName = (p) => String(getField(p, ['name','nev','title','termek_nev','product_name']) || '');
-    const prodCategory = (p) => String(getField(p, ['category','kategoria','cat']) || '-');
-    const prodPrice = (p) => {
-        const v = getField(p, ['price','ar','price_huf']);
-        return v !== null ? `${v} Ft` : '-';
+    const prodName = (p) => {
+        const raw = findFieldByType(p, 'name', ['name','nev','title','termek_nev','product_name']);
+        if (raw !== null && raw !== undefined && String(raw).trim() !== '') return String(raw);
+        if (p && (p.sku || p.id || p._id)) return String(p.sku || p.id || p._id);
+        return '-';
     };
-    const prodStatus = (p) => String(getField(p, ['status','statusz']) || '-');
+
+    const prodCategory = (p) => {
+        const raw = findFieldByType(p, 'category', ['category','kategoria','cat']);
+        if (raw === null || raw === undefined) return '-';
+        const s = String(raw).trim();
+        if (s === '') return '-';
+        // if it's just a numeric id (no name), treat as missing
+        if (/^[0-9]+$/.test(s)) return '-';
+        return s;
+    };
+
+    const prodPrice = (p) => {
+        const raw = findFieldByType(p, 'price', ['price','ar','price_huf']);
+        if (raw === null || raw === undefined) return '-';
+        const asNum = (typeof raw === 'number') ? raw : Number(String(raw).replace(/[^0-9.-]+/g, ''));
+        if (!isNaN(asNum)) return Math.round(asNum).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' Ft';
+        return String(raw);
+    };
+
+    const prodStatus = (p) => {
+        const raw = findFieldByType(p, 'status', ['status','statusz']);
+        if (raw === null || raw === undefined) return 'Kifogyott';
+        if (typeof raw === 'boolean') return raw ? 'Raktáron' : 'Kifogyott';
+        const s = String(raw).trim().toLowerCase();
+        if (s === '') return 'Kifogyott';
+        if (/^(1|true|t|yes|y|aktív|aktiv|active|available|raktáron|in_stock)$/i.test(s)) return 'Raktáron';
+        if (/^(0|false|f|no|n|inaktív|inaktiv|inactive|kifogyott|out|soldout)$/i.test(s)) return 'Kifogyott';
+        const n = Number(s.replace(/[^0-9.-]+/g, ''));
+        if (!isNaN(n)) return n === 1 ? 'Raktáron' : 'Kifogyott';
+        return 'Kifogyott';
+    };
 
     return (
         <div className="admin-container container-fluid py-3">
