@@ -23,6 +23,20 @@ class DatabaseSeeder extends Seeder
 
         $users = [
             [
+                'felhasznalonev' => 'Bendeguz',
+                'vez_nev' => 'Marek',
+                'ker_nev' => 'Bendegúz',
+                'megszolitas' => 'Dr',
+                'tel_szam' => '+36 20 420 6969',
+                'szul_datum' => '2000-10-10',
+                'email' => 'marekbendeguz@admin.hu',
+                'jelszo' => Hash::make('Aa123456@'),
+                'kedvencek' => json_encode([]),
+                'kosar' => json_encode([]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
                 'felhasznalonev' => 'Bori',
                 'vez_nev' => 'Ilyés',
                 'ker_nev' => 'Borbála',
