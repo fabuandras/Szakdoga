@@ -33,6 +33,8 @@ Ezeket csak egyszer kell lefuttatni a cloneozáskor:
     npm install bootstrap
     npm install bootstrap-icons
 
+    npm install axios react-router-dom bootstrap bootstrap-icons
+
 npm start
 
 http://localhost:3000/
