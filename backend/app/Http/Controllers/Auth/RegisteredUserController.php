@@ -22,10 +22,13 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): Response
     {
+        // basic validation: require only the requested fields
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'vez_nev' => 'required|string|max:255',
+            'ker_nev' => 'required|string|max:255',
+            'felhasznalonev' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'password' => 'required|confirmed|min:6',
         ]);
 
         $input = $request->all();

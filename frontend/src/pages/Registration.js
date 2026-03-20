@@ -168,28 +168,12 @@ export default function Registration() {
       } = formData;
 
       const payload = {
+        vez_nev: vezeteknev,
+        ker_nev: keresztnev,
         felhasznalonev: felhasznalonev,
         name: felhasznalonev,
-
-        // send multiple variants for last name and first name
-        vez_nev: vezeteknev,
-        vezeteknev: vezeteknev,
-        last_name: vezeteknev,
-
-        ker_nev: keresztnev,
-        keresztnev: keresztnev,
-        first_name: keresztnev,
-
-        megszolitas: megszolitas,
-        email,
-
-        tel_szam: telefon,
-        telefonszam: telefon,
-
-        szul_datum: szulDatum,
-        birthdate: szulDatum,
-
-        password,
+        email: email,
+        password: password,
         password_confirmation: passwordConfirm,
       };
 
@@ -220,20 +204,8 @@ export default function Registration() {
 
           {generalError && <div className="auth-error">{generalError}</div>}
 
-          <form onSubmit={handleSubmit} noValidate>
-            <div className="mb-2">
-              <label className="form-label">Felhasználónév</label>
-              <input
-                className="form-control"
-                name="felhasznalonev"
-                placeholder="Felhasználónév"
-                value={formData.felhasznalonev}
-                onChange={handleChange}
-                autoComplete="username"
-              />
-              {errors.felhasznalonev && <div className="auth-error">{errors.felhasznalonev}</div>}
-            </div>
-
+          {/* registration form: only the required fields */}
+          <form onSubmit={handleSubmit} className="registration-form">
             <div className="mb-2">
               <label className="form-label">Vezetéknév</label>
               <input
@@ -243,6 +215,7 @@ export default function Registration() {
                 value={formData.lastName}
                 onChange={handleChange}
                 autoComplete="family-name"
+                required
               />
               {errors.lastName && <div className="auth-error">{errors.lastName}</div>}
             </div>
@@ -256,27 +229,23 @@ export default function Registration() {
                 value={formData.firstName}
                 onChange={handleChange}
                 autoComplete="given-name"
+                required
               />
               {errors.firstName && <div className="auth-error">{errors.firstName}</div>}
             </div>
 
             <div className="mb-2">
-              <label className="form-label">Megszólítás</label>
-              <select
+              <label className="form-label">Felhasználónév</label>
+              <input
                 className="form-control"
-                name="salutation"
-                value={formData.salutation}
+                name="felhasznalonev"
+                placeholder="Felhasználónév"
+                value={formData.felhasznalonev}
                 onChange={handleChange}
-              >
-                <option value="">Megszólítás kiválasztása</option>
-                <option value="Mr">Mr.</option>
-                <option value="Ms">Ms.</option>
-                <option value="Miss">Miss.</option>
-                <option value="Dr">Dr.</option>
-              </select>
-              {errors.salutation && (
-                <div className="auth-error">{errors.salutation}</div>
-              )}
+                autoComplete="username"
+                required
+              />
+              {errors.felhasznalonev && <div className="auth-error">{errors.felhasznalonev}</div>}
             </div>
 
             <div className="mb-2">
@@ -289,36 +258,9 @@ export default function Registration() {
                 value={formData.email}
                 onChange={handleChange}
                 autoComplete="email"
+                required
               />
               {errors.email && <div className="auth-error">{errors.email}</div>}
-            </div>
-
-            <div className="mb-2">
-              <label className="form-label">Telefonszám</label>
-              <input
-                className="form-control"
-                name="phone"
-                placeholder="Telefonszám (pl. +36 20 123 4567)"
-                value={formData.phone}
-                onChange={handleChange}
-                autoComplete="tel"
-              />
-              {errors.phone && <div className="auth-error">{errors.phone}</div>}
-            </div>
-
-            <div className="mb-2">
-              <label className="form-label">Születési dátum</label>
-              <input
-                className="form-control"
-                type="date"
-                name="birthDate"
-                placeholder="Születési dátum"
-                value={formData.birthDate}
-                onChange={handleChange}
-                ref={birthDateRef}
-                 autoComplete="bday"
-               />
-              {errors.birthDate && <div className="auth-error">{errors.birthDate}</div>}
             </div>
 
             <div className="mb-2 password-field">
@@ -332,6 +274,7 @@ export default function Registration() {
                   value={formData.password}
                   onChange={handleChange}
                   autoComplete="new-password"
+                  required
                 />
                 <i
                   className={"password-toggle bi " + (showPassword ? "bi-eye-slash" : "bi-eye")}
@@ -352,6 +295,7 @@ export default function Registration() {
                   value={formData.passwordConfirm}
                   onChange={handleChange}
                   autoComplete="new-password"
+                  required
                 />
                 <i
                   className={"password-toggle bi " + (showPasswordConfirm ? "bi-eye-slash" : "bi-eye")}
