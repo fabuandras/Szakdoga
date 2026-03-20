@@ -141,6 +141,15 @@ export function AuthProvider({ children }) {
         } else {
           await getUser();
         }
+
+        // If user is admin, redirect to admin area; otherwise go to homepage
+        const isAdmin = user && (user.is_admin || user.role === 'admin' || (user.email && user.email.endsWith('@admin.hu')));
+        if (isAdmin) {
+          navigate('/admin/home');
+        } else {
+          navigate('/');
+        }
+
         return true;
       } catch (e) {
         const status = e?.response?.status;
