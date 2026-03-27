@@ -7,7 +7,7 @@ composer global require laravel/installer (kell clonolas utan)
 composer create-project laravel/laravel backend
 cd backend (kell clonolas utan)
 composer require laravel/breeze --dev (kell clonolas utan)
-php artisan breeze:install api (kell clonolas utan)
+php artisan breeze:install api
 yes (kell clonolas utan)
 ezután migrációs fájlok
 

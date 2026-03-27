@@ -232,6 +232,20 @@ class RegisteredUserController extends Controller
             }
         }
 
+        // Ensure optional DB columns have safe defaults if not provided (prevents SQL errors when columns are NOT NULL)
+        $optionalDefaults = [
+            'megszolitas' => $input['megszolitas'] ?? '',
+            'tel_szam' => $input['tel_szam'] ?? '',
+            'szul_datum' => $input['szul_datum'] ?? null,
+            'kedvencek' => $input['kedvencek'] ?? '',
+            'kosar' => $input['kosar'] ?? '',
+        ];
+        foreach ($optionalDefaults as $col => $val) {
+            if (in_array($col, $columns) && (empty($user->{$col}) || !isset($user->{$col}))) {
+                $user->{$col} = $val;
+            }
+        }
+
         $user->save();
 
         event(new Registered($user));

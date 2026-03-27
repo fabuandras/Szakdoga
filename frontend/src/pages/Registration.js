@@ -1,4 +1,4 @@
-import { useContext, useState, useRef, useCallback } from "react";
+import React, { useState, useContext, useRef, useCallback } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import "../Registration.css";
 import { AuthContext } from "../contexts/AuthContext";
@@ -146,47 +146,44 @@ const Registration = () => {
     return newErrors;
   }, [formData, felhasznalonev, vezeteknev, keresztnev, email, password, passwordConfirm]);
 
-  const handleSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
-      console.log('Registration handleSubmit called', { vezeteknev, keresztnev, felhasznalonev, email });
-      setGeneralError(null);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log('Registration handleSubmit called', { vezeteknev, keresztnev, felhasznalonev, email });
+    setErrors(null);
 
-      const validationErrors = validate();
-      setErrors(validationErrors);
-      if (Object.keys(validationErrors).length > 0) return;
+    const payload = {
+      vez_nev: vezeteknev,
+      ker_nev: keresztnev,
+      felhasznalonev: felhasznalonev,
+      name: felhasznalonev,
+      email: email,
+      password: password,
+      password_confirmation: passwordConfirm,
+    };
 
-      // Build payload matching backend validation: include 'name' and password_confirmation
-      const name = felhasznalonev.trim() || `${vezeteknev.trim()} ${keresztnev.trim()}`.trim();
+    try {
+      console.log('Requesting CSRF cookie...');
+      const csrfRes = await api.get('/sanctum/csrf-cookie');
+      console.log('CSRF response:', csrfRes && csrfRes.status, csrfRes && csrfRes.headers);
 
-      const payload = {
-        vez_nev: vezeteknev,
-        ker_nev: keresztnev,
-        felhasznalonev: felhasznalonev,
-        name: felhasznalonev,
-        email: email,
-        password: password,
-        password_confirmation: passwordConfirm,
-      };
-
-      try {
-        await api.get('/sanctum/csrf-cookie');
-        const res = await api.post('/api/register', payload);
-        console.log('REGISTER SUCCESS', res.data);
-        // show in-page modal success message
-        setShowSuccess(true);
-        // keep modal visible until user clicks the button
-     } catch (err) {
-        console.error('REGISTER ERROR', err);
-        if (err.response && err.response.status === 422) {
-          setErrors(err.response.data.errors || err.response.data);
-        } else {
-          setErrors({ message: 'Regisztráció sikertelen' });
-        }
+      console.log('Sending registration payload', payload);
+      const res = await api.post('/api/register', payload);
+      console.log('REGISTER SUCCESS', res && res.data);
+      setShowSuccess(true);
+    } catch (err) {
+      console.error('REGISTER ERROR full', err);
+      if (err && err.response) {
+        console.error('REGISTER ERROR response data:', err.response.data);
+        console.error('REGISTER ERROR response status:', err.response.status);
+        console.error('REGISTER ERROR response headers:', err.response.headers);
       }
-    },
-    [validate, register, setContextErrors, setGeneralError, navigate, felhasznalonev, vezeteknev, keresztnev, email, password, passwordConfirm]
-  );
+      if (err.response && err.response.status === 422) {
+        setErrors(err.response.data.errors || err.response.data);
+      } else {
+        setErrors({ message: 'Regisztráció sikertelen' });
+      }
+    }
+  };
 
   return (
     <>
@@ -209,7 +206,7 @@ const Registration = () => {
                 autoComplete="family-name"
                 required
               />
-              {errors.lastName && <div className="auth-error">{errors.lastName}</div>}
+              {errors && errors.lastName && <div className="auth-error">{errors.lastName}</div>}
             </div>
 
             <div className="mb-2">
@@ -223,7 +220,7 @@ const Registration = () => {
                 autoComplete="given-name"
                 required
               />
-              {errors.firstName && <div className="auth-error">{errors.firstName}</div>}
+              {errors && errors.firstName && <div className="auth-error">{errors.firstName}</div>}
             </div>
 
             <div className="mb-2">
@@ -237,7 +234,7 @@ const Registration = () => {
                 autoComplete="username"
                 required
               />
-              {errors.felhasznalonev && <div className="auth-error">{errors.felhasznalonev}</div>}
+              {errors && errors.felhasznalonev && <div className="auth-error">{errors.felhasznalonev}</div>}
             </div>
 
             <div className="mb-2">
@@ -252,7 +249,7 @@ const Registration = () => {
                 autoComplete="email"
                 required
               />
-              {errors.email && <div className="auth-error">{errors.email}</div>}
+              {errors && errors.email && <div className="auth-error">{errors.email}</div>}
             </div>
 
             <div className="mb-2 password-field">
@@ -260,7 +257,7 @@ const Registration = () => {
               <div className="password-input-wrapper">
                 <input
                   className="form-control"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   name="password"
                   placeholder="Jelszó"
                   value={password}
@@ -273,7 +270,7 @@ const Registration = () => {
                   onClick={() => setShowPassword((v) => !v)}
                 />
               </div>
-              {errors.password && <div className="auth-error">{errors.password}</div>}
+              {errors && errors.password && <div className="auth-error">{errors.password}</div>}
             </div>
 
             <div className="mb-2 password-field">
@@ -281,7 +278,7 @@ const Registration = () => {
               <div className="password-input-wrapper">
                 <input
                   className="form-control"
-                  type="password"
+                  type={showPasswordConfirm ? 'text' : 'password'}
                   name="passwordConfirm"
                   placeholder="Jelszó megerősítése"
                   value={passwordConfirm}
@@ -294,7 +291,7 @@ const Registration = () => {
                   onClick={() => setShowPasswordConfirm((v) => !v)}
                 />
               </div>
-              {errors.passwordConfirm && (
+              {errors && errors.passwordConfirm && (
                 <div className="auth-error">{errors.passwordConfirm}</div>
               )}
             </div>
