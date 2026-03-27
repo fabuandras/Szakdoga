@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { myAxios } from "../api/axios";
+import { fetchActiveItems } from "../api/items";
 
 function stockState(item) {
   const qty = Number(item.akt_keszlet || 0);
@@ -17,6 +18,7 @@ export default function ProductsList() {
   const [category, setCategory] = useState("mind");
   const [status, setStatus] = useState("mind");
   const [sortBy, setSortBy] = useState("nev_asc");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadItems();
@@ -24,19 +26,10 @@ export default function ProductsList() {
 
   const loadItems = async () => {
     try {
+      setLoading(true);
       setError("");
-      const response = await myAxios.get("/api/items");
-      const mapped = (response.data || []).map((it) => ({
-        cikk_szam: String(it.cikk_szam),
-        elnevezes: it.elnevezes,
-        kategoria: it.kategoria || "-",
-        akt_keszlet: Number(it.akt_keszlet || 0),
-        min_keszlet: Number(it.min_keszlet || 0),
-        raktarhely: it.raktarhely || "-",
-        kep_url: it.kep_url || "",
-        egyseg_ar: Number(it.egyseg_ar || 0),
-      }));
-      setItems(mapped);
+      const list = await fetchActiveItems();
+      setItems(list);
     } catch (e) {
       if (e?.response?.status === 401) {
         setError("A terméklista megtekintéséhez be kell jelentkezni.");
@@ -44,6 +37,8 @@ export default function ProductsList() {
         setError("A terméklista betöltése sikertelen.");
       }
       setItems([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,39 +46,79 @@ export default function ProductsList() {
     return ["mind", ...new Set(items.map((it) => it.kategoria || "Egyéb"))];
   }, [items]);
 
+  // helper: safely stringify values for search/comparison
+  const safeString = (v) => {
+    if (v === null || v === undefined) return "";
+    if (typeof v === "object") {
+      try {
+        return JSON.stringify(v);
+      } catch (e) {
+        return String(v);
+      }
+    }
+    return String(v);
+  };
+
+  // Filter based on local items state, search q, category and status
   const filtered = useMemo(() => {
-    const query = q.trim().toLowerCase();
-    const out = items.filter((it) => {
-      const textMatch =
-        !query ||
-        (it.elnevezes || "").toLowerCase().includes(query) ||
-        (it.cikk_szam || "").toLowerCase().includes(query);
+    const query = safeString(q).trim().toLowerCase();
+    return items.filter((it) => {
+      // category filter
+      if (category !== "mind" && (it.kategoria || "Egyéb") !== category) return false;
 
-      const categoryMatch = category === "mind" || (it.kategoria || "Egyéb") === category;
+      // status filter
+      if (status !== "mind" && stockState(it) !== status) return false;
 
-      const state = stockState(it);
-      const statusMatch = status === "mind" || state === status;
-      return textMatch && categoryMatch && statusMatch;
+      if (!query) return true;
+
+      const fields = [it.elnevezes, it.name, it.cikk_szam, it.cikkszam, it.cikksz, it.egyseg_ar, it.kategoria];
+      return fields.some((f) => safeString(f).toLowerCase().includes(query));
     });
+  }, [items, q, category, status]);
 
-    out.sort((a, b) => {
-      if (sortBy === "nev_asc") return (a.elnevezes || "").localeCompare(b.elnevezes || "");
-      if (sortBy === "nev_desc") return (b.elnevezes || "").localeCompare(a.elnevezes || "");
-      if (sortBy === "keszlet_asc") return Number(a.akt_keszlet || 0) - Number(b.akt_keszlet || 0);
-      if (sortBy === "keszlet_desc") return Number(b.akt_keszlet || 0) - Number(a.akt_keszlet || 0);
-      return (a.cikk_szam || "").localeCompare(b.cikk_szam || "");
-    });
+  // Sorting
+  const sorted = useMemo(() => {
+    const list = Array.isArray(filtered) ? [...filtered] : [];
 
-    return out;
-  }, [items, q, category, status, sortBy]);
+    const compareStrings = (a, b) => safeString(a).localeCompare(safeString(b), undefined, { numeric: true, sensitivity: 'base' });
+
+    try {
+      if (sortBy === 'nev_asc') {
+        list.sort((a, b) => compareStrings(a.elnevezes ?? a.name, b.elnevezes ?? b.name));
+      } else if (sortBy === 'nev_desc') {
+        list.sort((a, b) => compareStrings(b.elnevezes ?? b.name, a.elnevezes ?? a.name));
+      } else if (sortBy === 'keszlet_desc') {
+        list.sort((a, b) => Number(b.akt_keszlet || 0) - Number(a.akt_keszlet || 0));
+      } else if (sortBy === 'keszlet_asc') {
+        list.sort((a, b) => Number(a.akt_keszlet || 0) - Number(b.akt_keszlet || 0));
+      }
+    } catch (e) {
+      console.warn('ProductsList sort error', e);
+    }
+
+    return list;
+  }, [filtered, sortBy]);
 
   const handleDelete = async (sku) => {
-    if (!window.confirm(`Biztosan törölni szeretnéd a ${sku} cikkszámú tételt?`)) return;
+    if (!window.confirm(`Biztosan törölni szeretnéd a ${sku} cikkszámú tételt?`))
+      return;
     try {
       await myAxios.delete(`/api/items/${sku}`);
-      await loadItems();
+      // frissítsük a helyi listát
+      setItems((prev) => prev.filter((item) => item.cikk_szam !== sku));
     } catch (e) {
       setError("A törlés sikertelen.");
+    }
+  };
+
+  const handleAdd = async (newItem) => {
+    try {
+      const resp = await myAxios.post("/api/items", newItem);
+      // hozzáadjuk a visszakapott tételt
+      setItems((prev) => [resp.data, ...prev]);
+    } catch (e) {
+      console.error("Hozzáadás sikertelen", e);
+      alert("A hozzáadás sikertelen volt. Ellenőrizd a backend elérhetőségét.");
     }
   };
 
@@ -106,7 +141,11 @@ export default function ProductsList() {
           />
         </div>
         <div className="col-md-3">
-          <select className="form-select" value={category} onChange={(e) => setCategory(e.target.value)}>
+          <select
+            className="form-select"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
             {categories.map((cat) => (
               <option key={cat} value={cat}>
                 {cat === "mind" ? "Összes kategória" : cat}
@@ -115,7 +154,11 @@ export default function ProductsList() {
           </select>
         </div>
         <div className="col-md-2">
-          <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+          <select
+            className="form-select"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
             <option value="mind">Minden készletállapot</option>
             <option value="Rendben">Rendben</option>
             <option value="Alacsony">Alacsony</option>
@@ -123,12 +166,15 @@ export default function ProductsList() {
           </select>
         </div>
         <div className="col-md-3">
-          <select className="form-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+          <select
+            className="form-select"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
             <option value="nev_asc">Rendezés: Név (A-Z)</option>
             <option value="nev_desc">Rendezés: Név (Z-A)</option>
             <option value="keszlet_desc">Rendezés: Készlet csökkenő</option>
             <option value="keszlet_asc">Rendezés: Készlet növekvő</option>
-            <option value="cikk">Rendezés: Cikkszám</option>
           </select>
         </div>
       </div>
@@ -150,7 +196,7 @@ export default function ProductsList() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((it, idx) => (
+            {sorted.map((it, idx) => (
               <tr key={it.cikk_szam || idx}>
                 <td>{idx + 1}</td>
                 <td>{it.elnevezes}</td>
@@ -159,19 +205,28 @@ export default function ProductsList() {
                 <td>{it.akt_keszlet}</td>
                 <td>{it.min_keszlet || 0}</td>
                 <td>
-                  {stockState(it) === "Rendben" && <span className="badge text-bg-success">Rendben</span>}
-                  {stockState(it) === "Alacsony" && <span className="badge text-bg-warning">Alacsony</span>}
-                  {stockState(it) === "Nincs készleten" && <span className="badge text-bg-danger">Nincs</span>}
+                  {stockState(it) === "Rendben" && (
+                    <span className="badge text-bg-success">Rendben</span>
+                  )}
+                  {stockState(it) === "Alacsony" && (
+                    <span className="badge text-bg-warning">Alacsony</span>
+                  )}
+                  {stockState(it) === "Nincs készleten" && (
+                    <span className="badge text-bg-danger">Nincs</span>
+                  )}
                 </td>
                 <td>{it.raktarhely || "-"}</td>
                 <td>
-                  <button className="btn btn-outline-danger warehouse-btn" onClick={() => handleDelete(it.cikk_szam)}>
+                  <button
+                    className="btn btn-outline-danger warehouse-btn"
+                    onClick={() => handleDelete(it.cikk_szam)}
+                  >
                     Törlés
                   </button>
                 </td>
               </tr>
             ))}
-            {!filtered.length && (
+            {!sorted.length && (
               <tr>
                 <td colSpan={9} className="text-center text-muted">
                   Nincs találat a megadott feltételekre.

@@ -21,7 +21,6 @@ import Intake from "./pages/Intake";
 import Release from "./pages/Release";
 import Movement from "./pages/Movement";
 import Inventory from "./pages/Inventory";
-import Notifications from "./pages/Notifications";
 import AdminHomePage from "./pages/AdminHomePage";
 import { AuthContext } from "./contexts/AuthContext";
 import AdminNav from "./pages/AdminNav";
@@ -170,7 +169,6 @@ function App() {
           <Route path="release" element={<Release />} />
           <Route path="movement" element={<Movement />} />
           <Route path="inventory" element={<Inventory />} />
-          <Route path="notifications" element={<Notifications />} />
         </Route>
       </Routes>
       </div>

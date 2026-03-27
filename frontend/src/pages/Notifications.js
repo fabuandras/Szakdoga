@@ -1,104 +1,49 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { getMovements, readStore, subscribeStore } from "./warehouseStore";
+import React, { useEffect, useState } from 'react';
+import api from '../api/axios';
 
 export default function Notifications() {
-  const [store, setStore] = useState(readStore());
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const load = () => setStore(readStore());
-    return subscribeStore(load);
+    let mounted = true;
+    const load = async () => {
+      try {
+        const resp = await api.get('/api/activity-log');
+        if (!mounted) return;
+        setLogs(resp.data || []);
+      } catch (e) {
+        console.error('Hiba az activity log lekérésekor', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+    return () => { mounted = false; };
   }, []);
 
-  const lowStock = useMemo(() => {
-    return store.items.filter((it) => Number(it.akt_keszlet || 0) <= Number(it.min_keszlet || 0));
-  }, [store]);
-
-  const latestEvents = useMemo(() => getMovements().slice(0, 8), [store]);
+  if (loading) return <div>Betöltés...</div>;
 
   return (
-    <div>
-      <h2>Értesítések</h2>
-
-      <div className="row g-3">
-        <div className="col-lg-6">
-          <div className="card">
-            <div className="card-body">
-              <h5 className="card-title">Alacsony készlet riasztások</h5>
-              <ul className="list-group list-group-flush">
-                {lowStock.map((it) => (
-                  <li key={it.cikk_szam} className="list-group-item d-flex justify-content-between">
-                    <span>
-                      {it.elnevezes} ({it.cikk_szam})
-                    </span>
-                    <strong>
-                      {it.akt_keszlet} / min {it.min_keszlet || 0}
-                    </strong>
-                  </li>
-                ))}
-                {!lowStock.length && <li className="list-group-item text-muted">Nincs alacsony készletű termék.</li>}
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-lg-6">
-          <div className="card">
-            <div className="card-body">
-              <h5 className="card-title">Leltárfeladatok</h5>
-              <ul className="list-group list-group-flush">
-                {store.inventoryTasks.slice(-6).reverse().map((task) => (
-                  <li key={task.id} className="list-group-item d-flex justify-content-between">
-                    <span>{new Date(task.datum).toLocaleString("hu-HU")}</span>
-                    <strong>{task.statusz}</strong>
-                  </li>
-                ))}
-                {!store.inventoryTasks.length && <li className="list-group-item text-muted">Nincs aktív leltárfeladat.</li>}
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-12">
-          <div className="card">
-            <div className="card-body">
-              <h5 className="card-title">Legutóbbi raktári események</h5>
-              <div className="table-responsive">
-                <table className="table table-striped">
-                  <thead>
-                    <tr>
-                      <th>Dátum</th>
-                      <th>Típus</th>
-                      <th>Cikkszám</th>
-                      <th>Termék</th>
-                      <th>Mennyiség</th>
-                      <th>Megjegyzés</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {latestEvents.map((ev) => (
-                      <tr key={ev.id}>
-                        <td>{new Date(ev.datum).toLocaleString("hu-HU")}</td>
-                        <td>{ev.tipus}</td>
-                        <td>{ev.cikk_szam}</td>
-                        <td>{ev.termeknev}</td>
-                        <td>{ev.mennyiseg}</td>
-                        <td>{ev.megjegyzes || "-"}</td>
-                      </tr>
-                    ))}
-                    {!latestEvents.length && (
-                      <tr>
-                        <td colSpan={6} className="text-muted text-center">
-                          Nincs megjeleníthető esemény.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="activity-log-page">
+      <h2>Értesítések / Műveletek</h2>
+      {logs.length === 0 ? (
+        <div>Nincsenek események.</div>
+      ) : (
+        <ul className="list-group">
+          {logs.map(l => (
+            <li key={l.id} className="list-group-item">
+              <div><strong>{l.type}</strong> — {new Date(l.created_at).toLocaleString()}</div>
+              <div>{l.item_name} ({l.item_id})</div>
+              {l.quantity !== null && <div>Mennyiség: {l.quantity}</div>}
+              {l.user_name && <div className="text-muted">Felhasználó: {l.user_name}</div>}
+              {l.reason && <div>Ok: {l.reason}</div>}
+              {l.note && <div>Megjegyzés: {l.note}</div>}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

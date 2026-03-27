@@ -1,48 +1,77 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { getItems, releaseItem, subscribeStore } from "./warehouseStore";
+import React, { useEffect, useState } from "react";
+import api from '../api/axios';
+import { fetchActiveItems } from '../api/items';
 
 export default function Release() {
-  const [items, setItems] = useState([]);
-  const [form, setForm] = useState({ cikk_szam: "", mennyiseg: "", kiadasi_ok: "Rendelés", megjegyzes: "" });
-  const [uzenet, setUzenet] = useState("");
+  const [products, setProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState('');
+  const [quantity, setQuantity] = useState(1);
+  const [reason, setReason] = useState('Rendelés');
+  const [note, setNote] = useState('');
 
   useEffect(() => {
-    const load = () => setItems(getItems());
+    let mounted = true;
+    const load = async () => {
+      const list = await fetchActiveItems();
+      if (!mounted) return;
+      setProducts(list);
+    };
     load();
-    return subscribeStore(load);
+    return () => { mounted = false; };
   }, []);
 
-  const selectedItem = useMemo(() => items.find((it) => it.cikk_szam === form.cikk_szam), [items, form.cikk_szam]);
-
-  function handleSubmit(e) {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    try {
-      releaseItem(form);
-      setUzenet("A kiadás rögzítve. A készlet és a mozgásnapló frissült.");
-      setForm((prev) => ({ ...prev, mennyiseg: "", megjegyzes: "" }));
-    } catch (error) {
-      setUzenet(`Hiba: ${error.message}`);
+    if (!selectedProduct) {
+      alert('Válassz terméket.');
+      return;
     }
-  }
+
+    try {
+      const resp = await api.post(`/api/items/${selectedProduct}/release`, {
+        quantity,
+        reason,
+        note,
+      });
+
+      alert('Kiadás sikeres');
+      const list = await fetchActiveItems();
+      setProducts(list);
+    } catch (err) {
+      if (err.response && err.response.status === 422) {
+        alert('Nincs elegendő készlet a kiválasztott mennyiséghez.');
+      } else if (err.response && err.response.status === 404) {
+        alert('A kiválasztott termék nem található.');
+      } else if (err.response && err.response.data && err.response.data.message) {
+        alert('Hiba történt a kiadás során: ' + err.response.data.message);
+      } else {
+        alert('Hiba történt a kiadás során.');
+      }
+    }
+  };
 
   return (
     <div>
       <h2>Kiadás</h2>
-      <form className="row g-3 warehouse-form" onSubmit={handleSubmit}>
+      <form className="row g-3 warehouse-form" onSubmit={onSubmit}>
         <div className="col-md-4">
           <label className="form-label">Termék (cikkszám)</label>
           <select
             className="form-select"
-            value={form.cikk_szam}
-            onChange={(e) => setForm((prev) => ({ ...prev, cikk_szam: e.target.value }))}
+            value={selectedProduct}
+            onChange={(e) => setSelectedProduct(e.target.value)}
             required
           >
             <option value="">Példa: válassz terméket</option>
-            {items.map((it) => (
-              <option key={it.cikk_szam} value={it.cikk_szam}>
-                {it.cikk_szam} - {it.elnevezes}
-              </option>
-            ))}
+            {products.map((p) => {
+              const value = (p.id !== undefined && p.id !== null) ? p.id : (p.cikk_szam ?? '');
+              const label = (p.elnevezes ?? p.name ?? '');
+              return (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              );
+            })}
           </select>
         </div>
         <div className="col-md-2">
@@ -52,8 +81,8 @@ export default function Release() {
             type="number"
             min="1"
             placeholder="Példa: 3"
-            value={form.mennyiseg}
-            onChange={(e) => setForm((prev) => ({ ...prev, mennyiseg: e.target.value }))}
+            value={quantity}
+            onChange={(e) => setQuantity(Number(e.target.value))}
             required
           />
         </div>
@@ -61,8 +90,8 @@ export default function Release() {
           <label className="form-label">Kiadási ok</label>
           <select
             className="form-select"
-            value={form.kiadasi_ok}
-            onChange={(e) => setForm((prev) => ({ ...prev, kiadasi_ok: e.target.value }))}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
           >
             <option value="Rendelés">Rendelés</option>
             <option value="Selejtezés">Selejtezés</option>
@@ -75,8 +104,8 @@ export default function Release() {
           <input
             className="form-control"
             placeholder="Példa: Rendelés #2026-187 kiszolgálása"
-            value={form.megjegyzes}
-            onChange={(e) => setForm((prev) => ({ ...prev, megjegyzes: e.target.value }))}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
           />
         </div>
         <div className="col-12">
@@ -85,14 +114,6 @@ export default function Release() {
           </button>
         </div>
       </form>
-
-      {selectedItem && (
-        <div className="alert alert-secondary mt-3 warehouse-info">
-          Aktuális készlet: <strong>{selectedItem.akt_keszlet}</strong> | Minimum: <strong>{selectedItem.min_keszlet || 0}</strong> | Raktárhely: <strong>{selectedItem.raktarhely || "-"}</strong>
-        </div>
-      )}
-
-      {uzenet && <div className="alert alert-info mt-3">{uzenet}</div>}
     </div>
   );
 }

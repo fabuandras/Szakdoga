@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from "re
 import { useNavigate } from "react-router-dom";
 import { myAxios, publicAxios } from "../api/axios";
 import { AuthContext } from "../contexts/AuthContext";
+import { fetchActiveItems } from '../api/items';
 import "./Termekek.css";
 
 function mapBackendProduct(row) {
@@ -123,6 +124,24 @@ export default function Termekek() {
       setMessage("A kosár frissítése sikertelen.");
     }
   };
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const list = await fetchActiveItems();
+        if (!mounted) return;
+        setProducts((list || []).map(mapBackendProduct));
+      } catch (e) {
+        console.error('Hiba a termékek lekérésekor', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+    return () => { mounted = false; };
+  }, []);
 
   return (
     <section className="page products-page">

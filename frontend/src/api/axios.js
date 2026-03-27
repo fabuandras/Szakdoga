@@ -1,20 +1,15 @@
 import axios from "axios";
 
-const backend =
-  typeof window !== "undefined"
-    ? window.__BACKEND_URL__ || "http://localhost:8000"
-    : "http://localhost:8000";
-
+// Alapértelmezett axios példány a backend hívásokhoz
 const api = axios.create({
-  baseURL: backend,
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8000",
+  withCredentials: true,
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
   },
 });
 
-// ensure cookies are sent for sanctum CSRF/session authentication
-api.defaults.withCredentials = true;
 // axios v1 cross-origin requests need this to always attach X-XSRF-TOKEN header
 api.defaults.withXSRFToken = true;
 
@@ -47,7 +42,7 @@ api.interceptors.request.use((config) => {
 export const myAxios = api;
 
 export const publicAxios = axios.create({
-  baseURL: backend,
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8000",
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",

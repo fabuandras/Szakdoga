@@ -1,6 +1,7 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from './contexts/AuthContext';
+import api from './api/axios';
 
 export default function Navigation({ theme, toggleTheme }) {
   const navigate = useNavigate();
