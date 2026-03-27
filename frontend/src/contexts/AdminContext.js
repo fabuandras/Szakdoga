@@ -28,6 +28,7 @@ const AdminProvider = ({ children }) => {
     }), [adminData, loading]);
 
     return (
+        
         <AdminContext.Provider value={contextValue}>
             {children}
         </AdminContext.Provider>

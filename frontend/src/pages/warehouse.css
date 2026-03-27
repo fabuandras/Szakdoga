@@ -2,44 +2,42 @@
   padding-bottom: 2rem;
 }
 
-.warehouse-nav {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(170px, 1fr));
-  gap: 0;
-  border: 1px solid #d9e2ec;
-  border-radius: 12px;
-  overflow-x: auto;
-  background: #ffffff;
-  box-shadow: 0 4px 14px rgba(16, 24, 40, 0.08);
-  margin-bottom: 1rem;
+/* Bar fill and pill-style menu buttons */
+:root {
+  --warehouse-bar-color: #0b0b0b; /* menu bar fill color (change if needed) */
+  --warehouse-link-pill: rgba(255,255,255,0.06);
+  --warehouse-link-color: #ffffff;
+  --warehouse-link-border: rgba(255,255,255,0.15);
 }
 
-.warehouse-nav-link {
+.warehouse-nav {
+  /* ensure this is a horizontal bar that fills the container */
   display: flex;
   align-items: center;
-  justify-content: center;
-  min-height: 56px;
-  padding: 0.75rem 1rem;
-  text-decoration: none;
-  color: #1f2937;
-  font-weight: 600;
-  white-space: nowrap;
-  border-right: 1px solid #e7edf4;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: var(--warehouse-bar-color);
+  padding: 10px; /* gives the bar some vertical space */
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 14px rgba(16, 24, 40, 0.08);
 }
 
-.warehouse-nav-link:last-child {
-  border-right: none;
+/* Override: make each menu item equal width so the row looks like one continuous bar */
+.warehouse-nav .warehouse-nav-link {
+  flex: 1 1 0; /* each item grows/shrinks equally */
+  min-width: 0; /* allow shrinking below intrinsic width */
+  max-width: none;
 }
 
-.warehouse-nav-link:hover {
-  background: #f1f6ff;
-  color: #0a58ca;
-}
+/* Disable the decorative filler so the bar is visually continuous with menu items */
+.warehouse-nav::after { display: none !important; }
 
-.warehouse-nav-link.active {
-  background: #0d6efd;
-  color: #fff;
+/* Ensure the page title under the menu is black (e.g., "Terméklista") */
+.warehouse-content h1,
+.warehouse-content h2,
+.warehouse-content .page-title {
+  color: #000 !important;
 }
 
 .warehouse-content {
@@ -99,5 +97,90 @@
 @media (max-width: 1200px) {
   .warehouse-nav {
     grid-template-columns: repeat(6, minmax(190px, 1fr));
+  }
+}
+
+/* Responsive: stack menu items vertically on small screens */
+@media (max-width: 768px) {
+  /* common warehouse/navigation selectors to ensure menu items stack */
+  .Warehouse .menu,
+  .warehouse .menu,
+  .warehouse-menu,
+  .warehouse-nav,
+  .warehouse .nav,
+  .navigation .menu,
+  .nav-menu,
+  .nav-links,
+  nav ul,
+  nav ul.menu,
+  .menu-items {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 0 !important;
+  }
+
+  /* ensure each menu item stretches full width and has spacing */
+  .Warehouse .menu li,
+  .warehouse .menu li,
+  .warehouse-menu .menu-item,
+  .nav-menu li,
+  .nav-links li,
+  .navigation ul li,
+  nav ul li,
+  .menu-items li {
+    width: 100% !important;
+    margin: 6px 0 !important;
+    box-sizing: border-box;
+  }
+
+  /* if links are inline-block, make them block so they fill available width */
+  .Warehouse .menu a,
+  .warehouse .menu a,
+  .nav-menu a,
+  .nav-links a,
+  nav ul a,
+  .menu-items a {
+    display: block !important;
+    width: 100% !important;
+    padding: 8px 12px !important;
+  }
+}
+
+/* When JS detects overflow this class is applied to stack menu items vertically */
+.warehouse-nav--stacked {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  padding: 0 !important;
+}
+
+.warehouse-nav--stacked .warehouse-nav-link {
+  width: 100% !important;
+  border-right: none !important;
+  margin: 6px 0 !important;
+  box-sizing: border-box;
+  display: block !important;
+  padding: 8px 12px !important;
+}
+
+/* Very small screens fallback if JS is disabled */
+@media (max-width: 480px) {
+  .warehouse-nav {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .warehouse-nav .warehouse-nav-link {
+    width: 100% !important;
+    border-right: none !important;
+  }
+}
+
+/* Keep stacking behavior on very small screens */
+@media (max-width: 600px) {
+  .warehouse-nav .warehouse-nav-link {
+    flex: 1 1 100%;
+    min-width: 100%;
   }
 }
