@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -121,3 +120,4 @@ Route::apiResource('items', ItemController::class);
 // Release endpoint: csökkenti a termék készletét
 Route::post('items/{id}/release', [ItemController::class, 'release']);
 Route::get('notifications', [\App\Http\Controllers\NotificationsController::class, 'index']);
+Route::get('/users', [UserController::class, 'index']);

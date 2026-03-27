@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from "re
 import { useNavigate } from "react-router-dom";
 import { myAxios, publicAxios } from "../api/axios";
 import { AuthContext } from "../contexts/AuthContext";
-import { fetchActiveItems } from '../api/items';
+import { addToCart } from '../cartUtils';
 import "./Termekek.css";
 
 function mapBackendProduct(row) {
@@ -111,37 +111,19 @@ export default function Termekek() {
     }
   };
 
-  const addToCart = async (itemId) => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-
+  // handler to use local cart utils instead of backend endpoint
+  function handleAddToCartClick(product) {
     try {
-      await myAxios.post("/api/shop/cart/add", { item_id: itemId, qty: 1 });
-      setMessage("A termék a kosárba került.");
-    } catch (error) {
-      setMessage("A kosár frissítése sikertelen.");
-    }
-  };
-
-  useEffect(() => {
-    let mounted = true;
-    const load = async () => {
-      try {
-        const list = await fetchActiveItems();
-        if (!mounted) return;
-        setProducts((list || []).map(mapBackendProduct));
-      } catch (e) {
-        console.error('Hiba a termékek lekérésekor', e);
-      } finally {
-        setLoading(false);
+      addToCart(product, 1);
+      // emit simple visual feedback (can be replaced with toasts)
+      if (window && window.dispatchEvent) {
+        const evt = new CustomEvent('uiMessage', { detail: { message: 'A termék hozzáadva a kosárhoz.' } });
+        window.dispatchEvent(evt);
       }
-    };
-
-    load();
-    return () => { mounted = false; };
-  }, []);
+    } catch (e) {
+      console.error('Failed to add product to cart:', e);
+    }
+  }
 
   return (
     <section className="page products-page">
@@ -183,7 +165,7 @@ export default function Termekek() {
               <button
                 type="button"
                 className="product-cart-btn"
-                onClick={() => addToCart(Number(product.id))}
+                onClick={() => handleAddToCartClick(product)}
               >
                 Kosárba
               </button>
