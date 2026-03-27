@@ -19,6 +19,7 @@ class Item extends Model
         'kep_url',
         'kartya_hatterszin',
         'kartya_stilus',
+        'kategoria',
     ];
 
     // 🔗 KAPCSOLAT

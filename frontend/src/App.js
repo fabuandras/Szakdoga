@@ -27,6 +27,7 @@ import AdminNav from "./pages/AdminNav";
 import AdminUsers from "./pages/AdminUsers";
 import AdminProducts from "./pages/AdminProducts";
 import Footer from "./Footer";
+import Notifications from "./pages/Notifications";
 
 function isWarehouseOnlyUser(user) {
   return user?.felhasznalonev === "Bori";
@@ -79,98 +80,98 @@ function App() {
   return (
     <div className="App">
       <div className="app-main">
-      <Routes>
-        <Route path="/" element={<GuestLayout theme={theme} toggleTheme={toggleTheme} />}>
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Registration />} />
-          <Route path="registration" element={<Registration />} />
-          <Route
-            index
-            element={
-              <RedirectWarehouseOnly>
-                <Home />
-              </RedirectWarehouseOnly>
-            }
-          />
-          <Route
-            path="rolunk"
-            element={
-              <RedirectWarehouseOnly>
-                <Rolunk />
-              </RedirectWarehouseOnly>
-            }
-          />
-          <Route
-            path="termekek"
-            element={
-              <RedirectWarehouseOnly>
-                <Termekek />
-              </RedirectWarehouseOnly>
-            }
-          />
-          <Route
-            path="kapcsolat"
-            element={
-              <RedirectWarehouseOnly>
-                <Kapcsolat />
-              </RedirectWarehouseOnly>
-            }
-          />
-          <Route
-            path="profile"
-            element={
-              <RequireAuth>
+        <Routes>
+          <Route path="/" element={<GuestLayout theme={theme} toggleTheme={toggleTheme} />}>
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Registration />} />
+            <Route path="registration" element={<Registration />} />
+            <Route
+              index
+              element={
                 <RedirectWarehouseOnly>
-                  <Profile />
+                  <Home />
                 </RedirectWarehouseOnly>
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="kedvencek"
-            element={
-              <RequireAuth>
+              }
+            />
+            <Route
+              path="rolunk"
+              element={
                 <RedirectWarehouseOnly>
-                  <Kedvencek />
+                  <Rolunk />
                 </RedirectWarehouseOnly>
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="kosar"
-            element={
-              <RequireAuth>
+              }
+            />
+            <Route
+              path="termekek"
+              element={
                 <RedirectWarehouseOnly>
-                  <Kosar />
+                  <Termekek />
                 </RedirectWarehouseOnly>
-              </RequireAuth>
-            }
-          />
-        </Route>
+              }
+            />
+            <Route
+              path="kapcsolat"
+              element={
+                <RedirectWarehouseOnly>
+                  <Kapcsolat />
+                </RedirectWarehouseOnly>
+              }
+            />
+            <Route
+              path="profile"
+              element={
+                <RequireAuth>
+                  <RedirectWarehouseOnly>
+                    <Profile />
+                  </RedirectWarehouseOnly>
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="kedvencek"
+              element={
+                <RequireAuth>
+                  <RedirectWarehouseOnly>
+                    <Kedvencek />
+                  </RedirectWarehouseOnly>
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="kosar"
+              element={
+                <RequireAuth>
+                  <RedirectWarehouseOnly>
+                    <Kosar />
+                  </RedirectWarehouseOnly>
+                </RequireAuth>
+              }
+            />
+          </Route>
 
-       
-        <Route path="admin" element={<AdminNav />}>
-          <Route index element={<AdminHomePage />} />
-          <Route path="users" element={<AdminUsers />} />
-          <Route path="products" element={<AdminProducts />} />
-        </Route>
+          <Route path="admin" element={<AdminNav />}>
+            <Route index element={<AdminHomePage />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="products" element={<AdminProducts />} />
+          </Route>
 
-        <Route
-          path="warehouse"
-          element={
-            <RequireAuth>
-              <Warehouse theme={theme} toggleTheme={toggleTheme} />
-            </RequireAuth>
-          }
-        >
-          <Route index element={<ProductsList />} />
-          <Route path="products" element={<ProductsList />} />
-          <Route path="intake" element={<Intake />} />
-          <Route path="release" element={<Release />} />
-          <Route path="movement" element={<Movement />} />
-          <Route path="inventory" element={<Inventory />} />
-        </Route>
-      </Routes>
+          <Route
+            path="warehouse"
+            element={
+              <RequireAuth>
+                <Warehouse theme={theme} toggleTheme={toggleTheme} />
+              </RequireAuth>
+            }
+          >
+            <Route index element={<ProductsList />} />
+            <Route path="products" element={<ProductsList />} />
+            <Route path="intake" element={<Intake />} />
+            <Route path="release" element={<Release />} />
+            <Route path="movement" element={<Movement />} />
+            <Route path="inventory" element={<Inventory />} />
+            <Route path="notifications" element={<Notifications />} />
+          </Route>
+        </Routes>
       </div>
       <Footer />
     </div>

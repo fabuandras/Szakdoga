@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getItems, getMovements, moveItem, subscribeStore } from "./warehouseStore";
+import { getMovements, moveItem, subscribeStore } from "./warehouseStore";
+import { fetchActiveItems } from "../api/items";
 
 function formatDate(iso) {
   return new Date(iso).toLocaleString("hu-HU");
@@ -19,10 +20,25 @@ export default function Movement() {
   const [typeFilter, setTypeFilter] = useState("mind");
   const [form, setForm] = useState({ cikk_szam: "", mennyiseg: "", from: "", to: "", megjegyzes: "" });
   const [uzenet, setUzenet] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const list = await fetchActiveItems();
+        if (!mounted) return;
+        setItems(list || []);
+      } catch (e) {
+        console.error("Error loading items for movement", e);
+      }
+    };
+    load();
+    return () => { mounted = false; };
+  }, []);
 
   useEffect(() => {
     const load = () => {
-      setItems(getItems());
       setRows(getMovements());
     };
     load();
@@ -46,7 +62,7 @@ export default function Movement() {
   }
 
   return (
-    <div>
+    <div className="movement-page">
       <h2>Raktármozgás</h2>
 
       <form className="row g-3 mb-4 warehouse-form" onSubmit={handleSubmit}>
@@ -54,15 +70,12 @@ export default function Movement() {
           <label className="form-label">Termék</label>
           <select
             className="form-select"
-            value={form.cikk_szam}
-            onChange={(e) => setForm((prev) => ({ ...prev, cikk_szam: e.target.value }))}
-            required
+            value={selectedProduct}
+            onChange={(e) => setSelectedProduct(e.target.value)}
           >
             <option value="">Példa: válassz terméket</option>
-            {items.map((it) => (
-              <option key={it.cikk_szam} value={it.cikk_szam}>
-                {it.cikk_szam} - {it.elnevezes}
-              </option>
+            {items.map(it => (
+              <option key={it.cikk_szam} value={it.cikk_szam}>{it.elnevezes}</option>
             ))}
           </select>
         </div>

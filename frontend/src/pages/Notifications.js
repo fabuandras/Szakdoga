@@ -2,18 +2,18 @@ import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 
 export default function Notifications() {
-  const [logs, setLogs] = useState([]);
+  const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
     const load = async () => {
       try {
-        const resp = await api.get('/api/activity-log');
+        const resp = await api.get('/api/notifications');
         if (!mounted) return;
-        setLogs(resp.data || []);
+        setRows(resp.data || []);
       } catch (e) {
-        console.error('Hiba az activity log lekérésekor', e);
+        console.error('Hiba az értesítések lekérésekor', e);
       } finally {
         setLoading(false);
       }
@@ -26,24 +26,32 @@ export default function Notifications() {
   if (loading) return <div>Betöltés...</div>;
 
   return (
-    <div className="activity-log-page">
-      <h2>Értesítések / Műveletek</h2>
-      {logs.length === 0 ? (
-        <div>Nincsenek események.</div>
-      ) : (
-        <ul className="list-group">
-          {logs.map(l => (
-            <li key={l.id} className="list-group-item">
-              <div><strong>{l.type}</strong> — {new Date(l.created_at).toLocaleString()}</div>
-              <div>{l.item_name} ({l.item_id})</div>
-              {l.quantity !== null && <div>Mennyiség: {l.quantity}</div>}
-              {l.user_name && <div className="text-muted">Felhasználó: {l.user_name}</div>}
-              {l.reason && <div>Ok: {l.reason}</div>}
-              {l.note && <div>Megjegyzés: {l.note}</div>}
-            </li>
+    <div className="notifications-page">
+      <h2>Raktári műveleti napló</h2>
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Idő</th>
+            <th>Művelet</th>
+            <th>Termék</th>
+            <th>Mennyiség</th>
+            <th>Felhasználó</th>
+            <th>Megjegyzés</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map(r => (
+            <tr key={r.id}>
+              <td>{new Date(r.created_at).toLocaleString()}</td>
+              <td>{r.type}</td>
+              <td>{r.item_name || r.item_id}</td>
+              <td>{r.quantity ?? '-'}</td>
+              <td>{r.user_name || r.user_id}</td>
+              <td>{r.note || r.reason || '-'}</td>
+            </tr>
           ))}
-        </ul>
-      )}
+        </tbody>
+      </table>
     </div>
   );
 }

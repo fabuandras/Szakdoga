@@ -43,7 +43,22 @@ export default function ProductsList() {
   };
 
   const categories = useMemo(() => {
-    return ["mind", ...new Set(items.map((it) => it.kategoria || "Egyéb"))];
+    const getCat = (it) => {
+      if (!it) return '';
+      return it.kategoria ?? it.category ?? it.kategori ?? it.cat ?? it.category_name ?? '';
+    };
+
+    const set = new Set();
+    set.add('mind');
+    items.forEach((it) => {
+      const c = getCat(it) || 'Egyéb';
+      set.add(c);
+    });
+
+    // keep 'mind' first, sort the rest
+    const arr = Array.from(set);
+    const rest = arr.filter(a => a !== 'mind').sort((a,b) => String(a).localeCompare(String(b), undefined, {sensitivity: 'base'}));
+    return ['mind', ...rest];
   }, [items]);
 
   // helper: safely stringify values for search/comparison
