@@ -140,7 +140,6 @@ export default function Termekek() {
             <article
               key={product.id}
               className={`product-card product-style-${product.cardStyle}`}
-              style={{ background: product.cardBackground || "#f8f8f8" }}
             >
               <button
                 type="button"
