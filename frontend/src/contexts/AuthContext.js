@@ -4,6 +4,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext();
 
+function readStoredUser() {
+  try {
+    const raw = localStorage.getItem('auth_user');
+    return raw ? JSON.parse(raw) : null;
+  } catch (_error) {
+    return null;
+  }
+}
+
 function normalizeLaravelErrors(errorsObj) {
   // Laravel 422 esetén tipikusan: { email: ["..."], password: ["..."] }
   if (!errorsObj || typeof errorsObj !== "object") return {};
@@ -78,7 +87,7 @@ function normalizeLaravelErrors(errorsObj) {
 
 export function AuthProvider({ children }) {
   // start unauthenticated by default
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => readStoredUser());
   const [authReady, setAuthReady] = useState(false);
 
   // mezőhibák (validáció és/vagy backend 422)
@@ -94,6 +103,7 @@ export function AuthProvider({ children }) {
     try {
       const { data } = await myAxios.get("/api/user");
       setUser(data);
+      localStorage.setItem('auth_user', JSON.stringify(data));
       return data;
     } catch (error) {
       const status = error?.response?.status;
@@ -138,12 +148,21 @@ export function AuthProvider({ children }) {
 
         if (data && data.user) {
           setUser(data.user);
+          localStorage.setItem('auth_user', JSON.stringify(data.user));
         } else {
           await getUser();
         }
 
+        const loggedInUser = data?.user || JSON.parse(localStorage.getItem('auth_user') || 'null');
+
         // If user is admin, redirect to admin area; otherwise go to homepage
-        const isAdmin = user && (user.is_admin || user.role === 'admin' || (user.email && user.email.endsWith('@admin.hu')));
+        const isAdmin = Boolean(
+          loggedInUser && (
+            loggedInUser.is_admin ||
+            loggedInUser.role === 'admin' ||
+            (loggedInUser.email && loggedInUser.email.endsWith('@admin.hu'))
+          )
+        );
         if (isAdmin) {
           navigate('/admin/home');
         } else {
@@ -221,25 +240,26 @@ export function AuthProvider({ children }) {
     setGeneralError(null);
 
     try {
-      await csrf();
-
       const hasBearerToken = Boolean(localStorage.getItem('token'));
 
       if (hasBearerToken) {
+        // Bearer token auth — no CSRF needed, call /api/logout directly
         try {
           await myAxios.post("/api/logout");
         } catch (apiError) {
+          // ignore 401 (token already expired) — still clear local state
           const apiStatus = apiError?.response?.status;
-
           if (apiStatus !== 401 && apiStatus !== 419) {
-            await myAxios.post("/logout");
+            console.warn("Logout API error:", apiStatus);
           }
         }
       } else {
+        await csrf();
         await myAxios.post("/logout");
       }
 
       localStorage.removeItem('token');
+      localStorage.removeItem('auth_user');
       delete myAxios.defaults.headers.common['Authorization'];
       setUser(null);
       return true;
@@ -253,13 +273,22 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const checkUser = async () => {
       const token = localStorage.getItem('token');
+      const cachedUser = readStoredUser();
+
+      if (cachedUser) {
+        setUser((prev) => prev || cachedUser);
+      }
 
       try {
-        if (token) {
-          myAxios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        } else {
+        if (!token) {
           delete myAxios.defaults.headers.common['Authorization'];
+          if (cachedUser) {
+            setUser(cachedUser);
+          }
+          return;
         }
+
+        myAxios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
         await getUser();
       } catch (error) {
@@ -268,24 +297,15 @@ export function AuthProvider({ children }) {
           console.log("User check failed:", status);
         }
 
-        // Session auth fallback: ha tokennel próbáltunk és 401 jött,
-        // egyszer megpróbáljuk Bearer header nélkül is.
-        if (token && status === 401) {
-          try {
-            delete myAxios.defaults.headers.common['Authorization'];
-            await getUser();
-            return;
-          } catch (sessionFallbackError) {
-            const fallbackStatus = sessionFallbackError?.response?.status;
-            if (fallbackStatus && fallbackStatus !== 401) {
-              console.log("Session fallback failed:", fallbackStatus);
-            }
-          }
+        // Token invalid/expired — clear it and fall back to cached user
+        if (status === 401) {
+          localStorage.removeItem('token');
+          delete myAxios.defaults.headers.common['Authorization'];
         }
 
-        localStorage.removeItem('token');
-        delete myAxios.defaults.headers.common['Authorization'];
-        setUser(null);
+        if (cachedUser) {
+          setUser(cachedUser);
+        }
       } finally {
         setAuthReady(true);
       }
@@ -311,6 +331,10 @@ export function AuthProvider({ children }) {
   const DISABLE_AUTH_REDIRECT = false;
 
   useEffect(() => {
+    if (!authReady) {
+      return;
+    }
+
     // if (user) {
     //   // ha be van jelentkezve felhasználó, automatikusan lekérjük az adatait
     //   const fetchUser = async () => {
@@ -358,7 +382,7 @@ export function AuthProvider({ children }) {
      }
  
      // ...existing code...
-   }, [user, location, navigate, PRESERVE_PATHS, PROTECTED_PATHS, PUBLIC_PATHS]);
+  }, [authReady, user, location, navigate, PRESERVE_PATHS, PROTECTED_PATHS, PUBLIC_PATHS]);
  
    const value = useMemo(
      () => ({

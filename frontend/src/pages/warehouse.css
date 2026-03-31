@@ -4,10 +4,10 @@
 
 /* Bar fill and pill-style menu buttons */
 :root {
-  --warehouse-bar-color: #0b0b0b; /* menu bar fill color (change if needed) */
-  --warehouse-link-pill: rgba(255,255,255,0.06);
-  --warehouse-link-color: #ffffff;
-  --warehouse-link-border: rgba(255,255,255,0.15);
+  --warehouse-bar-color: #fff2e2; /* menu bar fill color (change if needed) */
+  --warehouse-link-pill: #fffaf3;
+  --warehouse-link-color: #4a2f1b;
+  --warehouse-link-border: #d4ad86;
 }
 
 .warehouse-nav {
@@ -20,7 +20,7 @@
   padding: 10px; /* gives the bar some vertical space */
   border-radius: 12px;
   margin-bottom: 1rem;
-  box-shadow: 0 4px 14px rgba(16, 24, 40, 0.08);
+  box-shadow: 0 12px 28px rgba(89, 58, 34, 0.14);
 }
 
 /* Override: make each menu item equal width so the row looks like one continuous bar */
@@ -37,15 +37,15 @@
 .warehouse-content h1,
 .warehouse-content h2,
 .warehouse-content .page-title {
-  color: #000 !important;
+  color: #4a2f1b !important;
 }
 
 .warehouse-content {
-  background: #fff;
+  background: #fffaf3;
   border-radius: 12px;
-  border: 1px solid #e7edf4;
+  border: 1px solid #d9b491;
   padding: 1rem;
-  box-shadow: 0 6px 16px rgba(16, 24, 40, 0.06);
+  box-shadow: 0 12px 26px rgba(89, 58, 34, 0.12);
 }
 
 .warehouse-form .form-control,

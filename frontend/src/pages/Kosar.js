@@ -1,44 +1,33 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { myAxios } from "../api/axios";
 import { AuthContext } from "../contexts/AuthContext";
-import { getCart, updateQuantity, removeFromCart, clearCart } from "../cartUtils";
 
 export default function Kosar() {
   const { user } = useContext(AuthContext);
-  const [cart, setCart] = useState(getCart());
+  const [cart, setCart] = useState({ items: [], total: 0 });
+
+  const loadCart = () => {
+    myAxios
+      .get("/api/shop/cart")
+      .then((response) => setCart(response.data || { items: [], total: 0 }))
+      .catch(() => setCart({ items: [], total: 0 }));
+  };
 
   useEffect(() => {
-    function onCartUpdated(e) {
-      const newCart = (e && e.detail && e.detail.cart) ? e.detail.cart : getCart();
-      setCart(newCart);
-    }
-    window.addEventListener('cartUpdated', onCartUpdated);
-    // also listen for storage events in case multiple tabs
-    function onStorage(e) {
-      if (e.key === 'szakdoga_cart_v1') setCart(getCart());
-    }
-    window.addEventListener('storage', onStorage);
+    if (!user) return;
+    loadCart();
+  }, [user]);
 
-    return () => {
-      window.removeEventListener('cartUpdated', onCartUpdated);
-      window.removeEventListener('storage', onStorage);
-    };
-  }, []);
-
-  const handleQtyChange = (product, qty) => {
-    const pid = product.id ?? product._id ?? product.productId ?? product.sku ?? null;
-    if (pid === null) return;
-    updateQuantity(pid, Number(qty));
+  const changeQty = async (itemId, qty) => {
+    if (qty < 1) return;
+    await myAxios.patch("/api/shop/cart/item", { item_id: itemId, qty });
+    loadCart();
   };
 
-  const handleRemove = (product) => {
-    const pid = product.id ?? product._id ?? product.productId ?? product.sku ?? null;
-    if (pid === null) return;
-    removeFromCart(pid);
-  };
-
-  const handleClear = () => {
-    clearCart();
+  const removeItem = async (itemId) => {
+    await myAxios.delete(`/api/shop/cart/item/${itemId}`);
+    loadCart();
   };
 
   if (!user) {
@@ -51,61 +40,28 @@ export default function Kosar() {
     );
   }
 
-  if (!cart || cart.length === 0) {
-    return (
-      <div className="kosar-empty">
-        <h1>Kosár</h1>
-        <p>A kosarad üres.</p>
-      </div>
-    );
-  }
-
-  const total = cart.reduce((sum, it) => {
-    const price = it.product && (it.product.price ?? it.product.ar ?? 0);
-    return sum + (Number(price) || 0) * (it.quantity || 0);
-  }, 0);
-
   return (
-    <div className="kosar-list">
+    <section className="page">
       <h1>Kosár</h1>
-      <button onClick={handleClear}>Kosár ürítése</button>
-      <ul>
-        {cart.map((it, idx) => (
-          <li key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            {/* thumbnail */}
-            {(() => {
-              const p = it.product || {};
-              const imgSrc = p.image ?? p.imageUrl ?? p.photo ?? p.img ?? (p.images && p.images[0]) ?? p.thumbnail ?? null;
-              return imgSrc ? (
-                <div style={{ width: 72, height: 72, flex: '0 0 72px' }}>
-                  <img
-                    src={imgSrc}
-                    alt={p.name ?? p.title ?? 'termék kép'}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 6 }}
-                  />
-                </div>
-              ) : <div style={{ width: 72, height: 72, flex: '0 0 72px' }} />;
-            })()}
-
-            <div style={{ flex: 1 }}>
-              <strong>{it.product && (it.product.name ?? it.product.title ?? it.product.nev ?? 'Termék')}</strong>
-              <div>{it.product && (it.product.description ?? it.product.leiras)}</div>
+      {cart.items.length === 0 ? (
+        <p>A kosarad üres.</p>
+      ) : (
+        <div>
+          {cart.items.map((item) => (
+            <div key={item.item_id} style={{ marginBottom: "0.8rem" }}>
+              <strong>{item.elnevezes}</strong> - {item.qty} db - {item.line_total.toLocaleString("hu-HU")} Ft
+              <div>
+                <button type="button" onClick={() => changeQty(item.item_id, item.qty - 1)}>-</button>
+                <button type="button" onClick={() => changeQty(item.item_id, item.qty + 1)}>+</button>
+                <button type="button" onClick={() => removeItem(item.item_id)}>Törlés</button>
+              </div>
             </div>
-            <div>
-              <input type="number" min="0" value={it.quantity} onChange={(e) => handleQtyChange(it.product, e.target.value)} />
-            </div>
-            <div>
-              <button onClick={() => handleRemove(it.product)}>Törlés</button>
-            </div>
-            <div>
-              {(it.product && (it.product.price ?? it.product.ar)) || '-'}
-            </div>
-          </li>
-        ))}
-      </ul>
-      <div>
-        <strong>Összesen: {total} Ft</strong>
-      </div>
-    </div>
+          ))}
+          <p>
+            <strong>Végösszeg: {Number(cart.total || 0).toLocaleString("hu-HU")} Ft</strong>
+          </p>
+        </div>
+      )}
+    </section>
   );
 }

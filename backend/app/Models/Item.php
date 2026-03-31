@@ -20,6 +20,10 @@ class Item extends Model
         'kartya_hatterszin',
         'kartya_stilus',
         'kategoria',
+        'raktarhely',
+        'min_keszlet',
+        'statusz',
+        'leiras',
     ];
 
     // 🔗 KAPCSOLAT

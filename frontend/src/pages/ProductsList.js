@@ -14,6 +14,7 @@ function stockState(item) {
 export default function ProductsList() {
   const [items, setItems] = useState([]);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("mind");
   const [status, setStatus] = useState("mind");
@@ -28,13 +29,15 @@ export default function ProductsList() {
     try {
       setLoading(true);
       setError("");
+      setSuccess("");
       const list = await fetchActiveItems();
       setItems(list);
     } catch (e) {
       if (e?.response?.status === 401) {
         setError("A terméklista megtekintéséhez be kell jelentkezni.");
       } else {
-        setError("A terméklista betöltése sikertelen.");
+        const backendMessage = e?.response?.data?.message;
+        setError(backendMessage || "A terméklista betöltése sikertelen.");
       }
       setItems([]);
     } finally {
@@ -43,6 +46,8 @@ export default function ProductsList() {
   };
 
   const categories = useMemo(() => {
+    const requiredCategories = ["Fonalak", "Eszközök", "Kiegészítők", "Plüssök", "Horgolóminták", "Egyéb"];
+
     const getCat = (it) => {
       if (!it) return '';
       return it.kategoria ?? it.category ?? it.kategori ?? it.cat ?? it.category_name ?? '';
@@ -50,6 +55,7 @@ export default function ProductsList() {
 
     const set = new Set();
     set.add('mind');
+    requiredCategories.forEach((c) => set.add(c));
     items.forEach((it) => {
       const c = getCat(it) || 'Egyéb';
       set.add(c);
@@ -118,11 +124,17 @@ export default function ProductsList() {
     if (!window.confirm(`Biztosan törölni szeretnéd a ${sku} cikkszámú tételt?`))
       return;
     try {
+      setError("");
+      setSuccess("");
       await myAxios.delete(`/api/items/${sku}`);
       // frissítsük a helyi listát
       setItems((prev) => prev.filter((item) => item.cikk_szam !== sku));
+      const msg = `A(z) ${sku} cikkszámú tétel sikeresen törölve.`;
+      setSuccess(msg);
+      alert(msg);
     } catch (e) {
-      setError("A törlés sikertelen.");
+      const backendMessage = e?.response?.data?.message;
+      setError(backendMessage || "A törlés sikertelen.");
     }
   };
 
@@ -144,6 +156,13 @@ export default function ProductsList() {
         <Link className="btn btn-primary warehouse-btn" to="/warehouse/intake">
           Új tétel felvétele
         </Link>
+      </div>
+
+      <div className="alert alert-secondary mb-3" role="note">
+        <strong>Raktárhely kód magyarázat:</strong> egy raktárat használunk, a helyek
+        <span> </span><code>R{"{sor}"}-O{"{oszlop}"}-P{"{polc}"}</code><span> </span>
+        formátumban jelennek meg (példa: <code>R2-O03-P01</code>).<span> </span>
+        A rendszer minden termékhez automatikusan kioszt egy logikus helyet, ha hiányzik.
       </div>
 
       <div className="row g-2 mb-3 warehouse-filter">
@@ -195,6 +214,7 @@ export default function ProductsList() {
       </div>
 
       <div className="table-responsive">
+        {success && <div className="alert alert-success">{success}</div>}
         {error && <div className="alert alert-danger">{error}</div>}
         <table className="table table-striped align-middle">
           <thead>

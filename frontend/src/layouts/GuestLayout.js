@@ -6,7 +6,7 @@ export default function GuestLayout({ theme, toggleTheme }) {
   return (
     <div>
       <div className="site-brand">
-        <div className="site-logo" aria-hidden="true">L&S</div>
+        <img className="site-logo" src="/loop-stitch-mark.svg" alt="Loop & Stitch logó" />
         <h1 className="site-title">LOOP & STITCH</h1>
       </div>
       <section className="guest-hero">

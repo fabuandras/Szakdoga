@@ -26,14 +26,14 @@
   text-align: center;
   margin-top: 20px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.22);
-  color: #ffffff;
+  border-top: 1px solid var(--border);
+  color: var(--text);
   font-size: 0.95rem;
   line-height: 1.4;
 }
 
 .auth-footer a {
-  color: #ffffff;
+  color: var(--text);
   text-decoration: none;
   border-bottom: 1px solid transparent;
   font-weight: 700;
@@ -41,17 +41,17 @@
 }
 
 .auth-footer a:visited {
-  color: #ffffff;
+  color: var(--text);
 }
 
 .auth-footer a:hover,
 .auth-footer a:focus-visible {
-  color: #ff3030;
-  border-bottom-color: #ff3030;
+  color: var(--accent-soft);
+  border-bottom-color: var(--accent-soft);
 }
 
 .auth-error {
-  color: #dc3545;
+  color: #b6471e;
   font-size: 0.9rem;
   margin-top: 6px;
 }
@@ -77,10 +77,10 @@
 .auth-card .btn:hover,
 .auth-card .btn:focus,
 .auth-card .btn:active {
-  background: #000000;
+  background: #8a5328;
   border-width: 1px;
-  border-color: var(--accent);
-  color: #fff;
+  border-color: #8a5328;
+  color: #fff9f1;
 }
 
 /* password toggle icon */

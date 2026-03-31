@@ -1,6 +1,7 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from './contexts/AuthContext';
+import api from './api/axios';
 
 export default function Navigation({ theme, toggleTheme }) {
   const navigate = useNavigate();
@@ -85,7 +86,7 @@ export default function Navigation({ theme, toggleTheme }) {
                     Kedvencek
                   </NavLink>
                   <NavLink to="/kosar" onClick={() => { setMenuOpen(false); setMobileMenuOpen(false); }}>
-                    Kosár
+                    Kosar
                   </NavLink>
                   <button type="button" className="nav-link-btn" onClick={handleLogout}>
                     <i className="bi bi-box-arrow-right"></i> Kijelentkezés

@@ -14,9 +14,9 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--border);
   background: transparent;
-  color: #ffffff;
+  color: var(--text);
 }
 
 .main-nav-links {
@@ -48,21 +48,21 @@
   border: 1px solid transparent;
   background: transparent;
   text-decoration: none;
-  color: #ffffff;
+  color: var(--text);
   font-weight: 700;
   font-size: 1.12rem;
   transition: color 0.16s ease;
 }
 
 .main-nav-links a.active {
-  color: #ff3030;
+  color: var(--accent-soft);
 }
 
 .main-nav-links a:hover,
 .main-nav .nav-link-btn:hover,
 
 .main-nav .profile-icon-btn:hover {
-  color: #ff3030;
+  color: var(--accent-soft);
 }
 
 .main-nav a.warehouse-top-title {
@@ -71,7 +71,7 @@
   letter-spacing: 0.3px;
   padding: 10px 20px;
   border-radius: 12px;
-  color: #ffffff;
+  color: var(--text);
   background: transparent;
   box-shadow: none;
   transform: none;
@@ -80,19 +80,19 @@
 .main-nav a.warehouse-top-title:hover,
 .main-nav a.warehouse-top-title.active {
 	background: transparent;
-  color: #ff3030;
+  color: var(--accent-soft);
 	border-color: transparent;
 	box-shadow: none;
 	transform: none;
 }
 
 [data-theme='dark'] .main-nav a.warehouse-top-title {
-	color: #f3f4f6;
+	color: var(--text);
 }
 
 [data-theme='dark'] .main-nav a.warehouse-top-title:hover,
 [data-theme='dark'] .main-nav a.warehouse-top-title.active {
-  color: #ff3030;
+  color: var(--accent);
 }
 
 .main-nav a i {
@@ -103,7 +103,7 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-  color: #ffffff;
+  color: var(--text);
 	background: transparent;
 	text-decoration: none;
 	padding: 8px 11px;
@@ -115,7 +115,7 @@
 
 .main-nav .nav-link-btn:hover {
   background: transparent;
-  color: #ff3030;
+  color: var(--accent-soft);
   border-color: transparent;
   box-shadow: none;
   transform: none;
@@ -141,9 +141,9 @@
   min-width: 190px;
   padding: 6px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  background: #000000;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: var(--shadow-md);
   z-index: 20;
 }
 
@@ -161,23 +161,23 @@
   width: 100%;
   justify-content: center;
   text-align: center;
-  color: #ffffff;
+  color: var(--text);
   text-decoration: none;
   font-weight: 700;
   font-size: 1.02rem;
 }
 
 .main-nav .profile-dropdown a:visited {
-  color: #ffffff;
+  color: var(--text);
 }
 
 .main-nav .profile-dropdown a:hover,
 .main-nav .profile-dropdown .nav-link-btn:hover {
-  color: #ff3030;
+  color: var(--accent-soft);
 }
 
 .main-nav .profile-dropdown a.active {
-  color: #ff3030;
+  color: var(--accent-soft);
 }
 
 .main-nav .profile-menu:hover .profile-dropdown,

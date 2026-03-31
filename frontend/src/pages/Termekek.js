@@ -1,8 +1,8 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { myAxios, publicAxios } from "../api/axios";
+import { myAxios } from "../api/axios";
 import { AuthContext } from "../contexts/AuthContext";
-import { addToCart } from '../cartUtils';
+import { fetchActiveItems } from '../api/items';
 import "./Termekek.css";
 
 function mapBackendProduct(row) {
@@ -32,42 +32,11 @@ export default function Termekek() {
     setMessage(null);
 
     try {
-      // Try public endpoint first without credentials
-      const alt = await fetch("http://localhost:8000/api/items-public", {
-        headers: { Accept: "application/json" },
-      });
-      if (alt.ok) {
-        const data = await alt.json();
-        setProducts((data || []).map(mapBackendProduct));
-        setLoading(false);
-        return;
-      }
-    } catch (e) {
-      // ignore and try authenticated endpoint
-    }
-
-    try {
-      // primary endpoint for items
-      const response = await publicAxios.get("/api/items");
-      const mapped = (response?.data || []).map(mapBackendProduct);
-      setProducts(mapped);
-      return;
-    } catch (publicError) {
-      // if not found or unauthorized, try a public endpoint fallback
-      if (publicError.response && (publicError.response.status === 404 || publicError.response.status === 401)) {
-        try {
-          const webFallback = await publicAxios.get("/api/items-public");
-          const mapped = (webFallback?.data || []).map(mapBackendProduct);
-          setProducts(mapped);
-          return;
-        } catch (webFallbackError) {
-          setProducts([]);
-          setMessage("A termékek most nem érhetőek el. Próbáld újra pár másodperc múlva.");
-        }
-      } else {
-        setProducts([]);
-        setMessage("A termékek most nem érhetőek el. Próbáld újra pár másodperc múlva.");
-      }
+      const list = await fetchActiveItems();
+      setProducts((list || []).map(mapBackendProduct));
+    } catch (error) {
+      setProducts([]);
+      setMessage("A termékek most nem érhetőek el. Próbáld újra pár másodperc múlva.");
     } finally {
       setLoading(false);
     }
@@ -111,19 +80,19 @@ export default function Termekek() {
     }
   };
 
-  // handler to use local cart utils instead of backend endpoint
-  function handleAddToCartClick(product) {
-    try {
-      addToCart(product, 1);
-      // emit simple visual feedback (can be replaced with toasts)
-      if (window && window.dispatchEvent) {
-        const evt = new CustomEvent('uiMessage', { detail: { message: 'A termék hozzáadva a kosárhoz.' } });
-        window.dispatchEvent(evt);
-      }
-    } catch (e) {
-      console.error('Failed to add product to cart:', e);
+  const addToCart = async (itemId) => {
+    if (!user) {
+      navigate("/login");
+      return;
     }
-  }
+
+    try {
+      await myAxios.post("/api/shop/cart/add", { item_id: itemId, qty: 1 });
+      setMessage("A termék a kosárba került.");
+    } catch (error) {
+      setMessage("A kosár frissítése sikertelen.");
+    }
+  };
 
   return (
     <section className="page products-page">
@@ -165,7 +134,7 @@ export default function Termekek() {
               <button
                 type="button"
                 className="product-cart-btn"
-                onClick={() => handleAddToCartClick(product)}
+                onClick={() => addToCart(Number(product.id))}
               >
                 Kosárba
               </button>

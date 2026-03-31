@@ -93,7 +93,15 @@ class DatabaseSeeder extends Seeder
 
             // Map common Hungarian keys to standard columns
             if (isset($user['jelszo']) && in_array('password', $columns)) {
-                $row['password'] = Hash::make($user['jelszo']);
+                $rawPassword = (string) $user['jelszo'];
+
+                // Avoid double hashing: if the value already looks like a bcrypt hash,
+                // store it as-is, otherwise hash the plain password.
+                if (preg_match('/^\$2[aby]\$\d{2}\$.{53}$/', $rawPassword) === 1) {
+                    $row['password'] = $rawPassword;
+                } else {
+                    $row['password'] = Hash::make($rawPassword);
+                }
             }
 
             if (isset($user['felhasznalonev'])) {
@@ -189,6 +197,7 @@ class DatabaseSeeder extends Seeder
             HomeDeliverySeeder::class,
             PackageSeeder::class,
             ItemSeeder::class,
+            InventorySeeder::class,
             CardDetailSeeder::class,
             PaymentSeeder::class,
             OrderSeeder::class,

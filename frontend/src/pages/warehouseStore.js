@@ -160,6 +160,27 @@ export function getItems() {
   return readStore().items;
 }
 
+export function syncItemsFromApi(apiItems = []) {
+  const store = readStore();
+  const incoming = Array.isArray(apiItems) ? apiItems : [];
+
+  store.items = incoming.map((it) => ({
+    cikk_szam: it?.cikk_szam || it?.sku || String(it?.id || "").trim().toUpperCase(),
+    elnevezes: it?.elnevezes || it?.name || "",
+    kategoria: categoryMap[it?.kategoria] || it?.kategoria || "Egyéb",
+    gyarto: it?.gyarto || "Ismeretlen",
+    beszerzesi_ar: Number(it?.beszerzesi_ar || 0),
+    eladasi_ar: Number(it?.eladasi_ar || 0),
+    akt_keszlet: Number(it?.akt_keszlet || 0),
+    min_keszlet: Number(it?.min_keszlet || 0),
+    statusz: it?.statusz || (Number(it?.akt_keszlet || 0) > 0 ? "Aktív" : "Inaktív"),
+    raktarhely: it?.raktarhely || "N/A",
+    leiras: it?.leiras || "",
+  }));
+
+  writeStore(store);
+}
+
 export function getMovements() {
   const movements = readStore().movements;
   return movements.sort((a, b) => new Date(b.datum) - new Date(a.datum));
@@ -266,17 +287,23 @@ export function releaseItem(payload) {
 
 export function moveItem(payload) {
   const store = readStore();
-  const qty = Number(payload.mennyiseg || 0);
   const sku = (payload.cikk_szam || "").trim().toUpperCase();
   const item = store.items.find((it) => it.cikk_szam === sku);
 
   if (!item) {
     throw new Error("A megadott cikkszámú termék nem található.");
   }
-  if (!qty || qty <= 0) {
-    throw new Error("A mennyiségnek pozitív számnak kell lennie.");
+
+  const currentStock = Number(item.akt_keszlet || 0);
+  const explicitQty = payload.mennyiseg === undefined || payload.mennyiseg === null || payload.mennyiseg === ""
+    ? null
+    : Number(payload.mennyiseg);
+  const qty = explicitQty === null ? currentStock : explicitQty;
+
+  if (Number.isNaN(qty) || qty < 0) {
+    throw new Error("A mennyiség érvénytelen.");
   }
-  if (qty > Number(item.akt_keszlet || 0)) {
+  if (qty > currentStock) {
     throw new Error("A mozgatott mennyiség nem lehet több, mint az aktuális készlet.");
   }
 

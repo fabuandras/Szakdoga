@@ -1,5 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { myAxios } from "../api/axios";
+import { fetchActiveItems } from "../api/items";
+
+const RACK_ROWS = ["R1", "R2", "R3", "R4", "R5", "R6"];
+const RACK_COLUMNS = 8;
+const RACK_SHELVES = 5;
+const MAX_AKT_KESZLET = 2147483647;
+
+function buildAllRackLocations() {
+  const result = [];
+  for (const row of RACK_ROWS) {
+    for (let column = 1; column <= RACK_COLUMNS; column += 1) {
+      for (let shelf = 1; shelf <= RACK_SHELVES; shelf += 1) {
+        const col = String(column).padStart(2, "0");
+        const polc = String(shelf).padStart(2, "0");
+        result.push(`${row}-O${col}-P${polc}`);
+      }
+    }
+  }
+  return result;
+}
+
+const ALL_RACK_LOCATIONS = buildAllRackLocations();
 
 export default function Intake() {
   const [form, setForm] = useState({
@@ -18,16 +40,60 @@ export default function Intake() {
     megjegyzes: "",
   });
   const [uzenet, setUzenet] = useState("");
+  const [occupiedRackPlaces, setOccupiedRackPlaces] = useState(new Set());
+  const [rackLoading, setRackLoading] = useState(true);
+  const [rackLoadError, setRackLoadError] = useState("");
+
+  const freeRackPlaces = useMemo(() => {
+    return ALL_RACK_LOCATIONS.filter((place) => !occupiedRackPlaces.has(place));
+  }, [occupiedRackPlaces]);
+
+  async function refreshRackPlaces() {
+    try {
+      setRackLoading(true);
+      setRackLoadError("");
+      const items = await fetchActiveItems();
+      const occupied = new Set(
+        (Array.isArray(items) ? items : [])
+          .map((item) => String(item?.raktarhely || "").trim())
+          .filter((place) => /^R\d+-O\d{2}-P\d{2}$/i.test(place))
+          .map((place) => place.toUpperCase())
+      );
+      setOccupiedRackPlaces(occupied);
+    } catch (_error) {
+      setOccupiedRackPlaces(new Set());
+      setRackLoadError("Nem sikerült lekérni a foglalt raktárhelyeket.");
+    } finally {
+      setRackLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    refreshRackPlaces();
+  }, []);
 
   const onChange = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
   async function handleSubmit(e) {
     e.preventDefault();
     try {
+      const mennyiseg = Number(form.mennyiseg || 0);
+      if (!Number.isFinite(mennyiseg) || mennyiseg < 1) {
+        setUzenet("Hiba: A mennyiség legalább 1 kell legyen.");
+        return;
+      }
+      if (mennyiseg > MAX_AKT_KESZLET) {
+        setUzenet(`Hiba: A mennyiség túl nagy. Maximum: ${MAX_AKT_KESZLET}.`);
+        return;
+      }
+
       const payload = new FormData();
       payload.append("elnevezes", form.elnevezes);
-      payload.append("akt_keszlet", String(Number(form.mennyiseg || 0)));
+      payload.append("akt_keszlet", String(mennyiseg));
       payload.append("egyseg_ar", String(Number(form.eladasi_ar || 0)));
+      payload.append("kategoria", form.kategoria || "Egyéb");
+      if (form.raktarhely) payload.append("raktarhely", form.raktarhely);
+      if (form.megjegyzes) payload.append("note", form.megjegyzes);
 
       const trimmedUrl = (form.kep_url || "").trim();
 
@@ -63,6 +129,7 @@ export default function Intake() {
         szallitolevel: "",
         megjegyzes: "",
       }));
+      refreshRackPlaces();
     } catch (error) {
       const msg =
         error?.response?.data?.message ||
@@ -83,11 +150,11 @@ export default function Intake() {
         </div>
         <div className="col-md-5">
           <label className="form-label">Terméknév</label>
-          <input className="form-control" placeholder="Példa: Prémium pamut fonal 100 g" value={form.elnevezes} onChange={(e) => onChange("elnevezes", e.target.value)} required />
+          <input className="form-control" maxLength={50} placeholder="Példa: Prémium pamut fonal 100 g" value={form.elnevezes} onChange={(e) => onChange("elnevezes", e.target.value)} required />
         </div>
         <div className="col-md-2">
           <label className="form-label">Mennyiség</label>
-          <input className="form-control" type="number" min="1" placeholder="Példa: 25" value={form.mennyiseg} onChange={(e) => onChange("mennyiseg", e.target.value)} required />
+          <input className="form-control" type="number" min="1" max={MAX_AKT_KESZLET} placeholder="Példa: 25" value={form.mennyiseg} onChange={(e) => onChange("mennyiseg", e.target.value)} required />
         </div>
         <div className="col-md-2">
           <label className="form-label">Min. készlet</label>
@@ -106,7 +173,28 @@ export default function Intake() {
         </div>
         <div className="col-md-3">
           <label className="form-label">Raktárhely</label>
-          <input className="form-control" value={form.raktarhely} onChange={(e) => onChange("raktarhely", e.target.value)} placeholder="Példa: A-02-01" />
+          <select
+            className="form-select"
+            value={form.raktarhely}
+            onChange={(e) => onChange("raktarhely", e.target.value)}
+            required
+            disabled={rackLoading || freeRackPlaces.length === 0 || Boolean(rackLoadError)}
+          >
+            <option value="">
+              {rackLoading
+                ? "Szabad helyek betöltése..."
+                : rackLoadError
+                ? "Hiba: raktárhelyek nem elérhetők"
+                : freeRackPlaces.length === 0
+                ? "Nincs szabad raktárhely"
+                : "Válassz szabad raktárhelyet"}
+            </option>
+            {freeRackPlaces.map((place) => (
+              <option key={place} value={place}>
+                {place}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="col-md-6">
           <label className="form-label">Kép feltöltése (backend tárhely)</label>
