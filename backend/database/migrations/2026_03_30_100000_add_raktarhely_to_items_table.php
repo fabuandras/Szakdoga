@@ -10,7 +10,7 @@ return new class extends Migration
     {
         if (! Schema::hasColumn('items', 'raktarhely')) {
             Schema::table('items', function (Blueprint $table) {
-                $table->string('raktarhely', 20)->nullable()->after('kategoria');
+                $table->string('raktarhely', 20)->nullable();
             });
         }
     }
