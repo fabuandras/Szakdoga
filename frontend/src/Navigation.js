@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { useCart } from './contexts/CartContext';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from './contexts/AuthContext';
 import api from './api/axios';
@@ -9,6 +10,7 @@ export default function Navigation({ theme, toggleTheme }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isWarehouseOnlyUser = user?.felhasznalonev === 'Bori';
+  const { cartCount } = useCart();
 
   const handleLogout = async () => {
     try {
@@ -86,7 +88,20 @@ export default function Navigation({ theme, toggleTheme }) {
                     Kedvencek
                   </NavLink>
                   <NavLink to="/kosar" onClick={() => { setMenuOpen(false); setMobileMenuOpen(false); }}>
-                    Kosar
+                    Kosár
+                    {cartCount > 0 && (
+                      <span style={{
+                        background: '#e28a2f',
+                        color: '#fff',
+                        borderRadius: '12px',
+                        padding: '2px 8px',
+                        marginLeft: '6px',
+                        fontWeight: 700,
+                        fontSize: '0.95em',
+                        verticalAlign: 'middle',
+                        display: 'inline-block',
+                      }}>{cartCount}</span>
+                    )}
                   </NavLink>
                   <button type="button" className="nav-link-btn" onClick={handleLogout}>
                     <i className="bi bi-box-arrow-right"></i> Kijelentkezés

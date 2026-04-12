@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from "re
 import { useNavigate } from "react-router-dom";
 import { myAxios } from "../api/axios";
 import { AuthContext } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 import { fetchActiveItems } from '../api/items';
 import "./Termekek.css";
 
@@ -18,6 +19,7 @@ function mapBackendProduct(row) {
 
 export default function Termekek() {
   const { user } = useContext(AuthContext);
+  const { fetchCartCount } = useCart();
   const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
@@ -89,6 +91,7 @@ export default function Termekek() {
     try {
       await myAxios.post("/api/shop/cart/add", { item_id: itemId, qty: 1 });
       setMessage("A termék a kosárba került.");
+      fetchCartCount();
     } catch (error) {
       setMessage("A kosár frissítése sikertelen.");
     }

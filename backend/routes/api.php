@@ -126,3 +126,11 @@ Route::get('inventories/{id}', [InventoryController::class, 'show']);
 Route::post('inventories/{id}/items/{itemId}', [InventoryController::class, 'saveLine']);
 Route::post('inventories/{id}/close', [InventoryController::class, 'close']);
 Route::get('notifications', [\App\Http\Controllers\NotificationsController::class, 'index']);
+
+// Webshop kosár és kedvencek
+Route::get('/shop/cart', [ShopController::class, 'cart']);
+Route::post('/shop/cart/add', [ShopController::class, 'addToCart']);
+Route::patch('/shop/cart/item', [ShopController::class, 'updateCartItem']);
+Route::delete('/shop/cart/item/{itemId}', [ShopController::class, 'removeCartItem']);
+Route::get('/shop/favorites', [ShopController::class, 'favorites']);
+Route::post('/shop/favorites/toggle', [ShopController::class, 'toggleFavorite']);

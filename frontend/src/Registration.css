@@ -9,11 +9,12 @@
 .auth-card {
   width: 100%;
   max-width: 520px;
-  background: var(--card);
+  background: white !important;
+  color: #222 !important;
   padding: 24px;
   border-radius: 16px;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 .auth-title {
@@ -26,14 +27,15 @@
   text-align: center;
   margin-top: 20px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.22);
-  color: #ffffff;
+  border-top: 1px solid #e0e0e0;
+  color: #222 !important;
   font-size: 0.95rem;
   line-height: 1.4;
+  background: white !important;
 }
 
 .auth-footer a {
-  color: #ffffff;
+  color: #222 !important;
   text-decoration: none;
   border-bottom: 1px solid transparent;
   font-weight: 700;
@@ -41,7 +43,7 @@
 }
 
 .auth-footer a:visited {
-  color: #ffffff;
+  color: #222 !important;
 }
 
 .auth-footer a:hover,

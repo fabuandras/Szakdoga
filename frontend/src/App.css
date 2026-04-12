@@ -1,19 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --text: #4a2f1b;
-  --muted: #6f4a2f;
+  --text: #222;
+  --muted: #444;
   --accent: #e28a2f;
   --accent-soft: #bf6821;
-  --border: #d6b28f;
-  --card: #fffaf3;
-  --card-strong: #fff7eb;
-  --input-bg: #fffdf9;
-  --input-border: #c8a788;
-  --input-placeholder: #9f7e61;
-  --hover-surface: #fff0dd;
-  --shadow-sm: 0 8px 20px rgba(89, 58, 34, 0.08);
-  --shadow-md: 0 16px 34px rgba(89, 58, 34, 0.14);
+  --border: #e0e0e0;
+  --card: #fff;
+  --card-strong: #fff;
+  --input-bg: #fff;
+  --input-border: #e0e0e0;
+  --input-placeholder: #888;
+  --hover-surface: #f5f5f5;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 [data-theme='dark'] {
@@ -38,9 +38,9 @@
   --accent: #e28a2f;
   --accent-soft: #bf6821;
   --border: #d6b28f;
-  --card: #fffaf3;
-  --card-strong: #fff7eb;
-  --input-bg: #fffdf9;
+  --card: white;
+  --card-strong: white;
+  --input-bg: white;
   --input-border: #c8a788;
   --input-placeholder: #9f7e61;
   --hover-surface: #fff0dd;
@@ -53,21 +53,31 @@
 }
 
 html,
-body,
-#root {
-  min-height: 100%;
-}
 
-body {
+body, html, #root {
+  min-height: 100%;
   margin: 0;
-  color: var(--text);
+  color: #222 !important;
   font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background:
-    radial-gradient(circle at 10% 8%, rgba(229, 138, 47, 0.14), transparent 36%),
-    radial-gradient(circle at 92% 86%, rgba(122, 79, 43, 0.18), transparent 32%),
-    linear-gradient(145deg, #fffaf3 0%, #fff4e6 48%, #ffedd8 100%);
+  background: white !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html, #root, .App, .app-main, .container, .site-footer, .site-footer-inner, .site-footer-block, .site-footer-bottom, .site-footer-bottom-inner, header, nav, .site-brand, .site-title, .guest-hero {
+  background: white !important;
+  color: #222 !important;
+}
+
+h1, h2, h3, h4, h5, h6, p, span, a, label, th, td, div, li, ul, ol {
+  color: #222 !important;
+}
+
+.home-action-card, .home-feature-card, .about-intro-card, .about-cta-card, .about-stat-card, .about-value-card, .contact-card, .contact-details, .warehouse-content form, .table, .auth-card {
+  background: white !important;
+  color: #222 !important;
+  border: 1px solid #e0e0e0 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
 }
 
 .App {

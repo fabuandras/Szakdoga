@@ -141,9 +141,10 @@
   min-width: 190px;
   padding: 6px;
   border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--card);
-  box-shadow: var(--shadow-md);
+  border: 1px solid #e0e0e0;
+  background: white !important;
+  color: #222 !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   z-index: 20;
 }
 
@@ -157,23 +158,25 @@
 }
 
 .main-nav .profile-dropdown a,
-.main-nav .profile-dropdown .nav-link-btn {
+  .main-nav .profile-dropdown .nav-link-btn {
   width: 100%;
   justify-content: center;
   text-align: center;
-  color: var(--text);
+  color: #222 !important;
+  background: white !important;
   text-decoration: none;
   font-weight: 700;
   font-size: 1.02rem;
 }
 
 .main-nav .profile-dropdown a:visited {
-  color: var(--text);
+  color: #222 !important;
 }
 
 .main-nav .profile-dropdown a:hover,
-.main-nav .profile-dropdown .nav-link-btn:hover {
-  color: var(--accent-soft);
+  .main-nav .profile-dropdown .nav-link-btn:hover {
+  color: #e28a2f !important;
+  background: #f5f5f5 !important;
 }
 
 .main-nav .profile-dropdown a.active {
