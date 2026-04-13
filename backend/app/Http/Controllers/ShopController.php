@@ -173,7 +173,6 @@ class ShopController extends Controller
         ]);
 
         Home_delivery::create([
-            'cimID' => $package->csKod,
             'orszag' => $data['shipping_country'],
             'varos' => $data['shipping_city'],
             'helyseg' => $data['shipping_area'],
@@ -182,7 +181,6 @@ class ShopController extends Controller
         ]);
 
         Payment::create([
-            'fizID' => $package->csKod,
             'fiz_mod' => $data['payment_method'],
             'kuponkod' => $data['coupon_code'] ?? '',
         ]);

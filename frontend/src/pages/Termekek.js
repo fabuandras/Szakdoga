@@ -20,6 +20,9 @@ function mapBackendProduct(row) {
 }
 
 export default function Termekek() {
+    // Szűrés/rendezés állapotok
+    const [sortBy, setSortBy] = useState('name_asc');
+    const [filterText, setFilterText] = useState('');
   const { user } = useContext(AuthContext);
   const { fetchCart } = useCart();
   const navigate = useNavigate();
@@ -119,6 +122,21 @@ export default function Termekek() {
       <div className="products-page-header">
         <h1>Termékek</h1>
         <p>Válassz a kézműves horgolós alapanyagokból és készletekből.</p>
+        <div className="products-filter-sort">
+          <input
+            type="text"
+            placeholder="Szűrés név alapján..."
+            value={filterText}
+            onChange={e => setFilterText(e.target.value)}
+            className="products-filter-input"
+          />
+          <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="products-sort-select">
+            <option value="name_asc">Név szerint (A-Z)</option>
+            <option value="name_desc">Név szerint (Z-A)</option>
+            <option value="price_asc">Ár szerint növekvő</option>
+            <option value="price_desc">Ár szerint csökkenő</option>
+          </select>
+        </div>
       </div>
 
       {loading && <p>Termékek betöltése...</p>}
@@ -126,41 +144,57 @@ export default function Termekek() {
 
       {!loading && (
         <div className="products-grid">
-          {products.map((product) => (
-            <article
-              key={product.id}
-              className={`product-card product-style-${product.cardStyle}`}
-            >
-              <button
-                type="button"
-                className={`favorite-btn ${favoriteSet.has(Number(product.id)) ? "active" : ""}`}
-                onClick={() => toggleFavorite(Number(product.id))}
-                aria-label="Kedvenc termék"
+          {products
+            .filter(product =>
+              product.name?.toLowerCase().includes(filterText.toLowerCase())
+            )
+            .sort((a, b) => {
+              if (sortBy === 'name_asc') return a.name.localeCompare(b.name, 'hu');
+              if (sortBy === 'name_desc') return b.name.localeCompare(a.name, 'hu');
+              if (sortBy === 'price_asc') return a.price - b.price;
+              if (sortBy === 'price_desc') return b.price - a.price;
+              return 0;
+            })
+            .map((product) => (
+              <article
+                key={product.id}
+                className={`product-card product-style-${product.cardStyle}`}
               >
-                <i className="bi bi-heart-fill"></i>
-              </button>
 
-              <div className="product-image-wrap">
-                {product.image ? (
-                  <img src={product.image} alt={product.name} className="product-image" />
-                ) : (
-                  <div className="product-image-fallback">Nincs kép</div>
-                )}
-              </div>
 
-              <h3>{product.name}</h3>
-              <p className="product-price">{product.price.toLocaleString("hu-HU")} Ft</p>
+                <div className="product-image-wrap">
+                  {product.image ? (
+                    <img src={product.image} alt={product.name} className="product-image" />
+                  ) : (
+                    <div className="product-image-fallback">Nincs kép</div>
+                  )}
+                </div>
 
-              <button
-                type="button"
-                className={`product-cart-btn ${addedItemId === Number(product.id) ? "added" : ""}`}
-                onClick={() => addToCart(Number(product.id))}
-                disabled={addingItemId === Number(product.id)}
-              >
-                {addingItemId === Number(product.id) ? "Hozzáadás..." : addedItemId === Number(product.id) ? "Hozzáadva!" : "Kosárba"}
-              </button>
-            </article>
-          ))}
+                <h3>{product.name}</h3>
+                <p className="product-price">{product.price.toLocaleString("hu-HU")} Ft</p>
+
+                <button
+                  type="button"
+                  className={`product-cart-btn ${addedItemId === Number(product.id) ? "added" : ""}`}
+                  onClick={() => addToCart(Number(product.id))}
+                  disabled={addingItemId === Number(product.id)}
+                >
+                  {addingItemId === Number(product.id) ? "Hozzáadás..." : addedItemId === Number(product.id) ? "Hozzáadva!" : "Kosárba"}
+                </button>
+
+                <button
+                  type="button"
+                  className="product-fav-btn"
+                  onClick={async () => {
+                    await toggleFavorite(Number(product.id));
+                    navigate('/kedvencek');
+                  }}
+                  disabled={favoriteSet.has(Number(product.id))}
+                >
+                  {favoriteSet.has(Number(product.id)) ? "Már a kedvencek között" : "Hozzáadás a kedvencekhez"}
+                </button>
+              </article>
+            ))}
         </div>
       )}
     </section>
