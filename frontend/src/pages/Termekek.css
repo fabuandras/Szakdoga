@@ -52,6 +52,11 @@
   min-height: 360px;
 }
 
+.product-card h3,
+.product-card .product-price {
+  color: #fff9f1;
+}
+
 .product-card:hover {
   transform: translateY(-6px);
   box-shadow: var(--shadow-md);
@@ -147,6 +152,17 @@
 .product-cart-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 14px 30px rgba(122, 79, 43, 0.32);
+}
+
+.product-cart-btn.added {
+  background: #4c9a4c;
+  transform: scale(1.04);
+  box-shadow: 0 18px 36px rgba(76, 154, 76, 0.28);
+}
+
+.product-cart-btn:disabled {
+  opacity: 0.75;
+  cursor: progress;
 }
 
 /* Card style variants (optional) - keep transparent so base card styles apply */

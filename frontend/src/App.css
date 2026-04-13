@@ -52,6 +52,16 @@
   box-sizing: border-box;
 }
 
+::selection {
+  color: #ffffff;
+  background: #1f66d1;
+}
+
+::-moz-selection {
+  color: #ffffff;
+  background: #1f66d1;
+}
+
 html,
 
 body, html, #root {

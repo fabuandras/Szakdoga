@@ -134,6 +134,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/shop/cart/add', [ShopController::class, 'addToCart']);
     Route::patch('/shop/cart/item', [ShopController::class, 'updateCartItem']);
     Route::delete('/shop/cart/item/{itemId}', [ShopController::class, 'removeCartItem']);
+    Route::post('/shop/checkout', [ShopController::class, 'checkout']);
     Route::get('/shop/favorites', [ShopController::class, 'favorites']);
     Route::post('/shop/favorites/toggle', [ShopController::class, 'toggleFavorite']);
 });
