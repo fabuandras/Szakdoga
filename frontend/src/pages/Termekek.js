@@ -88,8 +88,12 @@ export default function Termekek() {
       return;
     }
 
+    // Megkeressük a products tömbből a terméket, hogy elküldjük a cikk_szam-ot, ha van
+    const product = products.find(p => Number(p.id) === Number(itemId));
+    const item_id = product && product.cikk_szam ? product.cikk_szam : itemId;
+
     try {
-      await myAxios.post("/api/shop/cart/add", { item_id: itemId, qty: 1 });
+      await myAxios.post("/api/shop/cart/add", { item_id, qty: 1 });
       setMessage("A termék a kosárba került.");
       fetchCartCount();
     } catch (error) {

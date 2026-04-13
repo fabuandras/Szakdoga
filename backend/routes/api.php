@@ -78,36 +78,37 @@ Route::post('/login', function (Request $request) {
 Route::post('/register', [RegisteredUserController::class, 'store']);
 
 // Admin and raktáros routes (protected by sanctum)
+
 Route::middleware(['auth:sanctum'])->group(function () {
-	// Admin: list users
-	Route::get('/admin/users', function (Request $request) {
-		$user = $request->user();
-		$email = $user->email ?? '';
-		if (! $user || (function_exists('str_contains') ? !str_contains($email, '@admin') : strpos($email, '@admin') === false)) {
-			return response()->json(['message' => 'Forbidden'], 403);
-		}
-		return response()->json(User::all(), 200);
-	});
+    // Admin: list users
+    Route::get('/admin/users', function (Request $request) {
+        $user = $request->user();
+        $email = $user->email ?? '';
+        if (! $user || (function_exists('str_contains') ? !str_contains($email, '@admin') : strpos($email, '@admin') === false)) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        return response()->json(User::all(), 200);
+    });
 
-	// Admin: list all products
-	Route::get('/admin/products', function (Request $request) {
-		$user = $request->user();
-		$email = $user->email ?? '';
-		if (! $user || (function_exists('str_contains') ? !str_contains($email, '@admin') : strpos($email, '@admin') === false)) {
-			return response()->json(['message' => 'Forbidden'], 403);
-		}
-		return response()->json(Item::all(), 200);
-	});
+    // Admin: list all products
+    Route::get('/admin/products', function (Request $request) {
+        $user = $request->user();
+        $email = $user->email ?? '';
+        if (! $user || (function_exists('str_contains') ? !str_contains($email, '@admin') : strpos($email, '@admin') === false)) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        return response()->json(Item::all(), 200);
+    });
 
-	// Raktáros: list products for warehouse management
-	Route::get('/raktar/products', function (Request $request) {
-		$user = $request->user();
-		$email = $user->email ?? '';
-		if (! $user || (function_exists('str_contains') ? !str_contains($email, '@raktaros') : strpos($email, '@raktaros') === false)) {
-			return response()->json(['message' => 'Forbidden'], 403);
-		}
-		return response()->json(Item::all(), 200);
-	});
+    // Raktáros: list products for warehouse management
+    Route::get('/raktar/products', function (Request $request) {
+        $user = $request->user();
+        $email = $user->email ?? '';
+        if (! $user || (function_exists('str_contains') ? !str_contains($email, '@raktaros') : strpos($email, '@raktaros') === false)) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        return response()->json(Item::all(), 200);
+    });
 });
 
 // Public webshop products
@@ -134,3 +135,4 @@ Route::patch('/shop/cart/item', [ShopController::class, 'updateCartItem']);
 Route::delete('/shop/cart/item/{itemId}', [ShopController::class, 'removeCartItem']);
 Route::get('/shop/favorites', [ShopController::class, 'favorites']);
 Route::post('/shop/favorites/toggle', [ShopController::class, 'toggleFavorite']);
+
