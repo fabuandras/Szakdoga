@@ -151,14 +151,22 @@ const Registration = () => {
     console.log('Registration handleSubmit called', { vezeteknev, keresztnev, felhasznalonev, email });
     setErrors(null);
 
+    const clientErrors = validate();
+    if (Object.keys(clientErrors).length > 0) {
+      setErrors(clientErrors);
+      return;
+    }
+
     const payload = {
       vez_nev: vezeteknev,
       ker_nev: keresztnev,
       felhasznalonev: felhasznalonev,
-      name: felhasznalonev,
       email: email,
       password: password,
       password_confirmation: passwordConfirm,
+      megszolitas: formData.salutation,
+      tel_szam: formData.phone,
+      szul_datum: formData.birthDate,
     };
 
     try {
@@ -235,6 +243,52 @@ const Registration = () => {
                 required
               />
               {errors && errors.felhasznalonev && <div className="auth-error">{errors.felhasznalonev}</div>}
+            </div>
+
+            <div className="mb-2">
+              <label className="form-label">Megszólítás</label>
+              <select
+                className="form-control"
+                name="salutation"
+                value={formData.salutation}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Válassz</option>
+                <option value="Mr">Mr</option>
+                <option value="Ms">Ms</option>
+                <option value="Dr">Dr</option>
+              </select>
+              {errors && errors.salutation && <div className="auth-error">{errors.salutation}</div>}
+            </div>
+
+            <div className="mb-2">
+              <label className="form-label">Telefonszám</label>
+              <input
+                className="form-control"
+                name="phone"
+                placeholder="+36 20 123 4567"
+                value={formData.phone}
+                onChange={handleChange}
+                autoComplete="tel"
+                required
+              />
+              {errors && errors.phone && <div className="auth-error">{errors.phone}</div>}
+            </div>
+
+            <div className="mb-2">
+              <label className="form-label">Születési dátum</label>
+              <input
+                className="form-control"
+                type="date"
+                name="birthDate"
+                placeholder="Születési dátum"
+                value={formData.birthDate}
+                onChange={handleChange}
+                ref={birthDateRef}
+                required
+              />
+              {errors && errors.birthDate && <div className="auth-error">{errors.birthDate}</div>}
             </div>
 
             <div className="mb-2">

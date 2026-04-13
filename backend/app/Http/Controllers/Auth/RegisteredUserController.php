@@ -28,6 +28,9 @@ class RegisteredUserController extends Controller
             'felhasznalonev' => 'required|string|max:255|unique:users,felhasznalonev',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|confirmed|min:8',
+            'megszolitas' => 'required|string|max:10',
+            'tel_szam' => 'required|string|max:20',
+            'szul_datum' => 'required|date',
         ]);
 
         $user = User::create([
@@ -36,9 +39,9 @@ class RegisteredUserController extends Controller
             'felhasznalonev' => $request->felhasznalonev,
             'email' => $request->email,
             'jelszo' => Hash::make($request->password),
-            'megszolitas' => '',
-            'tel_szam' => '',
-            'szul_datum' => null,
+            'megszolitas' => $request->megszolitas,
+            'tel_szam' => $request->tel_szam,
+            'szul_datum' => $request->szul_datum,
             'kedvencek' => [],
             'kosar' => [],
         ]);
