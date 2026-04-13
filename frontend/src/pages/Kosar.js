@@ -2,32 +2,26 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { myAxios } from "../api/axios";
 import { AuthContext } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 
 export default function Kosar() {
   const { user } = useContext(AuthContext);
-  const [cart, setCart] = useState({ items: [], total: 0 });
-
-  const loadCart = () => {
-    myAxios
-      .get("/api/shop/cart")
-      .then((response) => setCart(response.data || { items: [], total: 0 }))
-      .catch(() => setCart({ items: [], total: 0 }));
-  };
+  const { cart, fetchCart } = useCart();
 
   useEffect(() => {
     if (!user) return;
-    loadCart();
-  }, [user]);
+    fetchCart();
+  }, [user, fetchCart]);
 
   const changeQty = async (itemId, qty) => {
     if (qty < 1) return;
     await myAxios.patch("/api/shop/cart/item", { item_id: itemId, qty });
-    loadCart();
+    fetchCart();
   };
 
   const removeItem = async (itemId) => {
     await myAxios.delete(`/api/shop/cart/item/${itemId}`);
-    loadCart();
+    fetchCart();
   };
 
   if (!user) {

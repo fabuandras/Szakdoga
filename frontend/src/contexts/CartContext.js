@@ -6,29 +6,33 @@ export const CartContext = createContext();
 
 export function CartProvider({ children }) {
   const { user } = useContext(AuthContext);
+  const [cart, setCart] = useState({ items: [], total: 0 });
   const [cartCount, setCartCount] = useState(0);
 
-  const fetchCartCount = useCallback(async () => {
+  const fetchCart = useCallback(async () => {
     if (!user) {
+      setCart({ items: [], total: 0 });
       setCartCount(0);
       return;
     }
     try {
       const response = await myAxios.get("/api/shop/cart");
-      const items = response?.data?.items || [];
-      const totalQty = items.reduce((sum, item) => sum + (item.qty || 0), 0);
+      const cartData = response?.data || { items: [], total: 0 };
+      setCart(cartData);
+      const totalQty = cartData.items.reduce((sum, item) => sum + (item.qty || 0), 0);
       setCartCount(totalQty);
     } catch {
+      setCart({ items: [], total: 0 });
       setCartCount(0);
     }
   }, [user]);
 
   useEffect(() => {
-    fetchCartCount();
-  }, [fetchCartCount]);
+    fetchCart();
+  }, [fetchCart]);
 
   return (
-    <CartContext.Provider value={{ cartCount, fetchCartCount }}>
+    <CartContext.Provider value={{ cart, cartCount, fetchCart }}>
       {children}
     </CartContext.Provider>
   );

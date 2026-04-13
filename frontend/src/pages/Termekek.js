@@ -7,8 +7,10 @@ import { fetchActiveItems } from '../api/items';
 import "./Termekek.css";
 
 function mapBackendProduct(row) {
+  const itemId = Number(row.cikk_szam ?? row.id ?? 0);
   return {
-    id: row.id ?? row.cikk_szam,
+    id: itemId,
+    cikk_szam: itemId,
     name: row.name ?? row.elnevezes,
     price: Number(row.price ?? row.egyseg_ar ?? 0),
     image: row.image ?? row.kep_url ?? "",
@@ -19,7 +21,7 @@ function mapBackendProduct(row) {
 
 export default function Termekek() {
   const { user } = useContext(AuthContext);
-  const { fetchCartCount } = useCart();
+  const { fetchCart } = useCart();
   const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
@@ -88,16 +90,18 @@ export default function Termekek() {
       return;
     }
 
-    // Megkeressük a products tömbből a terméket, hogy elküldjük a cikk_szam-ot, ha van
-    const product = products.find(p => Number(p.id) === Number(itemId));
-    const item_id = product && product.cikk_szam ? product.cikk_szam : itemId;
+    const product = products.find((p) => Number(p.id) === Number(itemId));
+    const item_id = product?.cikk_szam ?? itemId;
 
     try {
       await myAxios.post("/api/shop/cart/add", { item_id, qty: 1 });
       setMessage("A termék a kosárba került.");
-      fetchCartCount();
+      fetchCart();
     } catch (error) {
-      setMessage("A kosár frissítése sikertelen.");
+      const backendMessage = error?.response?.data?.message;
+      setMessage(
+        backendMessage || "A kosár frissítése sikertelen."
+      );
     }
   };
 

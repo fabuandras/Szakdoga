@@ -33,6 +33,8 @@ class User extends Authenticatable
     protected $casts = [
         'szul_datum' => 'date:Y-m-d',
         'email_verified_at' => 'datetime',
+        'kedvencek' => 'array',
+        'kosar' => 'array',
     ];
 
     // Ensure empty string dates become null and valid dates are formatted
