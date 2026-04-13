@@ -28,6 +28,8 @@ export default function Termekek() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
+  const [addingItemId, setAddingItemId] = useState(null);
+  const [addedItemId, setAddedItemId] = useState(null);
 
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
 
@@ -93,15 +95,22 @@ export default function Termekek() {
     const product = products.find((p) => Number(p.id) === Number(itemId));
     const item_id = product?.cikk_szam ?? itemId;
 
+    setAddingItemId(itemId);
+    setMessage(null);
+
     try {
       await myAxios.post("/api/shop/cart/add", { item_id, qty: 1 });
+      setAddedItemId(itemId);
       setMessage("A termék a kosárba került.");
       fetchCart();
+      setTimeout(() => setAddedItemId(null), 700);
     } catch (error) {
       const backendMessage = error?.response?.data?.message;
       setMessage(
         backendMessage || "A kosár frissítése sikertelen."
       );
+    } finally {
+      setAddingItemId(null);
     }
   };
 
@@ -144,10 +153,11 @@ export default function Termekek() {
 
               <button
                 type="button"
-                className="product-cart-btn"
+                className={`product-cart-btn ${addedItemId === Number(product.id) ? "added" : ""}`}
                 onClick={() => addToCart(Number(product.id))}
+                disabled={addingItemId === Number(product.id)}
               >
-                Kosárba
+                {addingItemId === Number(product.id) ? "Hozzáadás..." : addedItemId === Number(product.id) ? "Hozzáadva!" : "Kosárba"}
               </button>
             </article>
           ))}
