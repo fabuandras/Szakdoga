@@ -1,6 +1,8 @@
+
 import { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
+import "./Home.css";
 
 export default function Home() {
   const { user } = useContext(AuthContext);
@@ -17,10 +19,12 @@ export default function Home() {
               <i className="bi bi-person-circle"></i>
               <span>Profilom</span>
             </NavLink>
-            <NavLink to="/warehouse" className="home-action-card">
-              <i className="bi bi-box-seam"></i>
-              <span>Raktáros felület</span>
-            </NavLink>
+            {user?.felhasznalonev === 'Bori' && (
+              <NavLink to="/warehouse" className="home-action-card">
+                <i className="bi bi-box-seam"></i>
+                <span>Raktáros felület</span>
+              </NavLink>
+            )}
             <NavLink to="/kapcsolat" className="home-action-card">
               <i className="bi bi-envelope"></i>
               <span>Kapcsolat</span>

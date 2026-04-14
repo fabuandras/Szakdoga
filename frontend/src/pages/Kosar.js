@@ -1,3 +1,4 @@
+
 import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { myAxios } from "../api/axios";
@@ -5,9 +6,16 @@ import { AuthContext } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import "./Kosar.css";
 
+
 export default function Kosar() {
   const { user } = useContext(AuthContext);
   const { cart, fetchCart } = useCart();
+
+  // Bankkártya adatok állapot
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardName, setCardName] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCVC, setCardCVC] = useState("");
 
   const [shippingCountry, setShippingCountry] = useState("Magyarország");
   const [shippingCity, setShippingCity] = useState("");
@@ -50,6 +58,15 @@ export default function Kosar() {
       return;
     }
 
+
+    // Ha bankkártya a fizetési mód, ellenőrizzük a mezőket
+    if (paymentMethod === "Bankkártya") {
+      if (!cardNumber.trim() || !cardName.trim() || !cardExpiry.trim() || !cardCVC.trim()) {
+        setCheckoutError("Töltsd ki a bankkártya adatokat.");
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -62,6 +79,8 @@ export default function Kosar() {
         shipping_house_number: Number(shippingHouseNumber),
         payment_method: paymentMethod,
         coupon_code: couponCode,
+        // Bankkártya adatok csak frontend validációhoz, backendnek nem küldjük
+        // Ha szükséges, ide lehet tenni: card_number: cardNumber, stb.
       };
 
       const response = await myAxios.post("/api/shop/checkout", payload);
@@ -181,6 +200,51 @@ export default function Kosar() {
                   <option value="Átutalás">Átutalás</option>
                 </select>
               </div>
+              {paymentMethod === "Bankkártya" && (
+                <div className="card-fields">
+                  <div className="field-row">
+                    <label>Kártyaszám</label>
+                    <input
+                      type="text"
+                      maxLength={19}
+                      placeholder="1234 5678 9012 3456"
+                      value={cardNumber}
+                      onChange={e => setCardNumber(e.target.value.replace(/[^0-9 ]/g, ""))}
+                    />
+                  </div>
+                  <div className="field-row">
+                    <label>Kártyabirtokos neve</label>
+                    <input
+                      type="text"
+                      placeholder="Név a kártyán"
+                      value={cardName}
+                      onChange={e => setCardName(e.target.value)}
+                    />
+                  </div>
+                  <div className="field-row" style={{ display: "flex", gap: 12 }}>
+                    <div style={{ flex: 1 }}>
+                      <label>Lejárat</label>
+                      <input
+                        type="text"
+                        maxLength={5}
+                        placeholder="MM/YY"
+                        value={cardExpiry}
+                        onChange={e => setCardExpiry(e.target.value.replace(/[^0-9/]/g, ""))}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label>CVC</label>
+                      <input
+                        type="text"
+                        maxLength={4}
+                        placeholder="CVC"
+                        value={cardCVC}
+                        onChange={e => setCardCVC(e.target.value.replace(/[^0-9]/g, ""))}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="field-row">
                 <label>Kupónkód (opcionális)</label>
                 <input
