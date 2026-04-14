@@ -155,6 +155,10 @@ export default function Termekek() {
               if (sortBy === 'price_desc') return b.price - a.price;
               return 0;
             })
+            // csak egyedi név alapján jelenjenek meg a termékek
+            .filter((product, index, self) =>
+              index === self.findIndex((p) => p.name === product.name)
+            )
             .map((product) => (
               <article
                 key={product.id}
@@ -171,7 +175,7 @@ export default function Termekek() {
                 </div>
 
                 <h3>{product.name}</h3>
-                <p className="product-price">{product.price.toLocaleString("hu-HU")} Ft</p>
+                <p className="product-price">{Math.round(product.price).toLocaleString("hu-HU")} Ft</p>
 
                 <button
                   type="button"
