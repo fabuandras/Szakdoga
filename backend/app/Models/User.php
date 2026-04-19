@@ -23,6 +23,8 @@ class User extends Authenticatable
         'szul_datum',
         'email',
         'jelszo',
+        'is_blocked',
+        'blocked_reason',
     ];
 
     protected $hidden = [

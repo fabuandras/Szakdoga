@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Item;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -71,15 +72,20 @@ class UserController extends Controller
     {
         $messages = [
             'email_or_username.required' => 'A felhasználónév vagy email megadása kötelező.',
+            'email.required' => 'Az email megadása kötelező.',
             'password.required' => 'A jelszó megadása kötelező.',
         ];
 
         $data = $request->validate([
-            'email_or_username' => 'required|string',
+            'email_or_username' => 'sometimes|string|nullable',
+            'email' => 'sometimes|string|nullable',
             'password' => 'required|string',
         ], $messages);
 
-        $login = $data['email_or_username'];
+        $login = $data['email_or_username'] ?? $data['email'] ?? null;
+        if (! $login) {
+            return response()->json(['message' => 'A felhasználónév vagy email megadása kötelező.'], 422);
+        }
 
         if (filter_var($login, FILTER_VALIDATE_EMAIL)) {
             $user = User::where('email', $login)->first();
@@ -89,6 +95,11 @@ class UserController extends Controller
 
         if (! $user || ! Hash::check($data['password'], $user->jelszo)) {
             return response()->json(['message' => 'Hibás felhasználónév/email vagy jelszó.'], 401);
+        }
+
+        // Ellenőrizze, hogy a felhasználó blokkolva van-e
+        if ($user->is_blocked) {
+            return response()->json(['message' => 'A fiókját letiltottuk. Kérjük vegye fel a kapcsolatot!'], 403);
         }
 
         $token = $user->createToken('api-token')->plainTextToken;
@@ -108,6 +119,8 @@ class UserController extends Controller
             'tel_szam',
             'szul_datum',
             'email',
+            'is_blocked',
+            'blocked_reason',
             'created_at',
             'updated_at'
         )->get();
@@ -123,6 +136,8 @@ class UserController extends Controller
                 'tel_szam' => $r->tel_szam,
                 'szul_datum' => $r->szul_datum,
                 'email' => $r->email,
+                'is_blocked' => $r->is_blocked,
+                'blocked_reason' => $r->blocked_reason,
                 'created_at' => $r->created_at,
                 'updated_at' => $r->updated_at,
             ];
@@ -166,12 +181,101 @@ class UserController extends Controller
         return response()->json(['user' => $user]);
     }
 
+    public function current(Request $request)
+    {
+        $user = $request->user();
+        if (! $user) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        return response()->json($user->makeHidden(['jelszo', 'remember_token']));
+    }
+
+    public function adminUsers(Request $request)
+    {
+        if (! $this->hasRole($request, 'admin')) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        return response()->json(User::all(), 200);
+    }
+
+    public function adminProducts(Request $request)
+    {
+        if (! $this->hasRole($request, 'admin')) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        return response()->json(Item::all(), 200);
+    }
+
+    public function warehouseProducts(Request $request)
+    {
+        if (! $this->hasRole($request, 'raktaros')) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        return response()->json(Item::all(), 200);
+    }
+
     public function logout(Request $request)
     {
         if ($request->user()) {
-            $request->user()->currentAccessToken()->delete();
+            $request->user()->currentAccessToken()?->delete();
+        }
+
+        if ($request->hasSession()) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
         }
 
         return response()->json(['message' => 'Logged out']);
+    }
+
+    // Felhasználó blokkolása
+    public function blockUser(Request $request, $felhasznalonev)
+    {
+        if (! $this->hasRole($request, 'admin')) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $user = User::where('felhasznalonev', $felhasznalonev)->first();
+
+        if (! $user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $user->is_blocked = true;
+        $user->blocked_reason = 'A fiókját az adminisztrátor letiltotta.';
+        $user->save();
+
+        return response()->json(['message' => 'User blocked successfully', 'user' => $user], 200);
+    }
+
+    // Felhasználó feloldása
+    public function unblockUser(Request $request, $felhasznalonev)
+    {
+        if (! $this->hasRole($request, 'admin')) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $user = User::where('felhasznalonev', $felhasznalonev)->first();
+
+        if (! $user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $user->is_blocked = false;
+        $user->blocked_reason = null;
+        $user->save();
+
+        return response()->json(['message' => 'User unblocked successfully', 'user' => $user], 200);
+    }
+
+    private function hasRole(Request $request, string $role): bool
+    {
+        $email = $request->user()->email ?? '';
+        return str_contains($email, "@{$role}");
     }
 }

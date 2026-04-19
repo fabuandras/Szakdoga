@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
-use Carbon\Carbon;
 
 class RegisteredUserController extends Controller
 {
@@ -23,27 +22,15 @@ class RegisteredUserController extends Controller
     public function store(Request $request): Response
     {
         $request->validate([
-            'vez_nev' => 'required|string|max:255',
-            'ker_nev' => 'required|string|max:255',
-            'felhasznalonev' => 'required|string|max:255|unique:users,felhasznalonev',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|confirmed|min:8',
-            'megszolitas' => 'required|string|max:10',
-            'tel_szam' => 'required|string|max:20',
-            'szul_datum' => 'required|date',
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
-            'vez_nev' => $request->vez_nev,
-            'ker_nev' => $request->ker_nev,
-            'felhasznalonev' => $request->felhasznalonev,
+            'name' => $request->name,
             'email' => $request->email,
-            'jelszo' => Hash::make($request->password),
-            'megszolitas' => $request->megszolitas,
-            'tel_szam' => $request->tel_szam,
-            'szul_datum' => $request->szul_datum,
-            'kedvencek' => [],
-            'kosar' => [],
+            'password' => Hash::make($request->string('password')),
         ]);
 
         event(new Registered($user));

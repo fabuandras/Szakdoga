@@ -184,6 +184,9 @@ export function AuthProvider({ children }) {
           } else {
             setErrors(normalized);
           }
+        } else if (status === 403) {
+          // A fiók letiltva van
+          setGeneralError(e.response.data.message || "A fiókját letiltottuk. Kérjük vegye fel a kapcsolatot!");
         } else if (status === 401) {
           setGeneralError("Hibás felhasználónév/email vagy jelszó.");
         } else if (status === 419) {

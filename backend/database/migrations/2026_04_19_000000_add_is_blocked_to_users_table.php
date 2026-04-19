@@ -6,17 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->json('kosar')->nullable();
+            $table->boolean('is_blocked')->default(false)->after('kosar');
+            $table->text('blocked_reason')->nullable()->after('is_blocked');
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('kosar');
+            $table->dropColumn(['is_blocked', 'blocked_reason']);
         });
     }
 };

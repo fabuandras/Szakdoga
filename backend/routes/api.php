@@ -3,112 +3,26 @@
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\ShopController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\UserController;
-use App\Models\Item;
-use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-Route::middleware(['auth:sanctum'])->post('/logout', function (Request $request) {
-    $user = $request->user();
-
-    $currentToken = $user && method_exists($user, 'currentAccessToken')
-        ? $user->currentAccessToken()
-        : null;
-
-    // Cookie/stateful auth may return a TransientToken that does not support delete().
-    if ($currentToken && method_exists($currentToken, 'delete')) {
-        $currentToken->delete();
-    }
-
-    if ($request->hasSession()) {
-        Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-    }
-
-    return response()->json(['message' => 'Sikeres kijelentkezes.'], 200);
-});
+Route::middleware(['auth:sanctum'])->get('/user', [UserController::class, 'current']);
+Route::middleware(['auth:sanctum'])->post('/logout', [UserController::class, 'logout']);
 
 // Ensure /api/login exists and authenticates users, returning a Sanctum token
-Route::post('/login', function (Request $request) {
-    $data = $request->only(['email', 'password']);
-
-    if (empty($data['email']) || empty($data['password'])) {
-        return response()->json(['message' => 'Email and password required'], 422);
-    }
-
-    // Users table columns: email (unique), felhasznalonev (username, unique), jelszo (password)
-    $user = User::where('email', $data['email'])
-                ->orWhere('felhasznalonev', $data['email'])
-                ->first();
-
-    if (! $user || ! Hash::check($data['password'], $user->jelszo)) {
-        return response()->json(['message' => 'The provided credentials are incorrect.'], 401);
-    }
-
-    // determine role from email
-    $email = $user->email ?? '';
-    $role = 'webshop';
-    if (str_contains($email, '@admin')) {
-        $role = 'admin';
-    } elseif (str_contains($email, '@raktaros')) {
-        $role = 'raktaros';
-    }
-
-    // create token with role as ability (optional)
-    $token = $user->createToken('api-token', [$role])->plainTextToken;
-
-    return response()->json([
-        'token' => $token,
-        'user' => $user,
-        'role' => $role,
-    ], 200);
-});
+Route::post('/login', [UserController::class, 'login']);
 
 // API registration (SPA JSON)
-Route::post('/register', [RegisteredUserController::class, 'store']);
+Route::post('/register', [UserController::class, 'register']);
 
 // Admin and raktáros routes (protected by sanctum)
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    // Admin: list users
-    Route::get('/admin/users', function (Request $request) {
-        $user = $request->user();
-        $email = $user->email ?? '';
-        if (! $user || (function_exists('str_contains') ? !str_contains($email, '@admin') : strpos($email, '@admin') === false)) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-        return response()->json(User::all(), 200);
-    });
-
-    // Admin: list all products
-    Route::get('/admin/products', function (Request $request) {
-        $user = $request->user();
-        $email = $user->email ?? '';
-        if (! $user || (function_exists('str_contains') ? !str_contains($email, '@admin') : strpos($email, '@admin') === false)) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-        return response()->json(Item::all(), 200);
-    });
-
-    // Raktáros: list products for warehouse management
-    Route::get('/raktar/products', function (Request $request) {
-        $user = $request->user();
-        $email = $user->email ?? '';
-        if (! $user || (function_exists('str_contains') ? !str_contains($email, '@raktaros') : strpos($email, '@raktaros') === false)) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-        return response()->json(Item::all(), 200);
-    });
+    Route::get('/admin/users', [UserController::class, 'adminUsers']);
+    Route::get('/admin/products', [UserController::class, 'adminProducts']);
+    Route::get('/raktar/products', [UserController::class, 'warehouseProducts']);
+    Route::post('/admin/users/{felhasznalonev}/block', [UserController::class, 'blockUser']);
+    Route::post('/admin/users/{felhasznalonev}/unblock', [UserController::class, 'unblockUser']);
 });
 
 // Public webshop products
@@ -138,4 +52,3 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/shop/favorites', [ShopController::class, 'favorites']);
     Route::post('/shop/favorites/toggle', [ShopController::class, 'toggleFavorite']);
 });
-

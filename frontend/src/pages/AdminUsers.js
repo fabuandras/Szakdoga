@@ -1,40 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
+import { formatUserName, formatCreatedAt, filterUsers } from '../contexts/UserContext';
+import { useUsersData } from '../contexts/useUsersContext';
 import axios from 'axios';
 
 export default function AdminUsers() {
-  
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [query, setQuery] = useState('');
+  const { users, loading, error, query, setQuery, setUsers } = useUsersData();
+  const [blockLoading, setBlockLoading] = useState(null);
+  const [blockError, setBlockError] = useState(null);
 
-  useEffect(() => {
-    let mounted = true;
-    async function load() {
-      try {
-        const res = await axios.get('http://localhost:8000/api/users', { withCredentials: true });
-        if (!mounted) return;
-        setUsers(res.data.users || []);
-      } catch (e) {
-        if (!mounted) return;
-        setError(e);
-      } finally {
-        if (mounted) setLoading(false);
-      }
+  const filtered = useMemo(() => filterUsers(users, query), [users, query]);
+
+  const handleBlockUser = async (felhasznalonev, isBlocked) => {
+    setBlockLoading(felhasznalonev);
+    setBlockError(null);
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      
+      const endpoint = isBlocked 
+        ? `/api/admin/users/${felhasznalonev}/unblock`
+        : `/api/admin/users/${felhasznalonev}/block`;
+      
+      await axios.post(`http://localhost:8000${endpoint}`, {}, { headers, withCredentials: true });
+      
+      // Frissítse a felhasználót a listában
+      setUsers(users.map(u => 
+        u.felhasznalonev === felhasznalonev 
+          ? { ...u, is_blocked: !isBlocked }
+          : u
+      ));
+    } catch (e) {
+      setBlockError(e.response?.data?.message || 'Hiba történt a blokkolás során');
+    } finally {
+      setBlockLoading(null);
     }
-    load();
-    return () => { mounted = false; };
-  }, []);
-
-  const filtered = React.useMemo(() => {
-    if (!query) return users;
-    const q = query.toLowerCase();
-    return users.filter(u => {
-      // prefer felhasznalonev or fallback to first string property
-      const first = (u.felhasznalonev || Object.keys(u).find(k => typeof u[k] === 'string' && u[k]) && u[Object.keys(u).find(k => typeof u[k] === 'string')]) || '';
-      return String(first).toLowerCase().startsWith(q);
-    });
-  }, [users, query]);
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading users.</div>;
@@ -55,6 +55,12 @@ export default function AdminUsers() {
           </div>
         </div>
 
+        {blockError && (
+          <div className="alert alert-danger mb-3">
+            {blockError}
+          </div>
+        )}
+
         <div className="table-responsive card">
           <table className="table mb-0">
             <thead className="table-light">
@@ -63,31 +69,43 @@ export default function AdminUsers() {
                 <th scope="col">Név</th>
                 <th scope="col">Email</th>
                 <th scope="col">Létrehozva</th>
+                <th scope="col">Státusz</th>
                 <th scope="col">Műveletek</th>
               </tr>
             </thead>
             <tbody>
-              {loading ? (
-                <tr><td colSpan="5">Betöltés...</td></tr>
-              ) : error ? (
-                <tr><td colSpan="5">Hiba: {error.message}</td></tr>
-              ) : users.length === 0 ? (
-                <tr><td colSpan="5">Nincs felhasználó</td></tr>
+              {users.length === 0 ? (
+                <tr><td colSpan="6">Nincs felhasználó</td></tr>
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan="6">Nincs találat</td></tr>
               ) : (
                 filtered.map((u) => (
-                  <tr key={u.id}>
+                  <tr key={u.id || u.felhasznalonev}>
                     <td>{u.felhasznalonev}</td>
-                    <td>{u.vez_nev ? `${u.vez_nev} ${u.ker_nev}` : ''}</td>
+                    <td>{formatUserName(u)}</td>
                     <td>{u.email}</td>
-                    <td>{u.created_at ? new Date(u.created_at).toLocaleString() : '-'}</td>
-                     <td>
-                       <button className="btn btn-sm btn-outline-primary me-1">Szerk</button>
-                       <button className="btn btn-sm btn-outline-danger">Tilt</button>
-                     </td>
-                   </tr>
-                 ))
-               )}
-             </tbody>
+                    <td>{formatCreatedAt(u)}</td>
+                    <td>
+                      {u.is_blocked ? (
+                        <span className="badge bg-danger">Letiltva</span>
+                      ) : (
+                        <span className="badge bg-success">Aktív</span>
+                      )}
+                    </td>
+                    <td>
+                      <button className="btn btn-sm btn-outline-primary me-1">Szerk</button>
+                      <button 
+                        className={`btn btn-sm ${u.is_blocked ? 'btn-outline-success' : 'btn-outline-danger'}`}
+                        onClick={() => handleBlockUser(u.felhasznalonev, u.is_blocked)}
+                        disabled={blockLoading === u.felhasznalonev}
+                      >
+                        {blockLoading === u.felhasznalonev ? 'Feldolgozás...' : (u.is_blocked ? 'Felold' : 'Tilt')}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
           </table>
 
           <div className="p-3 border-top d-flex justify-content-between align-items-center">
