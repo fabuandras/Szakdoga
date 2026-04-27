@@ -85,9 +85,18 @@ function normalizeLaravelErrors(errorsObj) {
   return out;
 }
 
+// preserve these frontend paths when user is authenticated (do not auto-redirect away)
+const PRESERVE_PATHS = ['/warehouse', '/raktaros', '/admin/warehouse'];
+
+// Paths that are public and do not require auth
+const PUBLIC_PATHS = ['/', '/home', '/termekek', '/products', '/products-public', '/items', '/items-public', '/login', '/register'];
+
+// Paths that require auth (only redirect to login when unauthenticated and path matches one of these)
+const PROTECTED_PATHS = ['/profile', '/kosar', '/bevitel', '/inventory', '/warehouse', '/admin', '/account', '/orders', '/user', '/checkout'];
+
 export function AuthProvider({ children }) {
-  // start unauthenticated by default
-  const [user, setUser] = useState(() => readStoredUser());
+  // Start from a neutral state and resolve auth from token/session check.
+  const [user, setUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
 
   // mezőhibák (validáció és/vagy backend 422)
@@ -278,20 +287,20 @@ export function AuthProvider({ children }) {
       const token = localStorage.getItem('token');
       const cachedUser = readStoredUser();
 
-      if (cachedUser) {
-        setUser((prev) => prev || cachedUser);
-      }
-
       try {
         if (!token) {
           delete myAxios.defaults.headers.common['Authorization'];
-          if (cachedUser) {
-            setUser(cachedUser);
-          }
+          localStorage.removeItem('auth_user');
+          setUser(null);
           return;
         }
 
         myAxios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+        // Optional optimistic UI while the token is being validated.
+        if (cachedUser) {
+          setUser(cachedUser);
+        }
 
         await getUser();
       } catch (error) {
@@ -300,15 +309,13 @@ export function AuthProvider({ children }) {
           console.log("User check failed:", status);
         }
 
-        // Token invalid/expired — clear it and fall back to cached user
+        // Token invalid/expired — clear local auth state.
         if (status === 401) {
           localStorage.removeItem('token');
+          localStorage.removeItem('auth_user');
           delete myAxios.defaults.headers.common['Authorization'];
         }
-
-        if (cachedUser) {
-          setUser(cachedUser);
-        }
+        setUser(null);
       } finally {
         setAuthReady(true);
       }
@@ -317,14 +324,7 @@ export function AuthProvider({ children }) {
     checkUser();
   }, [getUser]);
 
-  // preserve these frontend paths when user is authenticated (do not auto-redirect away)
-  const PRESERVE_PATHS = ['/warehouse', '/raktaros', '/admin/warehouse'];
 
-  // Paths that are public and do not require auth
-  const PUBLIC_PATHS = ['/', '/home', '/termekek', '/products', '/products-public', '/items', '/items-public', '/login', '/register'];
-
-  // Paths that require auth (only redirect to login when unauthenticated and path matches one of these)
-  const PROTECTED_PATHS = ['/profile', '/kosar', '/bevitel', '/inventory', '/warehouse', '/admin', '/account', '/orders', '/user', '/checkout'];
  
   const location = useLocation();
   const navigate = useNavigate();
@@ -385,7 +385,7 @@ export function AuthProvider({ children }) {
      }
  
      // ...existing code...
-  }, [authReady, user, location, navigate, PRESERVE_PATHS, PROTECTED_PATHS, PUBLIC_PATHS]);
+  }, [authReady, user, location, navigate]);
  
    const value = useMemo(
      () => ({

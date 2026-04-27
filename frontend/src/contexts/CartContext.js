@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useReducer } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useReducer } from "react";
 import { myAxios } from "../api/axios";
 import { AuthContext } from "./AuthContext";
 
@@ -6,13 +6,14 @@ export const CartContext = createContext();
 
 const initialState = {
   items: [],
+  total: 0,
 };
 
 function reducer(state, action) {
   switch (action.type) {
     case "SET_CART":
-      return { ...state, items: action.payload };
-    case "ADD_ITEM":
+      return { ...state, items: action.payload.items, total: action.payload.total ?? 0 };
+    case "ADD_ITEM": {
       // merge by item id if exists
       const exists = state.items.find((i) => i.id === action.payload.id);
       if (exists) {
@@ -26,6 +27,7 @@ function reducer(state, action) {
         };
       }
       return { ...state, items: [...state.items, action.payload] };
+    }
     default:
       return state;
   }
@@ -40,56 +42,62 @@ export function CartProvider({ children }) {
     try {
       const raw = localStorage.getItem("cart");
       if (raw) {
-        dispatch({ type: "SET_CART", payload: JSON.parse(raw) });
+        const parsed = JSON.parse(raw);
+        // support both old format (array) and new format ({ items, total })
+        if (Array.isArray(parsed)) {
+          dispatch({ type: "SET_CART", payload: { items: parsed, total: 0 } });
+        } else {
+          dispatch({ type: "SET_CART", payload: parsed });
+        }
       }
     } catch (e) {}
   }, []);
 
   useEffect(() => {
     try {
-      localStorage.setItem("cart", JSON.stringify(state.items));
+      localStorage.setItem("cart", JSON.stringify({ items: state.items, total: state.total }));
     } catch (e) {}
-  }, [state.items]);
+  }, [state.items, state.total]);
 
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     if (!user) {
-      dispatch({ type: "SET_CART", payload: [] });
+      dispatch({ type: "SET_CART", payload: { items: [], total: 0 } });
       return;
     }
     try {
       const response = await myAxios.get("/api/shop/cart");
       const cartData = response?.data || { items: [], total: 0 };
-      dispatch({ type: "SET_CART", payload: cartData.items });
+      dispatch({ type: "SET_CART", payload: { items: cartData.items ?? [], total: cartData.total ?? 0 } });
     } catch {
-      dispatch({ type: "SET_CART", payload: [] });
+      dispatch({ type: "SET_CART", payload: { items: [], total: 0 } });
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchCart();
-  }, [fetchCart, user]);
+  }, [fetchCart]);
 
   async function addToCart(item, quantity = 1) {
-    // item should have id (or cikk_szam) and price
     const payload = { ...item, quantity };
-
-    // optimistic local update
     dispatch({ type: "ADD_ITEM", payload });
 
-    // attempt to sync with backend cart endpoint
     try {
       await myAxios.post("/api/cart/add", {
         item_id: item.id || item.cikk_szam,
         quantity,
       });
     } catch (e) {
-      // silent fail — keep local cart
       console.warn("Cart sync failed", e?.response?.status);
     }
   }
 
   return (
-    <CartContext.Provider value={{ cart: state.items, addToCart }}>
+    <CartContext.Provider value={{
+      cart: { items: state.items, total: state.total },
+      cartCount: state.items.length,
+      fetchCart,
+      addToCart,
+    }}>
       {children}
     </CartContext.Provider>
   );
@@ -98,3 +106,4 @@ export function CartProvider({ children }) {
 export function useCart() {
   return useContext(CartContext);
 }
+

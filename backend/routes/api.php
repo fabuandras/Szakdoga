@@ -6,8 +6,6 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 
 Route::middleware(['auth:sanctum'])->get('/user', [UserController::class, 'current']);
 Route::middleware(['auth:sanctum'])->post('/logout', [UserController::class, 'logout']);
@@ -56,103 +54,36 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/shop/favorites/toggle', [ShopController::class, 'toggleFavorite']);
 });
 
-// Change password endpoint for frontend Profile page
-Route::post('/user/change-password', function (Request $request) {
-    // try to get authenticated user
+Route::middleware(['auth:sanctum'])->get('/orders', function (Request $request) {
     $user = $request->user();
 
-    // if not authenticated, allow finding user by email (or fallback to user id 1 for dev)
-    if (! $user) {
-        if ($request->filled('email')) {
-            $user = \App\Models\User::where('email', $request->input('email'))->first();
-        }
-        if (! $user) {
-            $user = \App\Models\User::find(1);
-        }
-    }
+    $orders = $user->orders()
+        ->with(['orderItems.item'])
+        ->orderByDesc('kelt')
+        ->orderByDesc('rendeles_szam')
+        ->get();
 
-    // Debug logging to help identify mismatches (removed in production)
-    try {
-        Log::info('change-password request', ['payload_email' => $request->input('email'), 'authenticated_user_id' => $request->user()?->id ?? null]);
-        Log::info('change-password using user', ['user_id' => $user->id ?? null, 'user_email' => $user->email ?? null]);
-    } catch (\Exception $e) {
-        // ignore logging errors
-    }
+    $payload = $orders->map(function ($order) {
+        $items = $order->orderItems->map(function ($orderItem) {
+            $unitPrice = (float) ($orderItem->item->egyseg_ar ?? 0);
+            $quantity = (int) ($orderItem->mennyiseg ?? 0);
 
-    if (! $user) {
-        return response()->json(['message' => 'No user found to change password.'], 404);
-    }
+            return [
+                'item_id' => (int) $orderItem->cikk_szam,
+                'name' => $orderItem->item->elnevezes ?? ('Termek #' . $orderItem->cikk_szam),
+                'quantity' => $quantity,
+                'line_total' => round($unitPrice * $quantity, 2),
+            ];
+        })->values();
 
-    // Conditional validation: if the request is from the authenticated user for their own account,
-    // we allow changing password without requiring currentPassword (useful for session-authenticated flow).
-    $rules = ['newPassword' => 'required|string|min:6'];
-    $requireCurrent = !($request->user() && $request->user()->id === $user->id);
-    if ($requireCurrent) {
-        $rules['currentPassword'] = 'required|string';
-    }
+        return [
+            'id' => (int) $order->rendeles_szam,
+            'createdAt' => optional($order->created_at)->toIso8601String() ?? optional($order->kelt)->toDateString(),
+            'totalPrice' => round((float) $items->sum('line_total'), 2),
+            'status' => 'Leadva',
+            'items' => $items,
+        ];
+    })->values();
 
-    $validator = Validator::make($request->all(), $rules);
-    if ($validator->fails()) {
-        return response()->json(['message' => 'Validation failed', 'errors' => $validator->errors()], 422);
-    }
-    $data = $validator->validated();
-
-    try {
-        if ($request->input('skipCurrentPassword')) {
-            try { Log::info('change-password: skipCurrentPassword flag honored (unconditional skip)'); } catch (\Exception $e) {}
-        } elseif ($request->user() && $request->user()->id === $user->id) {
-            try { Log::info('change-password: authenticated user - skipping current password check', ['user_id' => $user->id]); } catch (\Exception $e) {}
-        } else {
-             $check = \Illuminate\Support\Facades\Hash::check($data['currentPassword'], $user->password);
-             try { Log::info('change-password hash-check', ['result' => $check ? 'match' : 'mismatch']); } catch (\Exception $e) {}
-             if (! $check) {
-                 return response()->json(['message' => 'A jelenlegi jelszó nem megfelelő.'], 422);
-             }
-         }
-
-        $user->password = \Illuminate\Support\Facades\Hash::make($data['newPassword']);
-        $user->save();
-
-        return response()->json(['message' => 'A jelszó sikeresen módosítva.']);
-    } catch (\Exception $e) {
-        // log full exception and return message for debugging in dev
-        try { Log::error('change-password exception', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]); } catch (\Exception $_) {}
-        return response()->json(['message' => 'Hiba történt a jelszó módosítása során.', 'error' => $e->getMessage()], 500);
-    }
-});
-
-// Fallback sample orders for frontend Profile page during development
-Route::get('/orders', function (Request $request) {
-    // If an authenticated user has orders relationship, try to return them
-    $user = $request->user();
-    if ($user && method_exists($user, 'orders')) {
-        try {
-            return response()->json($user->orders()->with('items')->get());
-        } catch (\Exception $e) {
-            // fall through to sample data
-        }
-    }
-
-    $sample = [
-        [
-            'id' => 1001,
-            'createdAt' => date('c'),
-            'totalPrice' => 7990,
-            'status' => 'Teljesítve',
-            'items' => [
-                [ 'name' => 'Amigurumi Starter Kit', 'quantity' => 1 ],
-            ],
-        ],
-        [
-            'id' => 1002,
-            'createdAt' => date('c'),
-            'totalPrice' => 1190,
-            'status' => 'Feldolgozás alatt',
-            'items' => [
-                [ 'name' => 'Bambusz Horgolotu 5mm', 'quantity' => 2 ],
-            ],
-        ],
-    ];
-
-    return response()->json($sample);
+    return response()->json($payload);
 });

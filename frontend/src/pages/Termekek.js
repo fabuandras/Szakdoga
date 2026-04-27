@@ -4,6 +4,7 @@ import { myAxios } from "../api/axios";
 import { AuthContext } from "../contexts/AuthContext";
 import { useCart } from "../contexts/CartContext";
 import { fetchActiveItems } from '../api/items';
+import { readFavoriteIds, toggleFavoriteId, writeFavoriteIds } from "../utils/favoriteStorage";
 import "./Termekek.css";
 
 function mapBackendProduct(row) {
@@ -61,8 +62,12 @@ export default function Termekek() {
       const response = await myAxios.get("/api/shop/favorites");
       const ids = (response?.data || []).map((item) => Number(item.cikk_szam ?? item.id));
       setFavorites(ids);
+      writeFavoriteIds(user, ids);
     } catch (error) {
-      setFavorites([]);
+      setFavorites(readFavoriteIds(user));
+      if (error?.response?.status === 401) {
+        setMessage(null);
+      }
     }
   }, [user]);
 
@@ -77,15 +82,26 @@ export default function Termekek() {
   const toggleFavorite = async (itemId) => {
     if (!user) {
       navigate("/login");
-      return;
+      return false;
     }
+
+    // Optimistic local persistence so favorites always work for the user.
+    const optimistic = toggleFavoriteId(user, itemId);
+    setFavorites(optimistic);
 
     try {
       const response = await myAxios.post("/api/shop/favorites/toggle", { item_id: itemId });
       const ids = (response?.data?.favorites || []).map((id) => Number(id));
       setFavorites(ids);
+      writeFavoriteIds(user, ids);
+      return true;
     } catch (error) {
-      setMessage("A kedvencek frissítése sikertelen.");
+      if (error?.response?.status === 401) {
+        navigate("/login");
+        return false;
+      }
+      setMessage("A kedvencek helyileg frissítve lettek.");
+      return true;
     }
   };
 
@@ -108,6 +124,10 @@ export default function Termekek() {
       fetchCart();
       setTimeout(() => setAddedItemId(null), 700);
     } catch (error) {
+      if (error?.response?.status === 401) {
+        navigate("/login");
+        return;
+      }
       const backendMessage = error?.response?.data?.message;
       setMessage(
         backendMessage || "A kosár frissítése sikertelen."
@@ -190,8 +210,10 @@ export default function Termekek() {
                   type="button"
                   className="product-fav-btn"
                   onClick={async () => {
-                    await toggleFavorite(Number(product.id));
-                    navigate('/kedvencek');
+                    const ok = await toggleFavorite(Number(product.id));
+                    if (ok) {
+                      navigate('/kedvencek');
+                    }
                   }}
                   disabled={favoriteSet.has(Number(product.id))}
                 >

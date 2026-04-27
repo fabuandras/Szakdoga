@@ -10,13 +10,91 @@ use App\Models\Package;
 use App\Models\Payment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class ShopController extends Controller
 {
+    private function hasUserFavoritesColumn(): bool
+    {
+        static $hasColumn = null;
+
+        if ($hasColumn === null) {
+            $hasColumn = Schema::hasColumn('users', 'kedvencek');
+        }
+
+        return (bool) $hasColumn;
+    }
+
+    private function favoritesCacheKey(int $userId): string
+    {
+        return 'user_favorites_' . $userId;
+    }
+
+    private function readFavoritesForUser($user): array
+    {
+        if ($this->hasUserFavoritesColumn()) {
+            return $this->normalizeFavoriteIds($user->kedvencek ?? []);
+        }
+
+        return $this->normalizeFavoriteIds(
+            Cache::get($this->favoritesCacheKey((int) $user->vKod), [])
+        );
+    }
+
+    private function storeFavoritesForUser($user, array $favorites): array
+    {
+        $normalized = $this->normalizeFavoriteIds($favorites);
+
+        if ($this->hasUserFavoritesColumn()) {
+            $user->kedvencek = $normalized;
+            $user->save();
+            return $this->normalizeFavoriteIds($user->kedvencek ?? []);
+        }
+
+        Cache::forever($this->favoritesCacheKey((int) $user->vKod), $normalized);
+        return $normalized;
+    }
+
+    private function normalizeFavoriteIds($raw): array
+    {
+        if (is_string($raw)) {
+            $decoded = json_decode($raw, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $raw = $decoded;
+            }
+        }
+
+        if (! is_array($raw)) {
+            return [];
+        }
+
+        return collect($raw)
+            ->map(function ($value) {
+                if (is_array($value)) {
+                    return (int) ($value['item_id'] ?? $value['id'] ?? 0);
+                }
+
+                if (is_object($value)) {
+                    return (int) ($value->item_id ?? $value->id ?? 0);
+                }
+
+                return (int) $value;
+            })
+            ->filter(fn ($id) => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
     public function favorites(Request $request): JsonResponse
     {
         $user = $request->user();
-        $favoriteIds = collect($user->kedvencek ?? [])->map(fn ($id) => (int) $id)->values();
+        if (! $user) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        $favoriteIds = collect($this->readFavoritesForUser($user));
 
         if ($favoriteIds->isEmpty()) {
             return response()->json([]);
@@ -34,7 +112,11 @@ class ShopController extends Controller
         ]);
 
         $user = $request->user();
-        $favorites = collect($user->kedvencek ?? [])->map(fn ($id) => (int) $id)->values();
+        if (! $user) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        $favorites = collect($this->readFavoritesForUser($user));
         $itemId = (int) $data['item_id'];
 
         if ($favorites->contains($itemId)) {
@@ -43,11 +125,13 @@ class ShopController extends Controller
             $favorites->push($itemId);
         }
 
-        $user->kedvencek = $favorites->values()->all();
-        $user->save();
+        $storedFavorites = $this->storeFavoritesForUser(
+            $user,
+            $favorites->unique()->values()->all()
+        );
 
         return response()->json([
-            'favorites' => $user->kedvencek,
+            'favorites' => $storedFavorites,
         ]);
     }
 

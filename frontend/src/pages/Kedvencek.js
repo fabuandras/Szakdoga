@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { myAxios } from "../api/axios";
 import { AuthContext } from "../contexts/AuthContext";
+import { fetchActiveItems } from "../api/items";
+import { readFavoriteIds, writeFavoriteIds } from "../utils/favoriteStorage";
 
 export default function Kedvencek() {
   const { user } = useContext(AuthContext);
@@ -12,8 +14,29 @@ export default function Kedvencek() {
 
     myAxios
       .get("/api/shop/favorites")
-      .then((response) => setItems(response.data || []))
-      .catch(() => setItems([]));
+      .then((response) => {
+        const serverItems = response.data || [];
+        const ids = serverItems.map((item) => Number(item.cikk_szam ?? item.id));
+        writeFavoriteIds(user, ids);
+        setItems(serverItems);
+      })
+      .catch(async () => {
+        const localIds = readFavoriteIds(user);
+        if (localIds.length === 0) {
+          setItems([]);
+          return;
+        }
+
+        try {
+          const allItems = await fetchActiveItems();
+          const filtered = (allItems || []).filter((row) =>
+            localIds.includes(Number(row.cikk_szam ?? row.id))
+          );
+          setItems(filtered);
+        } catch (_error) {
+          setItems([]);
+        }
+      });
   }, [user]);
 
   if (!user) {
@@ -34,7 +57,7 @@ export default function Kedvencek() {
       ) : (
         <ul>
           {items.map((item) => (
-            <li key={item.cikk_szam}>{item.elnevezes}</li>
+            <li key={item.cikk_szam || item.id}>{item.elnevezes || item.name}</li>
           ))}
         </ul>
       )}

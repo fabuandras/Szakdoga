@@ -30,7 +30,7 @@ export default function Kosar() {
   useEffect(() => {
     if (!user) return;
     fetchCart();
-  }, [user, fetchCart]);
+  }, [user]);
 
   const changeQty = async (itemId, qty) => {
     if (qty < 1) return;

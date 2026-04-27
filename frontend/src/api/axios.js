@@ -17,4 +17,12 @@ if (tokenMeta) {
   api.defaults.headers["X-CSRF-TOKEN"] = tokenMeta.content;
 }
 
+const storedToken =
+  typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
+if (storedToken) {
+  api.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
+}
+
 export default api;
+export const myAxios = api;
+export const publicAxios = api;

@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="site-footer-inner container">
         <section className="site-footer-block site-footer-brand">
           <h3>Loop & Stitch</h3>
-          <p>Modern webaruhaz es raktarkezeles egy letisztult feluleten.</p>
+          <p>Modern webáruház és raktárkezelés egy letisztult felületen.</p>
           <div className="site-footer-socials" aria-label="Kozossegi linkek">
             <a href="#" aria-label="Facebook"><i className="bi bi-facebook"></i></a>
             <a href="#" aria-label="Instagram"><i className="bi bi-instagram"></i></a>
@@ -18,32 +18,32 @@ export default function Footer() {
         </section>
 
         <nav className="site-footer-block site-footer-links" aria-label="Gyorslinkek">
-          <h4>Navigacio</h4>
-          <NavLink to="/">Fooldal</NavLink>
-          <NavLink to="/termekek">Termekek</NavLink>
-          <NavLink to="/rolunk">Rolunk</NavLink>
+          <h4>Navigáció</h4>
+          <NavLink to="/">Főoldal</NavLink>
+          <NavLink to="/termekek">Termékek</NavLink>
+          <NavLink to="/rolunk">Rólunk</NavLink>
           <NavLink to="/kapcsolat">Kapcsolat</NavLink>
         </nav>
 
         <section className="site-footer-block site-footer-meta">
-          <h4>Informacio</h4>
-          <p>Rendeles feldolgozas: 1-2 munkanap</p>
-          <p>Szallitas: orszagosan</p>
-          <p>Tamogatas: hetfo-pentek 8:00-16:00</p>
+          <h4>Információ</h4>
+          <p>Rendelés feldolgozás: 1-2 munkanap</p>
+          <p>Szállítás: országosan</p>
+          <p>Támogatás: hétfő-péntek 8:00-16:00</p>
         </section>
 
         <section className="site-footer-block site-footer-contact">
-          <h4>Elerhetoseg</h4>
+          <h4>Elérhetőség</h4>
           <a href="mailto:kapcsolat@loopstitch.hu">kapcsolat@loopstitch.hu</a>
-          <a href="tel:+36200000000">+36 20 000 0000</a>
-          <p>Budapest, Magyarorszag</p>
+          <a href="tel:+36200000000">+36 20 123 4567</a>
+          <p>Budapest, Magyarország</p>
         </section>
       </div>
 
       <div className="site-footer-bottom">
         <div className="site-footer-bottom-inner container">
           <span>© {currentYear} Loop & Stitch. Minden jog fenntartva.</span>
-          <span>Keszitette: Loop & Stitch Team</span>
+          <span>Készítette: Loop & Stitch Team</span>
         </div>
       </div>
     </footer>
