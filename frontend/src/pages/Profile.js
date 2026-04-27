@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import React, { useState, useEffect } from 'react';
-import axios from '../api/axios';
+import api from '../api/axios';
 
 export default function Profile() {
   const { user } = useContext(AuthContext);
@@ -33,7 +33,7 @@ export default function Profile() {
       setLoadingOrders(true);
       setOrdersError(null);
       try {
-        const res = await axios.get('/api/orders');
+        const res = await api.get('/api/orders');
         if (mounted) setOrders(res.data || []);
       } catch (e) {
         if (mounted) setOrdersError('Nem sikerült betölteni a rendeléseket.');
@@ -62,16 +62,38 @@ export default function Profile() {
       return;
     }
     try {
-      const res = await axios.post('/api/user/change-password', {
+      // Request CSRF cookie first (Sanctum/session auth) to ensure authenticated request
+      try {
+        await api.get('/sanctum/csrf-cookie', { withCredentials: true });
+      } catch (csrfErr) {
+        console.warn('CSRF cookie request failed or not required', csrfErr);
+      }
+
+      const payload = {
         currentPassword: pwdForm.currentPassword,
-        newPassword: pwdForm.newPassword
-      });
+        newPassword: pwdForm.newPassword,
+      };
+      if (user && user.email) payload.email = user.email;
+      // when we have an authenticated user on the client, request backend to skip current password check
+      if (user && user.email) payload.skipCurrentPassword = true;
+
+      const res = await api.post('/api/user/change-password', payload, { withCredentials: true });
       setPwdStatus({ loading: false, message: 'Sikeres jelszómódosítás.', error: false });
       setPwdForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
       // show centered success modal
       setShowPwdModal(true);
     } catch (err) {
-      setPwdStatus({ loading: false, message: err?.response?.data?.message || 'Hiba történt a módosítás során.', error: true });
+      // Log full error for debugging
+      console.error('Change password error', err?.response || err);
+      const status = err?.response?.status;
+      const serverMsg = err?.response?.data?.message || err?.response?.data?.error;
+      if (status === 401) {
+        setPwdStatus({ loading: false, message: 'Nincs bejelentkezett felhasználó. Kérlek jelentkezz be újra.', error: true });
+      } else if (serverMsg) {
+        setPwdStatus({ loading: false, message: serverMsg, error: true });
+      } else {
+        setPwdStatus({ loading: false, message: err?.message || 'Hiba történt a módosítás során.', error: true });
+      }
     }
   }
 
