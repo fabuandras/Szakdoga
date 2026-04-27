@@ -176,6 +176,114 @@
   color: var(--text);
 }
 
+/* Fix: make product card text visible */
+/* Soften or remove any dark image overlay and ensure text sits above images */
+.card .card-img-overlay,
+.product-card .card-img-overlay,
+.termek-card .card-img-overlay {
+  background: transparent !important;
+}
+
+/* Ensure card body text is visible and above overlays */
+.card .card-body,
+.product-card .card-body,
+.termek-card .card-body {
+  position: relative;
+  z-index: 2;
+  background: transparent !important;
+  color: #222 !important; /* dark text on light backgrounds */
+}
+
+/* Title and price styling to be clearly readable */
+.card .card-title,
+.product-card .card-title,
+.termek-card .card-title,
+.card .price,
+.product-card .price {
+  color: #222 !important;
+  text-shadow: none !important;
+  font-weight: 700;
+}
+
+/* If images are dimmed via filter, remove heavy filters */
+.card .card-img-top,
+.product-card .card-img-top,
+.termek-card .card-img-top {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+/* If there are any semi-transparent dark overlays using .overlay class, reduce opacity */
+.card .overlay,
+.product-card .overlay,
+.termek-card .overlay {
+  background: rgba(0,0,0,0.12) !important;
+}
+
+/* Strong overrides to remove dark overlays and make text readable */
+/* remove any pseudo-element overlays on card containers */
+
+.card::after,
+.card::before,
+.product-card::after,
+.product-card::before,
+.termek-card::after,
+.termek-card::before,
+.card .card-img-overlay::before,
+.card .card-img-overlay::after,
+.card .overlay,
+.product-card .overlay,
+.termek-card .overlay {
+  display: none !important;
+  content: none !important;
+  background: transparent !important;
+}
+
+/* Make sure image isn't dimmed by filter */
+.card img,
+.card .card-img-top,
+.product-card img,
+.termek-card img {
+  filter: none !important;
+  opacity: 1 !important;
+  mix-blend-mode: normal !important;
+}
+
+/* Ensure card body sits above any remaining layers and text is readable */
+.card .card-body,
+.product-card .card-body,
+.termek-card .card-body {
+  position: relative !important;
+  z-index: 5 !important;
+  background: transparent !important;
+  color: #ffffff !important; /* white text for contrast */
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6) !important;
+}
+
+/* Titles and prices */
+.card .card-title,
+.product-card .card-title,
+.termek-card .card-title,
+.card .price,
+.product-card .price,
+.termek-card .price {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
+  font-weight: 700 !important;
+}
+
+/* If some cards use a light variant class 'light-card', keep dark text */
+.light-card .card-body,
+.light-card .card-title,
+.light-card .price {
+  color: #222 !important;
+  text-shadow: none !important;
+}
+
+/* Ensure text wraps */
+.card .card-title,
+.card .card-text { white-space: normal !important; overflow: visible !important; }
+
 /* Responsive tweaks */
 @media (max-width: 900px) {
   .products-grid {
@@ -254,3 +362,51 @@
   color: #bfa07a;
   cursor: not-allowed;
 }
+
+/* Aggressive fixes to ensure product card text is visible */
+/* Remove background images/overlays on cards */
+.card, .product-card, .termek-card, .products-list .card {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove any pseudo overlays */
+.card::before, .card::after, .product-card::before, .product-card::after, .termek-card::before, .termek-card::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Ensure images are normal and not dimmed */
+.card img, .product-card img, .termek-card img {
+  filter: none !important;
+  opacity: 1 !important;
+  mix-blend-mode: normal !important;
+}
+
+/* Make card body transparent but keep it above images */
+.card .card-body, .product-card .card-body, .termek-card .card-body {
+  background: transparent !important;
+  position: relative !important;
+  z-index: 10 !important;
+  padding: 1rem !important;
+}
+
+/* Force readable text colors (high specificity + important) */
+.card .card-title, .product-card .card-title, .termek-card .card-title,
+.card .card-text, .product-card .card-text, .termek-card .card-text,
+.card .price, .product-card .price, .termek-card .price,
+.card .btn, .product-card .btn, .termek-card .btn,
+.card a, .product-card a, .termek-card a {
+  color: #ffffff !important; /* white text for contrast on dark images */
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
+}
+
+/* If some cards use a light variant, keep it dark text */
+.light-card .card-title, .light-card .card-text, .light-card .price { color: #222 !important; text-shadow: none !important; }
+
+/* Ensure buttons keep their background but text is visible */
+.card .btn, .product-card .btn { color: #fff !important; }
+
+/* Make sure titles wrap and are not clipped */
+.card .card-title, .card .card-text { white-space: normal !important; overflow: visible !important; }
