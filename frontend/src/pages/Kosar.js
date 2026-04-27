@@ -1,4 +1,3 @@
-
 import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { myAxios } from "../api/axios";
@@ -110,162 +109,166 @@ export default function Kosar() {
   }
 
   return (
-    <section className="page cart-page">
-      <h1>Kosár</h1>
+    <div className="kosar-page">
+      <div className="container">
+        <h1 style={{ color: '#222222', textShadow: 'none' }}>Kosár</h1>
 
-      {checkoutMessage && <div className="message-alert success-alert">{checkoutMessage}</div>}
-      {checkoutError && <div className="message-alert error-alert">{checkoutError}</div>}
+        {checkoutMessage && <div className="message-alert success-alert">{checkoutMessage}</div>}
+        {checkoutError && <div className="message-alert error-alert">{checkoutError}</div>}
 
-      {cart.items.length === 0 ? (
-        <p>A kosarad üres.</p>
-      ) : (
-        <div className="cart-grid">
-          <div className="cart-items">
-            {cart.items.map((item) => (
-              <div key={item.item_id} className="cart-item-card">
-                <div className="cart-item-header">
-                  <strong>{item.elnevezes}</strong>
-                  <span>{item.qty} db</span>
-                </div>
-                <div className="cart-item-price">
-                  {item.line_total.toLocaleString("hu-HU")} Ft
-                </div>
-                <div className="cart-item-actions">
-                  <button type="button" onClick={() => changeQty(item.item_id, item.qty - 1)}>-</button>
-                  <button type="button" onClick={() => changeQty(item.item_id, item.qty + 1)}>+</button>
-                  <button type="button" onClick={() => removeItem(item.item_id)}>Törlés</button>
-                </div>
-              </div>
-            ))}
+        {cart.items.length === 0 ? (
+          <div className="cart-empty">
+            <p style={{ color: '#555555', opacity: 1 }}>A kosarad üres.</p>
           </div>
+        ) : (
+          <div className="cart-grid">
+            <div className="cart-items">
+              {cart.items.map((item) => (
+                <div key={item.item_id} className="cart-item-card">
+                  <div className="cart-item-header">
+                    <strong>{item.elnevezes}</strong>
+                    <span>{item.qty} db</span>
+                  </div>
+                  <div className="cart-item-price">
+                    {item.line_total.toLocaleString("hu-HU")} Ft
+                  </div>
+                  <div className="cart-item-actions">
+                    <button type="button" onClick={() => changeQty(item.item_id, item.qty - 1)}>-</button>
+                    <button type="button" onClick={() => changeQty(item.item_id, item.qty + 1)}>+</button>
+                    <button type="button" onClick={() => removeItem(item.item_id)}>Törlés</button>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-          <div className="checkout-card">
-            <h2>Rendelés leadása</h2>
-            <p className="checkout-summary">
-              Végösszeg: <strong>{Number(cart.total || 0).toLocaleString("hu-HU")} Ft</strong>
-            </p>
+            <div className="checkout-card">
+              <h2>Rendelés leadása</h2>
+              <p className="checkout-summary">
+                Végösszeg: <strong>{Number(cart.total || 0).toLocaleString("hu-HU")} Ft</strong>
+              </p>
 
-            <div className="checkout-section">
-              <h3>Szállítási adatok</h3>
-              <div className="field-row">
-                <label>Ország</label>
-                <input
-                  value={shippingCountry}
-                  onChange={(e) => setShippingCountry(e.target.value)}
-                />
-              </div>
-              <div className="field-row">
-                <label>Város</label>
-                <input
-                  value={shippingCity}
-                  onChange={(e) => setShippingCity(e.target.value)}
-                />
-              </div>
-              <div className="field-row">
-                <label>Utca / helység</label>
-                <input
-                  value={shippingArea}
-                  onChange={(e) => setShippingArea(e.target.value)}
-                  placeholder="Utca és házszám például"
-                />
-              </div>
-              <div className="two-column-row">
+              <div className="checkout-section">
+                <h3>Szállítási adatok</h3>
                 <div className="field-row">
-                  <label>Irányítószám</label>
+                  <label>Ország</label>
                   <input
-                    value={shippingPostalCode}
-                    onChange={(e) => setShippingPostalCode(e.target.value)}
-                    maxLength={4}
+                    value={shippingCountry}
+                    onChange={(e) => setShippingCountry(e.target.value)}
                   />
                 </div>
                 <div className="field-row">
-                  <label>Házszám</label>
+                  <label>Város</label>
                   <input
-                    type="number"
-                    min="1"
-                    value={shippingHouseNumber}
-                    onChange={(e) => setShippingHouseNumber(e.target.value)}
+                    value={shippingCity}
+                    onChange={(e) => setShippingCity(e.target.value)}
+                  />
+                </div>
+                <div className="field-row">
+                  <label>Utca / helység</label>
+                  <input
+                    value={shippingArea}
+                    onChange={(e) => setShippingArea(e.target.value)}
+                    placeholder="Utca és házszám például"
+                  />
+                </div>
+                <div className="two-column-row">
+                  <div className="field-row">
+                    <label>Irányítószám</label>
+                    <input
+                      value={shippingPostalCode}
+                      onChange={(e) => setShippingPostalCode(e.target.value)}
+                      maxLength={4}
+                    />
+                  </div>
+                  <div className="field-row">
+                    <label>Házszám</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={shippingHouseNumber}
+                      onChange={(e) => setShippingHouseNumber(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="checkout-section">
+                <h3>Fizetés</h3>
+                <div className="field-row">
+                  <label>Fizetési mód</label>
+                  <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                    <option value="Készpénz">Készpénz</option>
+                    <option value="Bankkártya">Bankkártya</option>
+                    <option value="Átutalás">Átutalás</option>
+                  </select>
+                </div>
+                {paymentMethod === "Bankkártya" && (
+                  <div className="card-fields">
+                    <div className="field-row">
+                      <label>Kártyaszám</label>
+                      <input
+                        type="text"
+                        maxLength={19}
+                        placeholder="1234 5678 9012 3456"
+                        value={cardNumber}
+                        onChange={e => setCardNumber(e.target.value.replace(/[^0-9 ]/g, ""))}
+                      />
+                    </div>
+                    <div className="field-row">
+                      <label>Kártyabirtokos neve</label>
+                      <input
+                        type="text"
+                        placeholder="Név a kártyán"
+                        value={cardName}
+                        onChange={e => setCardName(e.target.value)}
+                      />
+                    </div>
+                    <div className="field-row" style={{ display: "flex", gap: 12 }}>
+                      <div style={{ flex: 1 }}>
+                        <label>Lejárat</label>
+                        <input
+                          type="text"
+                          maxLength={5}
+                          placeholder="MM/YY"
+                          value={cardExpiry}
+                          onChange={e => setCardExpiry(e.target.value.replace(/[^0-9/]/g, ""))}
+                        />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <label>CVC</label>
+                        <input
+                          type="text"
+                          maxLength={4}
+                          placeholder="CVC"
+                          value={cardCVC}
+                          onChange={e => setCardCVC(e.target.value.replace(/[^0-9]/g, ""))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div className="field-row">
+                  <label>Kupónkód (opcionális)</label>
+                  <input
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    placeholder="Kuponkód"
                   />
                 </div>
               </div>
-            </div>
 
-            <div className="checkout-section">
-              <h3>Fizetés</h3>
-              <div className="field-row">
-                <label>Fizetési mód</label>
-                <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-                  <option value="Készpénz">Készpénz</option>
-                  <option value="Bankkártya">Bankkártya</option>
-                  <option value="Átutalás">Átutalás</option>
-                </select>
-              </div>
-              {paymentMethod === "Bankkártya" && (
-                <div className="card-fields">
-                  <div className="field-row">
-                    <label>Kártyaszám</label>
-                    <input
-                      type="text"
-                      maxLength={19}
-                      placeholder="1234 5678 9012 3456"
-                      value={cardNumber}
-                      onChange={e => setCardNumber(e.target.value.replace(/[^0-9 ]/g, ""))}
-                    />
-                  </div>
-                  <div className="field-row">
-                    <label>Kártyabirtokos neve</label>
-                    <input
-                      type="text"
-                      placeholder="Név a kártyán"
-                      value={cardName}
-                      onChange={e => setCardName(e.target.value)}
-                    />
-                  </div>
-                  <div className="field-row" style={{ display: "flex", gap: 12 }}>
-                    <div style={{ flex: 1 }}>
-                      <label>Lejárat</label>
-                      <input
-                        type="text"
-                        maxLength={5}
-                        placeholder="MM/YY"
-                        value={cardExpiry}
-                        onChange={e => setCardExpiry(e.target.value.replace(/[^0-9/]/g, ""))}
-                      />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <label>CVC</label>
-                      <input
-                        type="text"
-                        maxLength={4}
-                        placeholder="CVC"
-                        value={cardCVC}
-                        onChange={e => setCardCVC(e.target.value.replace(/[^0-9]/g, ""))}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div className="field-row">
-                <label>Kupónkód (opcionális)</label>
-                <input
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                  placeholder="Kuponkód"
-                />
-              </div>
+              <button
+                type="button"
+                className="place-order-btn"
+                onClick={handleCheckout}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Rendelés leadása..." : "Rendelés leadása"}
+              </button>
             </div>
-
-            <button
-              type="button"
-              className="place-order-btn"
-              onClick={handleCheckout}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Rendelés leadása..." : "Rendelés leadása"}
-            </button>
           </div>
-        </div>
-      )}
-    </section>
+        )}
+      </div>
+    </div>
   );
 }

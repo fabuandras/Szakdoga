@@ -170,6 +170,180 @@
   color: #7d1a1a;
 }
 
+/* Ensure Kosár page title and messages are dark and readable */
+.kosar-page, .kosar-page * {
+  color: inherit;
+}
+.kosar-page h1, .kosar-page .page-title, .kosar-page .cart-title, .kosar-page .card-title {
+  color: #222222 !important;
+  -webkit-text-fill-color: #222222 !important;
+  text-shadow: none !important;
+}
+.kosar-page .cart-empty, .kosar-page .empty-message, .kosar-page .cart-empty p {
+  color: #555555 !important;
+  opacity: 1 !important;
+}
+
+/* Also ensure nav links that point to kosar are visible like Kedvencek */
+a[href="/kosar"], a[href$="/kosar"], a[href$="/kosár"] {
+  color: #222222 !important;
+  -webkit-text-fill-color: #222222 !important;
+  text-shadow: none !important;
+}
+
+/* Match Kedvencek page styling for Kosár */
+.kosar-page {
+  background: transparent !important;
+  color: #222222 !important;
+  text-align: center;
+  padding-top: 36px !important;
+  padding-bottom: 36px !important;
+}
+
+.kosar-page .container { max-width: 980px; margin: 0 auto; }
+
+.kosar-page h1, .kosar-page .page-title {
+  font-family: inherit !important;
+  font-size: 56px !important; /* match Kedvencek */
+  line-height: 1.04 !important;
+  font-weight: 900 !important;
+  color: #222222 !important;
+  margin: 0 0 12px 0 !important;
+  letter-spacing: -0.6px !important;
+  text-align: center !important;
+  text-shadow: none !important;
+}
+
+.kosar-page .card {
+  background: transparent !important;
+  color: #222222 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06) !important;
+}
+.kosar-page .card .card-body {
+  display: block !important;
+  max-width: 680px !important;
+  margin: 8px auto 0 auto !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+/* center and narrow the content similar to Kedvencek */
+.kosar-page .cart-empty p, .kosar-page .empty-message {
+  font-size: 16px !important;
+  color: #666666 !important;
+  margin: 0 auto 28px auto !important;
+  max-width: 680px !important;
+  text-align: center !important;
+}
+
+/* ensure no global fades affect this page */
+.kosar-page, .kosar-page * {
+  color: inherit !important;
+  -webkit-text-fill-color: unset !important;
+}
+
+/* reapply explicit visible colors */
+.kosar-page h1 { color: #222222 !important; -webkit-text-fill-color: #222222 !important; }
+.kosar-page .cart-empty p { color: #666666 !important; -webkit-text-fill-color: #666666 !important; }
+
+/* Fix: ensure cart item text is clearly visible on dark card backgrounds */
+.kosar-page .card, 
+.kosar-page .card .card-body, 
+.kosar-page .cart-item, 
+.kosar-page .cart-list .card,
+.kosar-page .cart-row .card,
+.kosar-page .cart-item-card {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+/* Title, price, quantity and buttons inside cart cards */
+.kosar-page .card .card-title,
+.kosar-page .card .price,
+.kosar-page .card .qty,
+.kosar-page .card .quantity,
+.kosar-page .cart-item .btn,
+.kosar-page .cart-item button,
+.kosar-page .cart-item a {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+/* Make quantity/step buttons visible */
+.kosar-page .qty-btn, .kosar-page .btn.qty-btn, .kosar-page .cart-item .step-btn {
+  background: rgba(255,255,255,0.08) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  box-shadow: none !important;
+}
+
+/* Remove/disable any overlay pseudo-elements that dim card content */
+.kosar-page .card::before,
+.kosar-page .card::after,
+.kosar-page .card .card-img-overlay,
+.kosar-page .card .overlay,
+.kosar-page .cart-item .overlay {
+  display: none !important;
+  content: none !important;
+  background: transparent !important;
+}
+
+/* Ensure links inside cart keep contrast */
+.kosar-page .card a, .kosar-page .card a * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* If some items use lighter cards, keep those legible too */
+.kosar-page .card.light, .kosar-page .cart-item.light {
+  color: #222 !important;
+  -webkit-text-fill-color: #222 !important;
+}
+
+/* Ensure select controls and their option menus are readable on Kosár page */
+.kosar-page select, .kosar-page .form-control, .kosar-page select.form-control {
+  background: #f7f3ef !important;
+  color: #222222 !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  -webkit-text-fill-color: #222222 !important;
+  box-shadow: none !important;
+}
+
+/* Options inside native select */
+.kosar-page select option {
+  background: #ffffff !important;
+  color: #222222 !important;
+}
+
+/* If a custom dropdown is used (e.g. .dropdown-menu), style it too */
+.kosar-page .dropdown-menu, .kosar-page .select-dropdown, .kosar-page .select2-dropdown {
+  background: #ffffff !important;
+  color: #222222 !important;
+  z-index: 9999 !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12) !important;
+}
+
+.kosar-page .dropdown-menu .dropdown-item,
+.kosar-page .select-dropdown .item,
+.kosar-page .select2-results__option {
+  color: #222222 !important;
+  background: transparent !important;
+}
+
+/* Ensure focused/active option remains legible */
+.kosar-page .dropdown-menu .dropdown-item.active,
+.kosar-page .select2-results__option--highlighted,
+.kosar-page select option:checked {
+  background: #c86b2a !important;
+  color: #ffffff !important;
+}
+
+/* Remove overlays that could dim the select area */
+.kosar-page select::backdrop, .kosar-page .form-control::backdrop { background: transparent !important; }
+
 @media (max-width: 880px) {
   .cart-grid {
     grid-template-columns: 1fr;

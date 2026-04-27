@@ -308,3 +308,36 @@ body .admin-nav .btn::before, body .admin-nav .btn::after {
   display: none !important;
   content: none !important;
 }
+
+/* ADMIN / TOP NAV VISIBILITY FIX */
+header, .top-navigation, .top-nav, .navigation, .navbar, .site-header {
+  background: #ffffff !important;
+  color: #222222 !important;
+  z-index: 999 !important;
+}
+
+/* force nav links and icons to be dark and visible */
+.navigation .nav-link, .top-navigation .nav-link, nav .nav-link, .navbar .nav-link, .nav-item a, .navigation a {
+  color: #222222 !important;
+  -webkit-text-fill-color: #222222 !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+}
+
+/* hover/active state */
+.navigation .nav-link:hover, .nav-item a:hover, .navigation a:hover {
+  color: #c86b2a !important;
+}
+
+/* ensure icon colors match link color */
+.navigation .nav-link i, .navigation .nav-link svg, .navbar .nav-link svg, .nav-item a i {
+  color: inherit !important;
+  fill: currentColor !important;
+}
+
+/* ensure right-aligned small action buttons remain visible */
+.top-actions .btn, .nav-actions .btn {
+  background: #ffffff !important;
+  color: #222222 !important;
+  border: 1px solid rgba(34,34,34,0.06) !important;
+}

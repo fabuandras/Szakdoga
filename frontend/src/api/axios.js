@@ -1,13 +1,15 @@
 import axios from "axios";
 
-// Alapértelmezett axios példány a backend hívásokhoz
+const baseURL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8000",
-  withCredentials: true,
+  baseURL,
   headers: {
-    Accept: "application/json",
     "Content-Type": "application/json",
+    Accept: "application/json",
   },
+  // ensure cookies (sanctum) are sent to backend for authenticated routes
+  withCredentials: true,
 });
 
 // axios v1 cross-origin requests need this to always attach X-XSRF-TOKEN header

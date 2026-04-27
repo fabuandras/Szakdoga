@@ -106,3 +106,30 @@
     white-space: normal;
   }
 }
+
+/* Ensure admin panel/table action buttons are clearly visible */
+.admin-panel .btn, .admin-home .btn, .users-table .btn, .user-list .btn, .card .btn, table .btn {
+  background: linear-gradient(180deg,#f0a34d 0%,#c86b2a 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 6px 10px !important;
+  border-radius: 6px !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+}
+
+/* Make outline/secondary buttons in admin panels readable */
+.admin-panel .btn.btn-outline, .admin-home .btn.btn-outline, table .btn.btn-outline {
+  background: #f7f3ef !important;
+  color: #5a2b0f !important;
+  border: 1px solid rgba(90,43,15,0.12) !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+/* Small buttons adjustments */
+.admin-panel .btn-sm, table .btn-sm { padding: 4px 8px !important; font-size: 13px !important; }
+
+/* Ensure link/button text inside table cells inherits color */
+table td a, table td button { color: inherit !important; -webkit-text-fill-color: inherit !important; }

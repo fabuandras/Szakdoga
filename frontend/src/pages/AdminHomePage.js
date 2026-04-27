@@ -363,8 +363,6 @@ export default function AdminHomePage() {
                         </div>
 
                     </div>
-
-                    <footer className="mt-4 border-top pt-3 text-muted">&lt;footer&gt; Itt lesz a footer! </footer>
                 </main>
             </div>
             
