@@ -16,19 +16,21 @@ export default function AdminNav() {
     navigate('/login');
   };
 
+  const textStyle = { color: '#fff', WebkitTextFillColor: '#fff' };
+
   return (
     <>
       <nav className="navbar navbar-expand-sm bg-light">
         <div className="container-fluid">
           <ul className="navbar-nav">
             <li className="nav-item">
-              <Link className="nav-link" to="/admin/messages">📩 Üzenetek</Link>
+              <Link className="nav-link" to="/admin/messages" style={textStyle}>📩 Üzenetek</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/admin/notifications">🔔 Értesítések</Link>
+              <Link className="nav-link" to="/admin/notifications" style={textStyle}>🔔 Értesítések</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/admin">👤 Admin</Link>
+              <Link className="nav-link" to="/admin" style={textStyle}>👤 Admin</Link>
             </li>
           </ul>
 

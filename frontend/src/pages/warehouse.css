@@ -184,3 +184,124 @@
     min-width: 100%;
   }
 }
+
+.warehouse-menu .btn, .warehouse-menu .nav-item, .warehouse-menu .nav-link, .warehouse-menu * {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.warehouse-menu .btn::before, .warehouse-menu .btn::after { display: none !important; content: none !important; }
+
+/* make sure button inner text isn't hidden by overlay */
+.warehouse-menu .btn span { color: inherit !important; }
+
+/* Ensure action buttons (e.g. 'Törlés') are readable even when not hovered */
+.warehouse-table .btn, .warehouse-table button, .warehouse-page .btn, .warehouse-page button {
+  color: #5a2b0f !important; /* darker brown text */
+  background-color: #f3e8df !important; /* light background to contrast */
+  border-color: rgba(90,43,15,0.25) !important;
+  opacity: 1 !important;
+  filter: none !important;
+  -webkit-text-fill-color: #5a2b0f !important;
+}
+
+/* Keep hover/active styling intact but ensure text remains white on dark hover */
+.warehouse-table .btn:hover, .warehouse-page .btn:hover {
+  color: #fff !important;
+  background-color: #c86b2a !important;
+  border-color: #c86b2a !important;
+}
+
+/* If buttons are shown in a cell with light background, remove overlay that might dim text */
+.warehouse-table td, .warehouse-table tr {
+  background: transparent !important;
+}
+
+/* Disabled or secondary buttons should still be readable */
+.warehouse-table .btn[disabled], .warehouse-table .btn.disabled, .warehouse-table .btn.btn-outline {
+  color: #8b5d45 !important;
+  background-color: #fff5ee !important;
+  opacity: 1 !important;
+}
+
+/* Inventory / Leltár contrast fixes */
+.warehouse-page .card,
+.warehouse-page .card-body,
+.warehouse-page .card-header,
+.warehouse-page .table-responsive {
+  background: #ffffff !important;
+  color: #222222 !important;
+}
+
+/* Page title */
+.warehouse-page h1, .warehouse-page .page-title {
+  color: #2b2b2b !important;
+}
+
+/* Table header: light beige background, dark text */
+.warehouse-page table thead th {
+  background: #f7f3ef !important;
+  color: #222222 !important;
+  border-bottom: 1px solid rgba(34,34,34,0.07) !important;
+  font-weight: 700 !important;
+  padding: 10px 12px !important;
+}
+
+/* Table body cells: clear dark text and subtle separators */
+.warehouse-page table tbody td {
+  background: transparent !important;
+  color: #222222 !important;
+  border-top: 1px solid rgba(34,34,34,0.04) !important;
+  padding: 10px 12px !important;
+}
+
+/* Empty-state rows */
+.warehouse-page table tbody tr.empty-row td {
+  color: rgba(34,34,34,0.6) !important;
+  background: #fff6f0 !important;
+}
+
+/* Ensure action column has visible buttons */
+.warehouse-page .btn, .warehouse-page button {
+  color: #5a2b0f !important;
+  background-color: #f7f1ec !important;
+  border-color: rgba(90,43,15,0.12) !important;
+}
+
+/* Hover state for action buttons */
+.warehouse-page .btn:hover, .warehouse-page button:hover {
+  color: #fff !important;
+  background-color: #c86b2a !important;
+  border-color: #c86b2a !important;
+}
+
+/* Ensure section titles and captions are visible */
+.warehouse-page .section-title,
+.warehouse-page .table-caption,
+.warehouse-page .card-header .section-title,
+.warehouse-page .card .card-title,
+.warehouse-page h2,
+.warehouse-page h3 {
+  color: #3b3b3b !important;
+  text-shadow: none !important;
+  -webkit-text-fill-color: #3b3b3b !important;
+}
+
+/* Remove pseudo-element decorations that might overlay titles */
+.warehouse-page .section-title::before,
+.warehouse-page .section-title::after,
+.warehouse-page .table-caption::before,
+.warehouse-page .table-caption::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Also make sure small caption badges are visible */
+.warehouse-page .badge, .warehouse-page .label {
+  color: #3b3b3b !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}

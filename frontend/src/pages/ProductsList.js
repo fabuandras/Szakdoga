@@ -149,6 +149,54 @@ export default function ProductsList() {
     }
   };
 
+  // attach a persistent magnifier icon to the left of the product search input
+  useEffect(() => {
+    try {
+      const input = document.querySelector('input[placeholder*="Példa"]');
+      if (!input) return;
+
+      // avoid double-wrapping
+      if (input.closest('.search-input-wrapper')) return;
+
+      // create wrapper and insert before the input
+      const wrapper = document.createElement('div');
+      wrapper.className = 'search-input-wrapper';
+      // keep it block-level and full width so the input keeps its original size
+      wrapper.style.display = 'block';
+      wrapper.style.width = '100%';
+      wrapper.style.position = 'relative';
+
+      input.parentNode.insertBefore(wrapper, input);
+      wrapper.appendChild(input);
+
+      // ensure the input keeps full width inside the wrapper
+      try { input.style.width = '100%'; input.style.boxSizing = 'border-box'; } catch (e) {}
+      
+      // create left-positioned icon
+      const icon = document.createElement('span');
+      icon.className = 'search-icon search-icon-left';
+      icon.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM4 9.5A5.5 5.5 0 119.5 15 5.5 5.5 0 014 9.5z"/></svg>`;
+      icon.setAttribute('aria-hidden', 'true');
+      wrapper.appendChild(icon);
+
+      // ensure icon persists if input is replaced by reactive code
+      const obs = new MutationObserver(() => {
+        if (!wrapper.contains(icon)) wrapper.appendChild(icon);
+        // if input gets re-rendered elsewhere, move it back into wrapper
+        const newInput = document.querySelector('input[placeholder*="Példa"]');
+        if (newInput && newInput !== input && !newInput.closest('.search-input-wrapper')) {
+          wrapper.appendChild(newInput);
+        }
+      });
+      obs.observe(document.body, { childList: true, subtree: true });
+
+      // cleanup on unmount
+      return () => obs.disconnect();
+    } catch (e) {
+      console.error('search icon attach failed', e);
+    }
+  }, []);
+
   return (
     <div>
       <div className="d-flex justify-content-between align-items-center mb-3">

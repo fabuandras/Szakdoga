@@ -14,6 +14,8 @@ export default function Warehouse({ theme, toggleTheme }) {
     { to: 'notifications', label: 'Értesítések' },
   ];
 
+  const menuTextStyle = { color: '#fff', WebkitTextFillColor: '#fff' };
+
   return (
     <div className="page container warehouse-page">
       <Navigation theme={theme} toggleTheme={toggleTheme} />
@@ -23,6 +25,7 @@ export default function Warehouse({ theme, toggleTheme }) {
             key={item.to}
             to={item.to}
             className={({ isActive }) => `warehouse-nav-link${isActive ? ' active' : ''}`}
+            style={menuTextStyle}
           >
             {item.label}
           </NavLink>

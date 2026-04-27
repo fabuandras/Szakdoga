@@ -9,3 +9,53 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Improve visibility for contact cards and form fields */
+.card, .card .card-body, .contact-card, .kapcsolat-card {
+  background: #ffffff !important;
+  color: #222222 !important;
+}
+
+/* Form controls: light background, dark text */
+input[type="text"], input[type="email"], input[type="tel"], textarea, .form-control {
+  background: #f7f3ef !important;
+  color: #222 !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  border-radius: 8px !important;
+}
+
+/* Placeholder color for readability */
+input::placeholder, textarea::placeholder, .form-control::placeholder {
+  color: rgba(34,34,34,0.6) !important;
+}
+
+/* Specific tweaks for contact info boxes on the left column */
+.contact-info .info-box, .contact-info .box, .contact-left .box {
+  background: transparent !important;
+  color: #222 !important;
+}
+
+/* Ensure card titles and prices readable */
+.card .card-title, .card h1, .card h2, .card h3, .price {
+  color: #222 !important;
+  text-shadow: none !important;
+}
+
+/* Buttons keep their styles but ensure text contrast */
+.btn { color: #fff !important; }
+
+/* Left-positioned persistent search icon */
+.search-input-wrapper { position: relative; display: block; width: 100%; }
+.search-input-wrapper .search-icon-left { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #7a4b2b; pointer-events: none; }
+.search-input-wrapper input { padding-left: 36px !important; width: 100% !important; box-sizing: border-box !important; }
+.search-input-wrapper .search-icon-left svg { color: inherit; fill: currentColor; }
+
+/* Ensure the search icon is visible on dark backgrounds */
+.search-input-wrapper .search-icon-left {
+  color: #f7f3ef !important; /* light cream */
+}
+.search-input-wrapper .search-icon-left svg,
+.search-input-wrapper .search-icon-left svg path {
+  fill: #f7f3ef !important;
+  color: #f7f3ef !important;
+}

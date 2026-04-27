@@ -239,3 +239,72 @@
     display: none;
   }
 }
+
+/* Fix: ensure navigation/menu button text is visible on dark brown backgrounds */
+.nav-link, .nav-button, .btn, .navigation .btn, .navigation .nav-link {
+  color: #ffffff !important;
+  text-shadow: none !important;
+  font-weight: 600 !important;
+}
+
+/* If buttons use nested spans or icons, force them too */
+.nav-link span, .btn span, .nav-button span { color: inherit !important; }
+
+/* Strong overrides to ensure nav/menu text is visible */
+.navigation .nav-link, .navigation .nav-button, .nav-link, .nav-button, .navigation .btn, .btn {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  font-weight: 700 !important;
+}
+
+/* Force all child elements (spans/icons) to inherit visible color */
+.navigation .nav-link *, .navigation .nav-button *, .nav-link *, .nav-button *, .btn * {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+/* If a semi-transparent overlay exists, make sure it doesn't mask the text */
+.navigation .btn::before, .navigation .btn::after, .nav-link::before, .nav-link::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Specific for warehouse menu area */
+.warehouse-menu .btn, .warehouse-menu .nav-item, .warehouse-menu .nav-link {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  text-shadow: none !important;
+}
+
+/* EMERGENCY OVERRIDE: ensure warehouse/admin menu button text is visible */
+/* Targets multiple levels and forces visible white text and normal blending */
+body .warehouse-menu .btn, body .warehouse-menu .nav-link, body .warehouse-menu .nav-item,
+body .warehouse-menu .btn *, body .warehouse-menu .nav-link *, body .warehouse-menu .nav-item * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  background: transparent !important;
+}
+
+/* Also cover common admin nav classes */
+body .admin-nav .btn, body .admin-nav .nav-link, body .admin-nav * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+/* Remove potential overlay pseudo-elements on buttons in these menus */
+body .warehouse-menu .btn::before, body .warehouse-menu .btn::after,
+body .admin-nav .btn::before, body .admin-nav .btn::after {
+  display: none !important;
+  content: none !important;
+}

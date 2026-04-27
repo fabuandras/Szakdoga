@@ -1,6 +1,27 @@
 import React, { useState } from "react";
 
 export default function Kapcsolat() {
+  const inputStyle = {
+    background: "#f7f3ef",
+    color: "#222",
+    border: "1px solid rgba(0,0,0,0.08)",
+    borderRadius: "8px",
+  };
+  const labelStyle = { color: "#222", fontWeight: 600 };
+  const leftColStyle = { minWidth: 260, maxWidth: 380 };
+  const infoBoxStyle = {
+    background: "#f7f3ef",
+    color: "#222",
+    padding: "12px",
+    borderRadius: 8,
+    marginBottom: 12,
+    fontSize: 16,
+    lineHeight: 1.35,
+    wordBreak: "normal",
+    overflowWrap: "normal",
+    whiteSpace: "normal",
+  };
+
   const [formData, setFormData] = useState({
     nev: "",
     email: "",
@@ -65,89 +86,117 @@ export default function Kapcsolat() {
       <p>Írj nekünk üzenetet, és hamarosan válaszolunk.</p>
 
       <div className="contact-layout">
-        <aside className="contact-details">
-          <h2>Elérhetőségeink</h2>
-          <p className="contact-details-intro">
-            Hétfőtől péntekig 8:00-16:00 között vagyunk elérhetők.
-          </p>
-          <div className="contact-details-grid">
-            <div className="contact-details-item">
-              <strong>Telefonszám</strong>
-              <a href="tel:+36301234567">+36 30 123 4567</a>
-            </div>
-            <div className="contact-details-item">
-              <strong>Email</strong>
-              <a href="mailto:kapcsolat@loopandstitch.hu">kapcsolat@loopandstitch.hu</a>
-            </div>
-            <div className="contact-details-item">
-              <strong>Helyszín</strong>
-              <span>4024 Debrecen, Piac utca 18.</span>
+        <div className="col-md-4" style={leftColStyle}>
+          <div className="card">
+            <div className="card-body">
+              <h3
+                style={{
+                  color: "#222",
+                  whiteSpace: "normal",
+                  fontSize: 28,
+                  lineHeight: 1.1,
+                }}
+              >
+                Elérhetőségeink
+              </h3>
+              <p style={{ color: "#444", marginBottom: 16 }}>
+                Hétfőtől péntekig 8:00-16:00 között vagyunk elérhetők.
+              </p>
+
+              <div style={infoBoxStyle}>
+                <div style={{ fontWeight: 700, marginBottom: 6 }}>Telefonszám</div>
+                <div>+36 30 123 4567</div>
+              </div>
+
+              <div style={infoBoxStyle}>
+                <div style={{ fontWeight: 700, marginBottom: 6 }}>Email</div>
+                <div style={{ wordBreak: "normal", overflowWrap: "anywhere" }}>
+                  kapcsolat@loopandstitch.hu
+                </div>
+              </div>
+
+              <div style={infoBoxStyle}>
+                <div style={{ fontWeight: 700, marginBottom: 6 }}>Helyszín</div>
+                <div>4024 Debrecen, Piac utca 18.</div>
+              </div>
             </div>
           </div>
-        </aside>
+        </div>
 
         <div className="contact-card">
           <form className="contact-form" onSubmit={handleSubmit} noValidate>
-          <div className="contact-field">
-            <label htmlFor="nev">Név</label>
-            <input
-              id="nev"
-              name="nev"
-              type="text"
-              className="form-control"
-              placeholder="Teljes név"
-              value={formData.nev}
-              onChange={handleChange}
-            />
-            {errors.nev && <small className="contact-error">{errors.nev}</small>}
-          </div>
+            <div className="contact-field">
+              <label htmlFor="nev">Név</label>
+              <input
+                id="nev"
+                name="nev"
+                type="text"
+                className="form-control"
+                placeholder="Teljes név"
+                value={formData.nev}
+                onChange={handleChange}
+              />
+              {errors.nev && (
+                <small className="contact-error">{errors.nev}</small>
+              )}
+            </div>
 
-          <div className="contact-field">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              className="form-control"
-              placeholder="pelda@email.hu"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            {errors.email && <small className="contact-error">{errors.email}</small>}
-          </div>
+            <div className="contact-field">
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                className="form-control"
+                placeholder="pelda@email.hu"
+                value={formData.email}
+                onChange={handleChange}
+              />
+              {errors.email && (
+                <small className="contact-error">{errors.email}</small>
+              )}
+            </div>
 
-          <div className="contact-field">
-            <label htmlFor="targy">Tárgy</label>
-            <input
-              id="targy"
-              name="targy"
-              type="text"
-              className="form-control"
-              placeholder="Miben segíthetünk?"
-              value={formData.targy}
-              onChange={handleChange}
-            />
-            {errors.targy && <small className="contact-error">{errors.targy}</small>}
-          </div>
+            <div className="contact-field">
+              <label htmlFor="targy">Tárgy</label>
+              <input
+                id="targy"
+                name="targy"
+                type="text"
+                className="form-control"
+                placeholder="Miben segíthetünk?"
+                value={formData.targy}
+                onChange={handleChange}
+              />
+              {errors.targy && (
+                <small className="contact-error">{errors.targy}</small>
+              )}
+            </div>
 
-          <div className="contact-field">
-            <label htmlFor="uzenet">Üzenet</label>
-            <textarea
-              id="uzenet"
-              name="uzenet"
-              className="form-control contact-textarea"
-              placeholder="Írd le röviden az üzenetedet..."
-              value={formData.uzenet}
-              onChange={handleChange}
-            />
-            {errors.uzenet && <small className="contact-error">{errors.uzenet}</small>}
-          </div>
+            <div className="contact-field">
+              <label htmlFor="uzenet">Üzenet</label>
+              <textarea
+                id="uzenet"
+                name="uzenet"
+                className="form-control contact-textarea"
+                placeholder="Írd le röviden az üzenetedet..."
+                value={formData.uzenet}
+                onChange={handleChange}
+              />
+              {errors.uzenet && (
+                <small className="contact-error">{errors.uzenet}</small>
+              )}
+            </div>
 
-            <button type="submit" className="primary contact-submit">Üzenet küldése</button>
+            <button type="submit" className="primary contact-submit">
+              Üzenet küldése
+            </button>
           </form>
 
           {isSent && (
-            <p className="contact-success">Köszönjük! Az üzeneted sikeresen elküldve.</p>
+            <p className="contact-success">
+              Köszönjük! Az üzeneted sikeresen elküldve.
+            </p>
           )}
         </div>
       </div>
